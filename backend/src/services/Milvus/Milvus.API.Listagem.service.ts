@@ -1,0 +1,38 @@
+import axios from 'axios';
+import dotenvConfig from '../../config/Milvus/dotenv.milvus.config';
+
+const MILVUS_API_URL = dotenvConfig.URL_LISTAGEM_MILVUS;
+const TOKEN = dotenvConfig.API_MILVUS_LISTAGEM;
+
+export async function buscarUltimosChamados(qtd: number = 200) {
+  try {
+    const response = await axios.post(
+      MILVUS_API_URL,
+      {
+        filtro_body: {
+          'codigo':"",
+          'mesa_trabalho':"Mesa Infra",
+          'status':"",
+          'prioridade':"",
+          'tecnico':""
+        },
+        total_registros: 50,
+        order_by: 'data_criacao',
+        is_descending: true,
+        pagina: 1
+      },
+      {
+        headers: {
+          Authorization: TOKEN,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+      return response.data.lista;
+
+  }catch (error: any) {
+    console.error('❌ Erro ao buscar chamados:', error.response?.data || error.message);
+    return[];
+  }
+}

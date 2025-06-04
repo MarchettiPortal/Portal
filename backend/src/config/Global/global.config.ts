@@ -1,0 +1,16 @@
+import "dotenv/config";
+
+const BASE_URL_BACKEND = 'http://localhost:3005';
+const BASE_URL_FRONTEND = 'http://localhost:3000';
+
+export const config = {
+  BASE_URL_BACKEND,
+  BASE_URL_FRONTEND,
+  URL_API_MILVUS: `${BASE_URL_BACKEND}/api/milvus`,
+  HOMEPAGE_URL_FRONTEND_USER: `${BASE_URL_FRONTEND}/user/home`,
+  HOMEPAGE_URL_FRONTEND_ADMIN: `${BASE_URL_FRONTEND}/admin/home`,
+  LOGIN_URL_FRONTEND: `${BASE_URL_FRONTEND}/login`,
+  HOMEPAGE_URL_FRONTEND_HOME: `${BASE_URL_FRONTEND}/home`,
+  PORT_HTTPS:3006,
+  PORT_HTTP:3005
+};
