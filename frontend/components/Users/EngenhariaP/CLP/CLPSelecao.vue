@@ -74,7 +74,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { config } from '~/config/global.config'
-import { useAuthStore } from '@/stores/auth' // Store para buscar info do usser (nome)
+import { useAuthStore } from '~/stores/User/auth' // Store para buscar info do usser (nome)
 import { useClpStore } from '~/stores/CLP/useClpStore' // Store para buscar nome do CLP
 import { storeToRefs } from 'pinia'
 import { useClpFtpStatus } from '~/composables/useClpFtpStatus'

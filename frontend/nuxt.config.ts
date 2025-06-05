@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ['@/assets/css/main.css'],
   modules: ['@nuxt/icon', '@pinia/nuxt', '@nuxt/ui',],
-  
+
+
   components: true,
 
   vite: {

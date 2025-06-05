@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useChamadosStore } from '~/stores/chamados'
+import { useChamadosStore } from '~/stores/Milvus/chamados'
 import { storeToRefs } from 'pinia'
 import ChamadoTabela from './ChamadoTabela.vue'
 // Tipos

@@ -1,8 +1,8 @@
 // src/routes/auth.routes.ts
 import { Router, Request, Response } from 'express';
-import { cca } from '../config/Auth/msalUser.config';
-import { config } from '../config/Global/global.config'
-import dotenvConfig from '../config/Auth/dotenv.auth.config';
+import { cca } from '../../config/Auth/msalUser.config';
+import { config } from '../../config/Global/global.config'
+import dotenvConfig from '../../config/Auth/dotenv.auth.config';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import NodeCache from 'node-cache';
@@ -55,54 +55,62 @@ router.get('/redirect', async (req: Request, res: Response) => {
       res.status(401).send('Login inválido');
       return;
     }
+    const userOid = claims.oid as string;
 
     // ************** BUSCAR DADOS DO GRUPO **************
-    const graphResponse = await axios.get('https://graph.microsoft.com/v1.0/me/memberOf', { // BUSCA GRUPOS
-      headers: { Authorization: `Bearer ${response.accessToken}` },
-    });
-
-    const groups = graphResponse.data.value
-      .filter((g: any) => g['@odata.type'] === '#microsoft.graph.group')
-      .map((g: any) => g.displayName);
-
-
-      // ************** BUSCA DADOS DO USUARIO **************
-      const userProfileResponse = await axios.get('https://graph.microsoft.com/v1.0/me', { // BUSCA DADOS
-        headers: { Authorization: `Bearer ${response.accessToken}` },
-      });
-      const officeLocation = userProfileResponse.data.officeLocation || 'SEM_DEPARTAMENTO'; // BUSCA SETOR
-      
-
-      // ************** IMAGEM PERFIL **************
-      try {
-        const photoResponse = await axios.get('https://graph.microsoft.com/v1.0/me/photo/$value', {
-          headers: { Authorization: `Bearer ${response.accessToken}` },
-          responseType: 'arraybuffer',
-        });
-  
-        const photoBuffer = Buffer.from(photoResponse.data, 'binary');
-        const photoBase64 = photoBuffer.toString('base64');
-  
-        imageCache.set(claims.oid, photoBase64);
-        //console.log('foto salva no cache')
-      } catch (photoError) {
-        if (axios.isAxiosError(photoError)) {
-          console.warn('Erro ao buscar imagem de perfil:', photoError.response?.status || photoError.message);
-        } else {
-          console.warn('Erro inesperado ao buscar imagem de perfil:', (photoError as Error).message);
-        }
+    const groupsRes = await axios.get<{ value: Array<{ id: string; displayName: string }> }>(
+      `https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName,resourceProvisioningOptions`,
+      {
+        headers: { Authorization: `Bearer ${response.accessToken}` }
       }
+    );
 
-      // ************** APLICAÇÃO DOS VALORES NAS VARIÁVEIS DO COOKIE **************
-      const user = {
-        name: claims.name || '',
-        email: claims.preferred_username || '',
-        oid: claims.oid,
-        groups,
-        officeLocation,
-      };
+    const grupos: Array<{ id: string; nome: string }> = groupsRes.data.value
+      .filter((g: any) =>
+        g['@odata.type'] === '#microsoft.graph.group' &&
+        g.resourceProvisioningOptions?.includes('Team')
+      )
+      .map((g: any) => ({ id: g.id, nome: g.displayName }));
 
-    //console.log('Usuário autenticado:', user.name, user.oid, user.officeLocation);
+
+    // ************** BUSCA DADOS DO USUARIO **************
+    const userProfileResponse = await axios.get<{ displayName: string; mail: string }>(
+          'https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
+          { headers: { Authorization: `Bearer ${response.accessToken}` } }
+        );
+    const userEmail = userProfileResponse.data.mail || '';
+    const userName = userProfileResponse.data.displayName || '';
+    
+
+    // ************** IMAGEM PERFIL **************
+    try {
+      const photoResponse = await axios.get('https://graph.microsoft.com/v1.0/me/photo/$value', {
+        headers: { Authorization: `Bearer ${response.accessToken}` },
+        responseType: 'arraybuffer',
+      });
+
+      const photoBuffer = Buffer.from(photoResponse.data, 'binary');
+      const photoBase64 = photoBuffer.toString('base64');
+
+      imageCache.set(claims.oid, photoBase64);
+      //console.log('foto salva no cache')
+    } catch (photoError) {
+      if (axios.isAxiosError(photoError)) {
+        console.warn('Erro ao buscar imagem de perfil:', photoError.response?.status || photoError.message);
+      } else {
+        console.warn('Erro inesperado ao buscar imagem de perfil:', (photoError as Error).message);
+      }
+    }
+
+    // ************** APLICAÇÃO DOS VALORES NAS VARIÁVEIS DO COOKIE **************
+    const user = {
+      name: userName,
+      email: userEmail,
+      id: userOid,
+      grupos: grupos,
+    };
+
+    console.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
 
     
     // ************** CRIAÇÃO DO COOKIE **************
@@ -128,7 +136,7 @@ router.post('/logout', (req: Request, res: Response) => {
 
 
 // ************** 4. Middleware: verifica se o usuário está logado **************
-function sessionGuard(req: Request, res: Response, next: Function) {
+export function sessionGuard(req: Request, res: Response, next: Function) {
     const session = req.cookies?.session;
     if (!session){
         res.status(401).send('Não autenticado') 

@@ -1,13 +1,13 @@
 <template>
     <div class="">
-        
+        <div>teste</div>
     </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
   layout: "adm-layout",
-  middleware: ['admin-only'],
+  middleware: ['permissao'],
 
 });
 </script>
