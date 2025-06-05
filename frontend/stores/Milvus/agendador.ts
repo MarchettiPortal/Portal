@@ -1,7 +1,7 @@
 // stores/agendador.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { config } from '../config/global.config'
+import { config } from '../../config/global.config'
 
 export const useAgendadorStore = defineStore('agendador', {
   state: () => ({

@@ -24,7 +24,7 @@
   
   <script setup lang="ts">
   import { Icon } from '#components';
-  import { useAgendadorStore } from '~/stores/agendador'
+  import { useAgendadorStore } from '~/stores/Milvus/agendador'
   import { storeToRefs } from 'pinia'
 
   const store = useAgendadorStore()

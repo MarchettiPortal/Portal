@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import axios from 'axios'
-import { useAuthStore } from '~/stores/auth'
+import { useAuthStore } from '~/stores/User/auth'
 import { useLogStore } from '~/stores/CLP/CLPLogStore'
 import { config } from '~/config/global.config'
 import { io } from 'socket.io-client'

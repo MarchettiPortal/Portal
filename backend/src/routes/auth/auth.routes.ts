@@ -1,14 +1,12 @@
-// src/routes/auth.routes.ts
 import { Router, Request, Response } from 'express';
-import { cca } from '../config/Auth/msalUser.config';
-import { config } from '../config/Global/global.config'
-import dotenvConfig from '../config/Auth/dotenv.auth.config';
+import { cca } from '../../config/Auth/msalUser.config';
+import { config } from '../../config/Global/global.config'
+import dotenvConfig from '../../config/Auth/dotenv.auth.config';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import NodeCache from 'node-cache';
 
 dotenv.config();
-
 const imageCache = new NodeCache({ stdTTL: 3600 }); // Cache por 1 hora
 const router = Router();
 const redirectUri = dotenvConfig.REDIRECT_URI;
@@ -40,37 +38,35 @@ router.get('/redirect', async (req: Request, res: Response) => {
   };
 
   try {
-    // ************** CONEXÃO E TROCA DE TOKEN DO MSAL **************
+    //  Troca de código por token
     const response = await cca.acquireTokenByCode(tokenRequest); 
-
-
-    // ************** EXTRAÇÃO E VALIDAÇÃO **************
     const claims = response?.idTokenClaims as {
       name?: string;
       preferred_username?: string;
       oid?: string;
     };
-
     if (!claims?.oid) {
       res.status(401).send('Login inválido');
       return;
     }
+    const userOid = claims.oid as string;
 
-    // ************** BUSCAR DADOS DO GRUPO **************
-    const graphResponse = await axios.get('https://graph.microsoft.com/v1.0/me/memberOf', { // BUSCA GRUPOS
-      headers: { Authorization: `Bearer ${response.accessToken}` },
-    });
-
-    const groups = graphResponse.data.value
+    // 2.1) Pega grupos (id + displayName) do usuário
+    const groupsRes = await axios.get<{ value: Array<{ id: string; displayName: string }> }>(
+      `https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName`,
+      { headers: { Authorization: `Bearer ${response.accessToken}` } }
+    );
+    const grupos: Array<{ id: string; nome: string }> = groupsRes.data.value
       .filter((g: any) => g['@odata.type'] === '#microsoft.graph.group')
-      .map((g: any) => g.displayName);
+      .map((g: any) => ({ id: g.id, nome: g.displayName }));
 
-
-      // ************** BUSCA DADOS DO USUARIO **************
-      const userProfileResponse = await axios.get('https://graph.microsoft.com/v1.0/me', { // BUSCA DADOS
-        headers: { Authorization: `Bearer ${response.accessToken}` },
-      });
-      const officeLocation = userProfileResponse.data.officeLocation || 'SEM_DEPARTAMENTO'; // BUSCA SETOR
+    // 2.2) Pega dados do usuário (displayName + mail)
+    const userProfileResponse = await axios.get<{ displayName: string; mail: string }>(
+      'https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
+      { headers: { Authorization: `Bearer ${response.accessToken}` } }
+    );
+    const userEmail = userProfileResponse.data.mail || '';
+    const userName = userProfileResponse.data.displayName || '';
       
 
       // ************** IMAGEM PERFIL **************
@@ -79,12 +75,9 @@ router.get('/redirect', async (req: Request, res: Response) => {
           headers: { Authorization: `Bearer ${response.accessToken}` },
           responseType: 'arraybuffer',
         });
-  
         const photoBuffer = Buffer.from(photoResponse.data, 'binary');
         const photoBase64 = photoBuffer.toString('base64');
-  
         imageCache.set(claims.oid, photoBase64);
-        //console.log('foto salva no cache')
       } catch (photoError) {
         if (axios.isAxiosError(photoError)) {
           console.warn('Erro ao buscar imagem de perfil:', photoError.response?.status || photoError.message);
@@ -95,16 +88,12 @@ router.get('/redirect', async (req: Request, res: Response) => {
 
       // ************** APLICAÇÃO DOS VALORES NAS VARIÁVEIS DO COOKIE **************
       const user = {
-        name: claims.name || '',
-        email: claims.preferred_username || '',
-        oid: claims.oid,
-        groups,
-        officeLocation,
+        id: userOid,
+        name: userName,
+        email: userEmail,
+        groups: grupos,
       };
 
-    //console.log('Usuário autenticado:', user.name, user.oid, user.officeLocation);
-
-    
     // ************** CRIAÇÃO DO COOKIE **************
     res.cookie('session', JSON.stringify(user), {
       httpOnly: true,
@@ -128,7 +117,7 @@ router.post('/logout', (req: Request, res: Response) => {
 
 
 // ************** 4. Middleware: verifica se o usuário está logado **************
-function sessionGuard(req: Request, res: Response, next: Function) {
+export function sessionGuard(req: Request, res: Response, next: Function) {
     const session = req.cookies?.session;
     if (!session){
         res.status(401).send('Não autenticado') 
@@ -144,11 +133,8 @@ function sessionGuard(req: Request, res: Response, next: Function) {
   
   // 5. Rota protegida: retorna dados da sessão (usada pelo frontend)
   router.get('/me', sessionGuard, (req: Request, res: Response) => {
-
     res.json(req.user);
   });
-
-
 
   // 6. ************** IMAGEM CACHE **************
   router.get('/user/photo', (req: Request, res: Response) => {

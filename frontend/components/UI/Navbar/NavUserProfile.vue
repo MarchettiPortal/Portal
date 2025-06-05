@@ -33,7 +33,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '~/stores/User/auth';
 import ProfileModal from '~/components/Models/ProfileModel.vue';
 import { Icon } from '@iconify/vue';
 

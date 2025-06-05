@@ -1,9 +1,18 @@
-import { defineStore } from 'pinia'
-import { config } from '../config/global.config'
+// stores/auth.ts
+import { defineStore } from 'pinia';
+import { config } from '../../config/global.config';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | { name: string; email: string, officeLocation: string, photo?:string },
+    user: null as
+      | {
+          id: string;
+          name: string;
+          email: string;
+          groups: Array<{ id: string; nome: string }>;
+          photo?: string;
+        }
+      | null,
     loading: false,
   }),
 
@@ -11,13 +20,15 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       this.loading = true;
       try {
-        const user = await $fetch<{ name: string; email: string, officeLocation: string, photo?:string }>(
-          '/auth/me',
-          {
-            baseURL: config.URL_BACKEND,
-            credentials: 'include',
-          }
-        );
+        const user = await $fetch<{
+          id: string;
+          name: string;
+          email: string;
+          groups: Array<{ id: string; nome: string }>;
+        }>('/auth/me', {
+          baseURL: config.URL_BACKEND,
+          credentials: 'include',
+        });
         this.user = user;
       } catch {
         this.user = null;
@@ -25,7 +36,6 @@ export const useAuthStore = defineStore('auth', {
         this.loading = false;
       }
     },
-
     async logout() {
       await $fetch('/auth/logout', {
         method: 'POST',
@@ -35,22 +45,18 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       window.location.href = config.LOGIN_URL_FRONTEND;
     },
-
     async fetchUserPhoto() {
       if (!this.user) return;
-
       try {
         const response = await fetch(`${config.URL_BACKEND}/auth/user/photo`, {
           credentials: 'include',
         });
-
         if (!response.ok) throw new Error('Erro ao buscar imagem');
-
         const blob = await response.blob();
         this.user.photo = URL.createObjectURL(blob);
       } catch {
         this.user.photo = '/images/default-avatar.png';
       }
-    }
-  }
+    },
+  },
 });
