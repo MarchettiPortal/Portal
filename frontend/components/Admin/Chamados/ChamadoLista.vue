@@ -1,15 +1,14 @@
 <template>
   <div class="border-t-2 border-b-2 border-red-500 p-6 w-full h-full rounded-xl">
     <div class="rounded-lg w-full h-full">
-      
+
       <!-- Barra superior fixa -->
 
       <div class="flex justify-between mb-4">
-          <TableBusca v-model="search" />
-          <TableRefresh @refresh="fetchChamados" />
-          <TableAutoRefresh v-model="autoRefresh"/>
-          <TableTroca v-model="tipoChamado" />
-        </div>
+        <ChamadoTabela :search="search" :mode="tipoChamado" :is-auto-on="autoRefresh === 'online'" :is-loading="false"
+          @update:search="search = $event" @update:mode="tipoChamado = $event"
+          @toggleAuto="autoRefresh = autoRefresh === 'online' ? 'offline' : 'online'" @refresh="fetchChamados" />
+      </div>
 
       <!-- Tabela sem scrollbar -->
       <table class="w-full text-left table-fixed border-separate border-spacing-0">
@@ -23,17 +22,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(c, i) in paginatedChamados"
-            :key="i"
-            class="hover:bg-gray-100 cursor-pointer" 
-            @click="selecionarChamado(c.codigo)"
-          >
-            <td
-              class="p-2 truncate text-sm transition-all duration-200 "
-              :title="c.codigo"
-              
-            >
+          <tr v-for="(c, i) in paginatedChamados" :key="i" class="hover:bg-gray-100 cursor-pointer"
+            @click="selecionarChamado(c.codigo)">
+            <td class="p-2 truncate text-sm transition-all duration-200 " :title="c.codigo">
               {{ c.codigo }}
             </td>
             <td class="p-2 max-w-[200px] truncate text-sm" :title="c.assunto">
@@ -46,10 +37,7 @@
               {{ c.status }}
             </td>
             <td class="p-2">
-              <span
-                class="px-2 py-1 rounded-full text-xs font-semibold"
-                :class="prioridadeClasse(c.prioridade)"
-              >
+              <span class="px-2 py-1 rounded-full text-xs font-semibold" :class="prioridadeClasse(c.prioridade)">
                 {{ c.prioridade }}
               </span>
             </td>
@@ -64,19 +52,13 @@
 
       <!-- Paginação -->
       <div class="flex justify-center items-center gap-2 mt-6">
-        <button
-          class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-        >
+        <button class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50" @click="currentPage--"
+          :disabled="currentPage === 1">
           Anterior
         </button>
         <span>Página {{ currentPage }} de {{ totalPages }}</span>
-        <button
-          class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-        >
+        <button class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50" @click="currentPage++"
+          :disabled="currentPage === totalPages">
           Próxima
         </button>
       </div>
@@ -86,12 +68,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import TableBusca from './Table/TableBusca.vue'
-import TableTroca from './Table/TableTroca.vue'
-import TableAutoRefresh from './Table/TableAutoRefresh.vue'
 import { useChamadosStore } from '~/stores/chamados'
 import { storeToRefs } from 'pinia'
-import TableRefresh from './Table/TableRefresh.vue'
+import ChamadoTabela from './ChamadoTabela.vue'
 // Tipos
 type ChamadoType = 'normal' | 'compra'
 type AutoRefreshStatus = 'online' | 'offline'
@@ -116,20 +95,20 @@ onMounted(async () => {
 const { selecionarChamado } = useChamadosStore()
 
 // Computed
-const mesaTrabalho = computed(() => 
-  tipoChamado.value === 'compra' 
-    ? 'Mesa Infra - Pedidos de Compra' 
+const mesaTrabalho = computed(() =>
+  tipoChamado.value === 'compra'
+    ? 'Mesa Infra - Pedidos de Compra'
     : 'Mesa Infraestrutura'
 )
 
 const chamadosFiltradosPorTipo = computed(() => {
-  return chamados.value.filter(c => 
+  return chamados.value.filter(c =>
     c.mesa_trabalho?.trim().toLowerCase() === mesaTrabalho.value.trim().toLowerCase() &&
     !['FINALIZADO', 'FECHADO'].includes(c.STATUS?.trim().toUpperCase())
   )
 })
 
-const chamadosFiltrados = computed(() => 
+const chamadosFiltrados = computed(() =>
   chamadosFiltradosPorTipo.value.filter(c =>
     Object.values(c).some(val =>
       String(val).toLowerCase().includes(search.value.toLowerCase())
@@ -137,7 +116,7 @@ const chamadosFiltrados = computed(() =>
   )
 )
 
-const totalPages = computed(() => 
+const totalPages = computed(() =>
   Math.ceil(chamadosFiltrados.value.length / itemsPerPage)
 )
 

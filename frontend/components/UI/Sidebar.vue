@@ -15,9 +15,9 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
-  import SidebarLogo from './UI/Sidebar/SidebarLogo.vue';
-  import SidebarMenu from './UI/Sidebar/SidebarMenu.vue';
-  import SidebarHelp from './UI/Sidebar/SidebarHelp.vue';
+  import SidebarLogo from './Sidebar/SidebarLogo.vue';
+  import SidebarMenu from './Sidebar/SidebarMenu.vue';
+  import SidebarHelp from './Sidebar/SidebarHelp.vue';
 
   const isExpanded = ref(false)
   </script>
