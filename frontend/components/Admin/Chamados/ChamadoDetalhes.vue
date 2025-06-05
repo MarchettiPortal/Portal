@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useChamadosStore } from '~/stores/chamados'
+import { useChamadosStore } from '~/stores/Milvus/chamados'
 
 const chamadosStore = useChamadosStore()
 const { chamadoSelecionado } = storeToRefs(chamadosStore)

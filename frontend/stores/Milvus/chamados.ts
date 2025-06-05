@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
-import { config } from '../config/global.config'
+import { config } from '../../config/global.config'
 
 
 export const useChamadosStore = defineStore('chamados', () => {

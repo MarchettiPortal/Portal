@@ -1,8 +1,9 @@
 import express from 'express';
-import authRouter from './routes/auth.routes';
+import authRouter from './routes/Auth/auth.routes';
 import milvusRouter from './routes/chamados.routes';
-import graphRouter from './routes/O365.routes';
+import graphRouter from './routes/O365/O365.routes';
 import clpRouter from './routes/clp.routes'
+import permRouter from './routes/Auth/permissoes.routes'
 import { config } from './config/Global/global.config.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -30,8 +31,9 @@ app.use("/api/milvus",milvusRouter);
 // Rota da API Office365
 app.use('/api/graph', graphRouter);
 // Rotas CLP e FTP
-app.use('/api/clp', clpRouter)
-
+app.use('/api/clp', clpRouter);
+// Rotas Permissões
+app.use('/api/perm', permRouter);
 
 
 export default app;

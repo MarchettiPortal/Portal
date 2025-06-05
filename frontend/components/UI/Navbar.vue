@@ -46,7 +46,7 @@
 import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import ProfileModal from '~/components/Models/ProfileModel.vue'; // certifique-se que o nome do arquivo é correto (ProfileModel.vue)
-import { useAuthStore } from '@/stores/auth'; // ajuste o caminho conforme sua estrutura
+import { useAuthStore } from '~/stores/User/auth'; // ajuste o caminho conforme sua estrutura
 
 const showModal = ref(false);
 const hasValidPhoto = ref(true);
