@@ -9,20 +9,20 @@
     />
 
     <UsersTable
-  :usuarios="usuariosFiltrados"
-  @ver="abrirModal"
-  @editar="abrirModalEdicao"
-/>
+      :usuarios="usuariosFiltrados"
+      @ver="abrirModalVisualizacao"
+      @editar="abrirModalEdicao"
+    />
 
     <!-- Modal de visualização -->
     <UserModal
-      :show="modalVisivel"
+      :show="modalVisualizacaoVisivel"
       :user="usuarioSelecionado"
-      @close="modalVisivel = false"
+      @close="modalVisualizacaoVisivel = false"
     />
 
     <!-- Modal de edição -->
-    <usersEditModal
+    <UsersEditModal
       :show="modalEdicaoVisivel"
       :user="usuarioSelecionado"
       @close="modalEdicaoVisivel = false"
@@ -33,37 +33,62 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import UsersHeader from './usersHeader.vue'
-import UsersTable from './usersTable.vue'
-import UserModal from './usersViewModal.vue'
-import usersEditModal from './usersEditModal.vue'
 
+// Componentes reutilizados
+import UsersHeader from '@/components/Admin/UsersEdit/usersHeader.vue'
+import UsersTable from '@/components/Admin/UsersEdit/usersTable.vue'
+import UserModal from '@/components/Admin/UsersEdit/usersViewModal.vue'
+import UsersEditModal from '@/components/Admin/UsersEdit/usersEditModal.vue'
+
+// Estados
 const tipoSelecionado = ref<'usuarios' | 'usuarios_servico'>('usuarios')
 const filtroBusca = ref('')
-const modalVisivel = ref(false)
-const modalEdicaoVisivel = ref(false) // estado para modal de edição
+const modalVisualizacaoVisivel = ref(false)
+const modalEdicaoVisivel = ref(false)
 
 const usuarios = ref([
   {
     nome: 'Eduardo Nitsche',
     email: 'eduardo.nitsche@molasmarchetti.com.br',
     setor: 'TI-Infra',
-    licenca: 'Standart',
+    licenca: 'Standard',
     status: 'Ativo'
+  },
+  {
+    nome: 'Maria Souza',
+    email: 'maria@email.com',
+    setor: 'RH',
+    licenca: 'Office 365',
+    status: 'Inativo'
   }
 ])
 
 const usuarioSelecionado = ref(usuarios.value[0])
 
+// Computed para filtro
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(u =>
-    u.nome.toLowerCase().includes(filtroBusca.value.toLowerCase())
+    u.nome.toLowerCase().includes(filtroBusca.value.toLowerCase()) ||
+    u.email.toLowerCase().includes(filtroBusca.value.toLowerCase())
   )
 )
 
-function abrirModal(usuario: any) {
+// Ações
+function onBuscar(valor: string) {
+  filtroBusca.value = valor
+}
+
+function abrirFiltro() {
+  console.log('Abrir filtro')
+}
+
+function onAdicionarUsuario() {
+  console.log('Adicionar usuário')
+}
+
+function abrirModalVisualizacao(usuario: any) {
   usuarioSelecionado.value = usuario
-  modalVisivel.value = true
+  modalVisualizacaoVisivel.value = true
 }
 
 function abrirModalEdicao(usuario: any) {
@@ -71,20 +96,7 @@ function abrirModalEdicao(usuario: any) {
   modalEdicaoVisivel.value = true
 }
 
-function onBuscar(valor: string) {
-  filtroBusca.value = valor
-}
-
-function abrirFiltro() {
-  console.log('Filtro clicado')
-}
-
-function onAdicionarUsuario() {
-  console.log('Adicionar usuário')
-}
-
 function onSalvarEdicao(usuarioEditado: any) {
-  // Atualiza a lista de usuários com os dados editados
   const index = usuarios.value.findIndex(u => u.email === usuarioEditado.email)
   if (index !== -1) {
     usuarios.value[index] = usuarioEditado

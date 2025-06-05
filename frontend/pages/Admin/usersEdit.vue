@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import usersMain from '~/components/Admin/UsersEdit/usersMain.vue';
+import usersMain from '~/components/Admin/UsersEdit/usersView.vue';
 
 definePageMeta({
   layout: 'adm-layout'

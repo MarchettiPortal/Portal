@@ -1,7 +1,7 @@
 <template>
     <select
     :id="id"
-    class="block py-2 px-1 w-full rounded-xs text-sm text-black-500 border-0 border-2 border-black-200 appearance-none dark:text-black-400 dark:border-black-700 focus:outline-none focus:ring-0 focus:border-black-200 peer"
+    class="block py-2 px-1 w-full rounded-xs text-sm text-black-500 border-2 border-black-200 appearance-none dark:text-black-400 dark:border-black-700 focus:outline-none focus:ring-0 focus:border-black-200 peer"
     >
     <option disabled selected>{{ placeholder }}</option>
     <option
