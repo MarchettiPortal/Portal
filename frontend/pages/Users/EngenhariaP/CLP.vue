@@ -20,5 +20,8 @@ import CLPSelecao from '~/components/Users/EngenhariaP/CLP/CLPSelecao.vue'
 import CLPImport from '~/components/Users/EngenhariaP/CLP/CLPImport.vue'
 import CLPExibicao from '~/components/Users/EngenhariaP/CLP/CLPExibicao.vue'
 
-definePageMeta({ layout: 'adm-layout' })
+definePageMeta({
+  layout: "adm-layout",
+  middleware: ['permissao']
+});
 </script>
