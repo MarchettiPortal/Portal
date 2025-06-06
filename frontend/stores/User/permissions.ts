@@ -19,6 +19,7 @@ export const usePermissionStore = defineStore('permissions', {
           { baseURL: config.URL_BACKEND, credentials: 'include' }
         );
         this.permissoes = data;
+        console.log('Permissões recebidas:', data);
         console.log('Grupos do usuário:', auth.user?.grupos);
 
       } catch {
@@ -27,7 +28,8 @@ export const usePermissionStore = defineStore('permissions', {
     },
 
     hasPermissao(rota: string) {
-      return this.permissoes.some((p) => p.rota === rota);
+      const normalizada = rota.toLowerCase().replace(/\/+$/, '');
+      return this.permissoes.some((p) => p.rota.toLowerCase().replace(/\/+$/, '') === normalizada);
     },
 
     gruposDisponiveis() {

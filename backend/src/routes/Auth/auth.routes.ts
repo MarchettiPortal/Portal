@@ -110,7 +110,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       grupos: grupos,
     };
 
-    console.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
+    //console.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
 
     
     // ************** CRIAÇÃO DO COOKIE **************

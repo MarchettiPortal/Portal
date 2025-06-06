@@ -63,7 +63,10 @@ const UTable = resolveComponent('UTable')
 const UInput = resolveComponent('UInput')
 const UPagination = resolveComponent('UPagination')
 
-definePageMeta({ layout: 'adm-layout' })
+definePageMeta({
+  layout: "adm-layout",
+  middleware: ['permissao']
+});
 
 // Fetch logs
 const { data: logsRaw, pending } = await useAsyncData<LogFtp[]>(

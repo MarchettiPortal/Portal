@@ -8,8 +8,9 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: "adm-layout"
-})
+  layout: "adm-layout",
+  middleware: ['permissao']
+});
 
 import { Icon } from '@iconify/vue'
 

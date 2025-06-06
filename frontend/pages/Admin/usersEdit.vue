@@ -8,6 +8,7 @@
 import usersMain from '~/components/Admin/UsersEdit/usersView.vue';
 
 definePageMeta({
-  layout: 'adm-layout'
+  layout: "adm-layout",
+  middleware: ['permissao']
 });
 </script>
