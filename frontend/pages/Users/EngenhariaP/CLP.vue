@@ -1,18 +1,13 @@
 <template>
-  <section class="h-full w-full bg-white rounded-xs shadow-md flex flex-col p-6">
-    <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Painel esquerdo: Seleção e Exibição -->
-      <div class="flex flex-col gap-6 w-full lg:w-2/6">
-        <CLPSelecao />
-        <CLPExibicao />
-      </div>
-
-      <!-- Painel direito: Importação -->
-      <div class="w-full">
-        <CLPImport />
-      </div>
+  <div class="h-full w-full bg-white rounded-xs shadow-md grid-rows-[auto_1fr] grid p-6 gap-4 grid-cols-2">
+    <div class="col-span-2"> 
+    <CLPSelecao />
     </div>
-  </section>
+    <CLPImport />
+    <CLPExibicao />
+  </div>
+
+
 </template>
 
 <script lang="ts" setup>

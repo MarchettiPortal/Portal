@@ -1,212 +1,163 @@
 <template>
-  <div class="relative p-4 text-black bg-gray-200 min-h-[300px]">
-    <!-- Texto de status -->
-    <p class="mb-4 text-lg font-semibold">
-      Dispositivo Conectado: <br> {{ clpText }}
-    </p>
+  <div class="rounded-md border bg-white px-4 py-3 flex flex-wrap items-center gap-4 relative shadow-sm">
+    <!-- Título -->
+    <div class="flex items-center gap-2">
+      <Icon icon="material-symbols:tv-displays-outline-rounded" class="text-gray-800 w-5 h-5" />
+      <p class="text-gray-700 font-medium">Dispositivos</p>
+    </div>
 
     <!-- Opções -->
-    <div class="space-y-2 w-52">
-      <label
+    <div class="flex flex-wrap gap-2">
+      <button
         v-for="option in options"
         :key="option.value"
-        class="flex items-center space-x-2 cursor-pointer"
+        :disabled="isDisabled"
+        @click="selectOption(option.value)"
+        :class="[
+          'px-3 py-1.5 text-sm rounded-md cursor-pointer border transition-all duration-200',
+          selectedOption === option.value
+            ? 'bg-red-100 border-red-300 text-red-700'
+            : 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600',
+          isDisabled && 'opacity-50 cursor-not-allowed'
+        ]"
       >
-        <input
-          type="radio"
-          v-model="selectedOption"
-          :value="option.value"
-          class="hidden"
-        />
-        <span
-          class="radio-button"
-          :class="{ checked: selectedOption === option.value }"
-        />
-        <span>{{ option.label }}</span>
-      </label>
+        {{ option.label }}
+      </button>
     </div>
 
-    <!-- Botão -->
+    <!-- Atualizar -->
     <button
+      class="ml-auto flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm rounded-md border bg-white border-gray-300 hover:bg-gray-100 text-gray-700 disabled:opacity-50"
+      :disabled="isDisabled"
       @click="onClickAtualizar"
-      :disabled="isBlockedByFTP || isProcessingCLP"
-      class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {{ isLoading ? 'Atualizando...' : 'Atualizar CLP' }}
+      <Icon icon="material-symbols:sync" class="w-5 h-5" />
+      Atualizar CLP
     </button>
-    <template v-if="isProcessingCLP">
-      <p class="text-red-600">
-        Atualização do CLP em andamento por {{ status.clp.iniciadoPor }}
-      </p>
-    </template>
-    <template v-else-if="isBlockedByFTP">
-      <p class="text-red-600">
-        Envio de FTP em andamento por {{ status.ftp.iniciadoPor }}
-      </p>
-    </template>
-    <!-- Overlay de carregamento -->
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <img src="/gifs/loading.gif" alt="Carregando..." class="w-16 h-16" />
-    </div>
 
-    <!-- Modal de status -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white p-6 rounded shadow-md max-w-xs text-center">
-        <p class="text-lg font-semibold mb-4">{{ modalMessage }}</p>
-        <button
-          @click="showModal = false"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300"
-        >
-          OK
-        </button>
+    <!-- Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+      <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-sm text-center text-black">
+        <div v-if="isLoading">
+          <Icon icon="line-md:loading-loop" class="w-10 h-10 mx-auto mb-4 animate-spin text-red-600" />
+          <p class="text-md font-medium">Atualizando CLP...</p>
+        </div>
+        <div v-else-if="showSuccess">
+          <Icon icon="line-md:circle-to-confirm-circle-transition" class="w-12 h-12 text-green-600 mx-auto mb-2" />
+          <p class="text-md font-semibold">CLP Selecionado com sucesso</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
 import { config } from '~/config/global.config'
-import { useAuthStore } from '~/stores/User/auth' // Store para buscar info do usser (nome)
-import { useClpStore } from '~/stores/CLP/useClpStore' // Store para buscar nome do CLP
+import { useAuthStore } from '~/stores/User/auth'
+import { useClpStore } from '~/stores/CLP/useClpStore'
 import { storeToRefs } from 'pinia'
 import { useClpFtpStatus } from '~/composables/useClpFtpStatus'
+import axios from 'axios'
+import eventBus from '~/utils/eventBus'
+import { Icon } from '@iconify/vue'
 
-// Const das STORES/Pinia
-const { atualizarCLPAtual } = useClpStore() // Store CLP: Função que busca os dados
-const clpStore = useClpStore() // Store CLP: Variável para auxílio na próxima
-const { clpText, clpIpAtual } = storeToRefs(clpStore) // Store CLP: Busca o IP e o Nome dos CLP's que são buscados na função da store
-const authStore = useAuthStore() // Buscar nome do Usuário
+const emit = defineEmits<{
+  (e: 'clp-updated', ip: string): void
+  (e: 'clp-atualizado'): void
+  (e: 'error', mensagem: string): void
+}>()
 
-// Const de auxílio no código
-const userID = authStore.user?.name // Buscar nome do Usuário
-const selectedOption = ref<string | null>(null) // Opções de CLP
-const isLoading = ref(false) // Polling usa para validar se ainda está reiniciando WPS
-const showModal = ref(false) // Modal de mensagens
-const modalMessage = ref('') // Mensagens do modal
+
+const clpStore = useClpStore()
+const { clpIpAtual } = storeToRefs(clpStore)
+const { atualizarCLPAtual } = clpStore
+const authStore = useAuthStore()
+const userID = authStore.user?.name
 const { status } = useClpFtpStatus()
 
-const isProcessingCLP = computed(() =>
-  status.value.clp.reiniciando && 
-  status.value.clp.iniciadoPor !== authStore.user?.name
-)
-// Validar se alguém já está editando o CLP ou Reiniciando o WPS
-const isBlockedByFTP = computed(() =>
-  status.value.ftp.enviando &&
-  status.value.ftp.iniciadoPor !== authStore.user?.name
-)
+const selectedOption = ref<string | null>(null)
+const isLoading = ref(false)
+const showModal = ref(false)
+const showSuccess = ref(false)
 
-// Opções de CLP (mudar para banco de dados futuramente)
-const options = [
-  { label: 'CLP Arqueadeira', value: '192.168.1.168' },
-  { label: 'CLP Laminador', value: '192.168.1.164' },
-  { label: 'CLP Buchas', value: '192.168.1.130' },
-]
-// Tipagem
-interface BackendResponse {
-  success?: boolean
-  message?: string
-  error?: string
-}
-
-// Função que faz validações e inicia o reinício 
-function onClickAtualizar() {
-  
-  // Validação de CLP escolhido ser o mesmo que já está setado
-  if (selectedOption.value && selectedOption.value === clpIpAtual.value) {
-    modalMessage.value = 'CLP escolhido já está selecionado'
-    showModal.value = true
-    return
-  }
-  // Validação de bloqueio por alguém enviando FTP caso o Polling falhe e não bloqueie o botão
-  if (isBlockedByFTP.value) {
-    alert(`Envio de arquivo em andamento por ${status.value.ftp.iniciadoPor}`)
-    return
-  }
-  // Chamando função de reinício (só é chamado caso não tenho bloqueio)
-  updateCLPText();
-}
-
-// Buscando valores
-onMounted(async () => {
-  atualizarCLPAtual() 
-  setInterval(() => {
-    atualizarCLPAtual() 
-  },5000);
-});
-
-// Inicia o processo de atualização do CLP e reinicia o WPS
-async function updateCLPText() {
-  if (!selectedOption.value) {
-    alert('Nenhuma opção de CLP selecionada')
-    return
-  }
-  // Setar opções para loading e travamento da tela
-  isLoading.value = true
-  showModal.value = false
-
-  // Inicio processo
+const options = ref<{ label: string, value: string }[]>([])
+// Buscar do Backend/Database os CLP's
+async function carregarClps() {
   try {
-    await axios.post<BackendResponse>(`${config.API_BACKEND}/clp/set`, {
+    const { data } = await axios.get(`${config.API_BACKEND}/CLP/list`)
+    options.value = data.map((clp: any) => ({
+      label: clp.nome,
+      value: clp.ip
+    }))
+  } catch {
+   }
+}
+ 
+
+const isProcessingCLP = computed(() =>
+  status.value.clp.reiniciando && status.value.clp.iniciadoPor !== userID
+)
+
+const isBlockedByFTP = computed(() =>
+  status.value.ftp.enviando && status.value.ftp.iniciadoPor !== userID
+)
+
+const isDisabled = computed(() => isLoading.value || isProcessingCLP.value || isBlockedByFTP.value)
+
+onMounted(async () => {
+  atualizarCLPAtual()
+  await carregarClps()
+  selectedOption.value = clpIpAtual.value
+  setInterval(() => atualizarCLPAtual(), 5000)
+})
+
+watch(clpIpAtual, (novoIp) => {
+  selectedOption.value = novoIp
+})
+
+function selectOption(value: string) {
+  selectedOption.value = value
+}
+
+async function onClickAtualizar() {
+  if (!selectedOption.value) return emit('error', 'Nenhuma opção de CLP selecionada')
+  if (selectedOption.value === clpIpAtual.value) return emit('error', 'CLP já está selecionado')
+  if (isBlockedByFTP.value) return emit('error', `Envio de arquivo por ${status.value.ftp.iniciadoPor}`)
+
+  showModal.value = true
+  isLoading.value = true
+  showSuccess.value = false
+
+  // 👇 NOVO: limpar arquivos imediatamente
+  eventBus.emit('limpar-arquivos-clp')
+
+  try {
+    await axios.post(`${config.API_BACKEND}/clp/set`, {
       ip: selectedOption.value,
       userID,
     })
 
-
-    // Validando se o Loading finalizou ou não
     const checkUntilReady = setInterval(() => {
       if (!status.value.clp.reiniciando) {
         clearInterval(checkUntilReady)
-        modalMessage.value = 'CLP Selecionado com sucesso'
-        showModal.value = true
         isLoading.value = false
-        atualizarCLPAtual() 
+        showSuccess.value = true
+        emit('clp-updated', selectedOption.value!)
+        emit('clp-atualizado')
+        atualizarCLPAtual()
+
+        setTimeout(() => {
+          showModal.value = false
+          showSuccess.value = false
+        }, 1500)
       }
     }, 1000)
-
   } catch (error: any) {
-    modalMessage.value = error?.response?.data?.error || 'Erro ao configurar CLP'
-    showModal.value = true
     isLoading.value = false
+    showModal.value = false
+    emit('error', error?.response?.data?.error || 'Erro ao configurar CLP')
   }
 }
 
-
-
 </script>
-
-<style scoped>
-.radio-button {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #e11d48;
-  background-color: white;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.radio-button.checked {
-  background-color: #e11d48;
-  border-color: #e11d48;
-}
-
-.radio-button.checked::before {
-  content: '';
-  display: block;
-  width: 50%;
-  height: 50%;
-  border-radius: 50%;
-  background-color: white;
-  position: absolute;
-  top: 25%;
-  left: 25%;
-}
-</style>
