@@ -9,25 +9,29 @@ const FTP_CONFIG = {
   port:2221,
 };
 
-
+// 🔧 Função para excluir os arquivos
 export async function listarArquivoFtp(caminho: string) {
   const client = new Client();
   try {
     await client.access(FTP_CONFIG);
     const arquivos = await client.list(caminho);
 
-    const arquivo = arquivos.find(a => !a.name.startsWith('.'));
-    if (!arquivo) throw new Error('Nenhum arquivo encontrado.');
+    const arquivosVisiveis = arquivos.filter(a => !a.name.startsWith('.'));
 
-    return {
-      nome: arquivo.name,
-      tamanho: arquivo.size,
-    };
+    // Alteração aqui: retorna uma lista vazia se não houver arquivos, ao invés de lançar erro.
+    return arquivosVisiveis.map(a => ({
+      nome: a.name,
+      tamanho: a.size,
+    }));
+  } catch (error) {
+    // Caso ocorra um erro real na conexão ou listagem, propaga o erro para o front lidar.
+    throw error;
   } finally {
     client.close();
   }
 }
 
+// 🔧 Função para enviar o arquivo
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
   const client = new Client();
   client.ftp.verbose = true; // debug opcional
@@ -62,3 +66,30 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
   }
 }
 
+// 🔧 Função para renomear arquivo
+export async function renomearArquivoFtp(antigoNome: string, novoNome: string) {
+  const client = new Client();
+  try {
+    await client.access(FTP_CONFIG);
+    await client.rename(antigoNome, novoNome);
+  } catch (err) {
+    console.error('[ERRO RENAME FTP]', err);
+    throw err;
+  } finally {
+    client.close();
+  }
+}
+
+// 🔧 Função para excluir arquivo
+export async function excluirArquivoFtp(nomeArquivo: string) {
+  const client = new Client();
+  try {
+    await client.access(FTP_CONFIG);
+    await client.remove(nomeArquivo);
+  } catch (err) {
+    console.error('[ERRO DELETE FTP]', err);
+    throw err;
+  } finally {
+    client.close();
+  }
+}
