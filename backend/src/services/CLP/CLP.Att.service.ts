@@ -9,9 +9,8 @@ import {
   setReiniciando,
 } from '../../flags/wpsFTP';
 
-const SERVICE_REMOTE_BASE = 'http://192.168.1.86:8080';
+const SERVICE_REMOTE_BASE = 'http://192.168.0.5:8080';
 const TIMEOUT = 120_000;
-
 
 export async function getClpStatus(req: Request, res: Response) {
   try {

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getRefresh} from "../controllers/Milvus/Milvus.csvSLA.controller.js";
-import { getRefreshAuto } from "../controllers/Milvus/Milvus.API.AutoRefresh.controller.js"
-import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendador } from '../services/Milvus/Milvus.csvSLA.Scheduler.service.js'
-import * as  chamadosController from '../controllers/Milvus/DB.Chamados.controller.js';
+import { getRefresh} from "../../controllers/Milvus/Milvus.csvSLA.controller.js";
+import { getRefreshAuto } from "../../controllers/Milvus/Milvus.API.AutoRefresh.controller.js"
+import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendador } from '../../services/Milvus/Milvus.csvSLA.Scheduler.service.js'
+import * as  chamadosController from '../../controllers/Milvus/DB.Chamados.controller.js';
 
 const router = Router();
 
