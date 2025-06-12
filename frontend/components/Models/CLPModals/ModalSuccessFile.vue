@@ -15,9 +15,8 @@
     </div>
   </div>
 </template>
- 
+
 <script setup lang="ts">
-    import { Icon } from '@iconify/vue'
-    const props = defineProps<{ show: boolean }>()
+import { Icon } from '@iconify/vue'
+const props = defineProps<{ show: boolean }>()
 </script>
- 

@@ -26,23 +26,23 @@
     </div>
   </div>
 </template>
- 
+
 <script setup lang="ts">
-    const props = defineProps<{
-    show: boolean
-    arquivoName: string
-    }>()
-    
-    const emits = defineEmits<{
-    (e: 'update:show', value: boolean): void
-    (e: 'confirm'): void
-    }>()
-    
-    function onConfirm() {
-    emits('confirm')
-    }
-    
-    function onCancel() {
-    emits('update:show', false)
-    }
+const props = defineProps<{
+  show: boolean
+  arquivoName: string
+}>()
+
+const emits = defineEmits<{
+  (e: 'update:show', value: boolean): void
+  (e: 'confirm'): void
+}>()
+
+function onConfirm() {
+  emits('confirm')
+}
+
+function onCancel() {
+  emits('update:show', false)
+}
 </script>

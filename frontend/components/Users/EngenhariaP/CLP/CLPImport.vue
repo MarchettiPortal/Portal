@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import eventBus from '~/utils/eventBus'
 
 const arquivos = ref<File[]>([])
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -87,13 +88,7 @@ function formatDate(timestamp: number) {
 }
 
 function handleDragStart(event: DragEvent, arquivo: File) {
-  const payload = {
-    nomeArquivo: arquivo.name,
-    tamanho: formatSize(arquivo.size),
-    tipo: arquivo.type || 'N/A',
-    data: formatDate(arquivo.lastModified)
-    // ⚠️ Não incluir "usuario" aqui!
-  }
-  event.dataTransfer?.setData('application/json', JSON.stringify(payload))
+  event.dataTransfer?.setData('text/plain', arquivo.name) // apenas para ativar o drag
+  eventBus.emit('arquivo-arrastado', arquivo)
 }
 </script>

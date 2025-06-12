@@ -12,8 +12,8 @@ const FTP_CONFIG = {
 type ArquivoFtp = {
   nome: string;
   tamanho: number;
-  tamanhoFormatado: string
 };
+ 
 
 // 🔧 Função para listar os arquivos
 export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
@@ -35,7 +35,6 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
       arquivosComTamanho.push({
         nome: a.name,
         tamanho: tamanho,
-        tamanhoFormatado: formatarTamanho(tamanho),
       });
     }
 
@@ -101,7 +100,24 @@ export async function renomearArquivoFtp(antigoNome: string, novoNome: string) {
   try {
     await client.access(FTP_CONFIG);
     try {
+      try {
       await client.rename(antigoNome, novoNome);
+      console.log(`Arquivo renomeado de ${antigoNome} para ${novoNome}`);
+    } catch (err: any) {
+      if (err.code === 553 && err.message.includes('No such file or directory')) {
+        // Validação: verifica se o arquivo novo existe
+        const listaArquivos = await client.list('/');
+        const renomeado = listaArquivos.find(a => a.name === novoNome);
+        if (renomeado) {
+          console.warn(`[AVISO RENAME FTP] 553 retornado, mas ${novoNome} existe. Assumindo sucesso.`);
+          return;
+        } else {
+          console.error('[ERRO RENAME FTP] 553 verdadeiro: arquivo não encontrado após tentativa de renomear.');
+          throw err;
+        }
+      }
+      throw err;
+    }
       console.log(`Arquivo renomeado de ${antigoNome} para ${novoNome}`);
     } catch (err: any) {
       if (err.code === 553 && err.message.includes('No such file or directory')) {

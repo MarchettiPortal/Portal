@@ -12,8 +12,8 @@
             <button
   @click="onConfirm"
   :disabled="!isValid"
-  class="px-4 py-2 rounded text-white
-         bg-red-600 hover:bg-red-700
+  class="px-4 py-2 rounded text-white 
+         bg-red-600 hover:bg-red-700 
          disabled:bg-gray-300 disabled:cursor-not-allowed"
 >
   Enviar
@@ -25,7 +25,7 @@
           Cancelar
         </button>
       </div>
- 
+
       <!-- Toast de aviso -->
       <transition name="fade">
         <div
@@ -38,44 +38,44 @@
     </div>
   </div>
 </template>
- 
+
 <script setup lang="ts">
-    import { ref, watch, computed } from 'vue'
-    
-    const props = defineProps<{
-    show: boolean
-    descricao: string
-    disabled?: boolean
-    }>()
-    
-    const emits = defineEmits<{
-    (e: 'update:show', v: boolean): void
-    (e: 'update:descricao', v: string): void
-    (e: 'confirm'): void
-    }>()
-    
-    const localDescricao = ref(props.descricao)
-    watch(() => props.descricao, v => localDescricao.value = v)
-    watch(localDescricao, v => emits('update:descricao', v))
-    
-    const isValid = computed(() => localDescricao.value.trim().length > 0)
-    
-    // controla exibição do toast
-    const showNotify = ref(false)
-    let notifyTimer: ReturnType<typeof setTimeout>
-    
-    // botão “Enviar” chama onConfirm
-    function onConfirm() {
-    if (!isValid.value) return;
-    emits('confirm');
-    }
-    
-    
-    function onCancel() {
-    emits('update:show', false)
-    }
+import { ref, watch, computed } from 'vue'
+
+const props = defineProps<{
+  show: boolean
+  descricao: string
+  disabled?: boolean
+}>()
+
+const emits = defineEmits<{
+  (e: 'update:show', v: boolean): void
+  (e: 'update:descricao', v: string): void
+  (e: 'confirm'): void
+}>()
+
+const localDescricao = ref(props.descricao)
+watch(() => props.descricao, v => localDescricao.value = v)
+watch(localDescricao, v => emits('update:descricao', v))
+
+const isValid = computed(() => localDescricao.value.trim().length > 0)
+
+// controla exibição do toast
+const showNotify = ref(false)
+let notifyTimer: ReturnType<typeof setTimeout>
+
+// botão “Enviar” chama onConfirm
+function onConfirm() {
+  if (!isValid.value) return;
+  emits('confirm');
+}
+
+
+function onCancel() {
+  emits('update:show', false)
+}
 </script>
- 
+
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
@@ -86,4 +86,3 @@
   opacity: 0;
 }
 </style>
- 

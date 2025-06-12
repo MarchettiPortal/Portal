@@ -52,7 +52,7 @@
     </div>
 
     <!-- Paginação -->
-    <div class="mt-6 flex justify-center items-center gap-2 text-sm">
+    <div class="mt-6 flex justify-center text-black items-center gap-2 text-sm">
       <button
         @click="page--"
         :disabled="page === 1"
