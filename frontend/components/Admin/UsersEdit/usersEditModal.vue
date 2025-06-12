@@ -1,7 +1,8 @@
 <template>
   <div v-if="show" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
     <div
-      class="bg-white rounded-md shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto relative p-8 animate-fade-in">
+      class="bg-white rounded-md shadow-xl w-full max-w-[1000px] max-h-[90vh] overflow-y-auto relative p-6 sm:p-8 animate-fade-in">
+
       <!-- Botão de fechar -->
       <button @click="$emit('close')"
         class="absolute top-4 right-4 text-gray-500 cursor-pointer hover:text-gray-800 transition-colors"
@@ -24,13 +25,13 @@
       </div>
 
       <!-- Conteúdo condicional com base na aba -->
-      <div>
+      <div class="transition-all duration-300 min-h-[500px]">
         <div v-if="activeTab === 'AD'">
           <p class="text-gray-800 font-medium">Eduardo Nitsche</p>
         </div>
 
-        <div v-else-if="activeTab === 'Microsoft'" class="grid grid-cols-2 gap-8">
-          <!-- Coluna Esquerda: Campos -->
+        <div v-else-if="activeTab === 'Microsoft'" class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <!-- Coluna Esquerda -->
           <div class="space-y-6">
             <!-- Nome -->
             <div>
@@ -56,11 +57,11 @@
             <!-- Status -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select v-model="form.status"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:border-gray-500 text-gray-700">
-                <option value="ativo">Ativo</option>
-                <option value="inativo">Inativo</option>
-              </select>
+              <UInputMenu 
+              v-model="selectedStatus" 
+              :items="statusOptions"
+              color="error"
+              variant="none" />
             </div>
 
             <!-- Email -->
@@ -84,9 +85,8 @@
             </div>
           </div>
 
-          <!-- Coluna Direita: Espaço reservado -->
-          <div
-            class="rounded-lg h-full p-4 flex items-center justify-center text-gray-400">
+          <!-- Coluna Direita -->
+          <div class="rounded-lg h-full p-4 flex items-center justify-center text-gray-400">
             <span></span>
           </div>
         </div>
@@ -96,8 +96,8 @@
         </div>
       </div>
 
-      <!-- Botões de ação -->
-      <div class="flex justify-end space-x-3 mt-10">
+      <!-- Botões -->
+      <div class="flex flex-col sm:flex-row justify-end sm:space-x-3 mt-10 space-y-3 sm:space-y-0">
         <button @click="$emit('close')"
           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition">Cancelar</button>
         <button @click="handleSave"
@@ -119,50 +119,39 @@ const form = ref({
   email: ''
 })
 
-const selectedSetor = ref('TI') // já selecionado inicialmente
+const selectedSetor = ref('TI')
 
 const setores = ref<DropdownMenuItem[]>([
-  {
-    label: 'Financeiro',
-    click: () => selectedSetor.value = 'Financeiro'
-  },
-  {
-    label: 'Comercial',
-    click: () => selectedSetor.value = 'Comercial'
-  },
-  {
-    label: 'TI',
-    click: () => selectedSetor.value = 'TI'
-  },
-  {
-    label: 'Produção',
-    click: () => selectedSetor.value = 'Produção'
-  }
+  { label: 'Financeiro', click: () => selectedSetor.value = 'Financeiro' },
+  { label: 'Comercial', click: () => selectedSetor.value = 'Comercial' },
+  { label: 'TI', click: () => selectedSetor.value = 'TI' },
+  { label: 'Produção', click: () => selectedSetor.value = 'Produção' }
 ])
 
 const selectedPermissao = ref('')
 const dropItems = ref<DropdownMenuItem[]>([
-  {
-    label: 'Standard',
-    click: () => selectedPermissao.value = 'Standard'
-  },
-  {
-    label: 'Basic',
-    click: () => selectedPermissao.value = 'Basic'
-  }
+  { label: 'Standard', click: () => selectedPermissao.value = 'Standard' },
+  { label: 'Basic', click: () => selectedPermissao.value = 'Basic' }
 ])
 
-const props = defineProps<{
-  show: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'save'): void
-}>()
+const props = defineProps<{ show: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void; (e: 'save'): void }>()
 
 const tabs = ['AD', 'Microsoft', 'Milvus']
 const activeTab = ref('AD')
+
+const statusOptions = ref([
+  { label: 'Ativo', value: 'ativo' },
+  { label: 'Inativo', value: 'inativo' }
+])
+
+const selectedStatus = ref(statusOptions.value[0])
+
+// Sincronizar com form.status ao salvar
+watch(selectedStatus, (val) => {
+  form.value.status = val.value
+})
+
 
 function handleSave() {
   emit('save')
