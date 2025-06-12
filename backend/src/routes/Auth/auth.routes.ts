@@ -58,21 +58,22 @@ router.get('/redirect', async (req: Request, res: Response) => {
     const userOid = claims.oid as string;
 
     // ************** BUSCAR DADOS DO GRUPO **************
-    const groupsRes = await axios.get<{ value: Array<{ id: string; displayName: string }> }>(
+    const groupsRes = await axios.get<{ value: Array<{ id: string; displayName: string; resourceProvisioningOptions: string[] }> }>(
       `https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName,resourceProvisioningOptions`,
       {
         headers: { Authorization: `Bearer ${response.accessToken}` }
       }
     );
 
-    const grupos: Array<{ id: string; nome: string }> = groupsRes.data.value
+    const grupos: Array<{ nome: string }> = groupsRes.data.value
       .filter((g: any) =>
         g['@odata.type'] === '#microsoft.graph.group' &&
-        g.resourceProvisioningOptions?.includes('Team')
+        g.resourceProvisioningOptions?.includes('Team') &&
+        g.displayName !== 'Informativos'
       )
-      .map((g: any) => ({ id: g.id, nome: g.displayName }));
+      .map((g: any) => ({nome: g.displayName }));
 
-
+    
     // ************** BUSCA DADOS DO USUARIO **************
     const userProfileResponse = await axios.get<{ displayName: string; mail: string }>(
           'https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
@@ -107,7 +108,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       name: userName,
       email: userEmail,
       id: userOid,
-      grupos: grupos,
+      grupos,
     };
 
     //console.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
@@ -169,7 +170,7 @@ export function sessionGuard(req: Request, res: Response, next: Function) {
 
     try {
       const user = JSON.parse(session);
-      const cachedPhoto = imageCache.get(user.oid);
+      const cachedPhoto = imageCache.get(user.id);
 
       if (!cachedPhoto || typeof cachedPhoto !== 'string') {
         res.status(404).send('Foto não encontrada');

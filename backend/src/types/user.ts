@@ -16,7 +16,6 @@ export interface UserSession {
   name: string;
   email: string;
   oid: string;
-  officeLocation: string;
 
 }
 

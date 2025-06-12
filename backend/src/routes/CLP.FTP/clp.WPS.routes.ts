@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getSocket } from '../../socket';
 import { getClpStatus, setClpConfig, checkServiceHealth } from '../../services/CLP/CLP.Att.service'
 import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp } from '../../services/FTP/FTP.Client.service'
 import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.service'
@@ -83,8 +84,12 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
       clp
     });
 
-    fs.unlinkSync(localPath); // Remove arquivo local temporário
+    // Emite para todos os usuários no front que o arquivo foi Enviado
+    getSocket()
+      .to(`clp:${clp}`)
+      .emit('ftp-upload-completo', { usuario, clp })
 
+    fs.unlinkSync(localPath); // Remove arquivo local temporário
     res.json({ sucesso: true }); // ✅ ÚNICO ponto que envia resposta
   } catch (error: any) {
     console.error('[ERRO UPLOAD]', error);
@@ -113,7 +118,7 @@ router.get('/arquivo', async (req, res) => {
 
 // 🔥 Rota para renomear arquivo
 router.patch('/arquivo/renomear', async (req, res) => {
-  const { antigoNome, novoNome } = req.body;
+  const { antigoNome, novoNome, clp } = req.body;
   if (!antigoNome || !novoNome) {
     res.status(400).json({ error: 'Nomes inválidos' });
     return;
@@ -121,6 +126,12 @@ router.patch('/arquivo/renomear', async (req, res) => {
 
   try {
     await renomearArquivoFtp(antigoNome, novoNome);
+
+    // Emite para todos os usuários no front que o arquivo foi Renomeado
+    getSocket()
+      .to(`clp:${clp}`)
+      .emit('arquivo-renomeado', { antigoNome, novoNome, clp })
+
     res.json({ sucesso: true });
   } catch (error: any) {
     res.status(500).json({ error: 'Falha ao renomear', detalhes: error.message });
@@ -130,6 +141,8 @@ router.patch('/arquivo/renomear', async (req, res) => {
 // 🔥 Rota para excluir arquivo
 router.delete('/arquivo/:nomeArquivo', async (req, res) => {
   const nomeArquivo = req.params.nomeArquivo;
+  const clp = req.query.clp as string  // ou inclua no body se preferir
+
   if (!nomeArquivo) {
     res.status(400).json({ error: 'Nome do arquivo não fornecido' });
     return;
@@ -137,6 +150,12 @@ router.delete('/arquivo/:nomeArquivo', async (req, res) => {
 
   try {
     await excluirArquivoFtp(nomeArquivo);
+
+    // Emite para todos os usuários no front que o arquivo foi Excluido
+    getSocket()
+      .to(`clp:${clp}`)
+      .emit('arquivo-excluido', { nomeArquivo, clp })
+
     res.json({ sucesso: true });
   } catch (error: any) {
     res.status(500).json({ error: 'Falha ao excluir', detalhes: error.message });
