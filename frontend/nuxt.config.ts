@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ['@/assets/css/main.css'],
   modules: ['@nuxt/icon', '@pinia/nuxt', '@nuxt/ui',],
-
+  plugins: ['~/plugins/socket.client.ts'],
 
   components: true,
 

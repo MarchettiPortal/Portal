@@ -21,7 +21,7 @@
           </div>
           <div class="flex flex-col">
             <p class="text-xl font-semibold text-gray-800">{{ auth.user?.name || 'Erro Busca Usuário' }}</p>
-            <p class="text-sm text-gray-500">{{ auth.user?.officeLocation || 'Erro Busca Setor' }}</p>
+            <p class="text-sm text-gray-500">{{ groupNames|| 'Erro Busca Setor' }}</p>
             <p class="text-sm text-gray-400">{{ auth.user?.email || 'Erro Busca do E-mail' }}</p>
           </div>
         </div>
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/User/auth';
 
 const auth = useAuthStore();
@@ -65,9 +65,17 @@ const handleImageError = () => {
   hasValidPhoto.value = false;
 };
 
+const groupNames = computed(() => {
+  if (!auth.user?.grupos?.length) return ''
+  return auth.user.grupos
+    .map((g: any) => g.nome)   // `<any>` aqui impede o conflito
+    .join(' | ')
+})
+
+
+
 onMounted(async () => {
   await auth.fetchUser();
-  await auth.fetchUserPhoto();
   hasValidPhoto.value = !!auth.user?.photo && auth.user.photo !== '';
 });
 

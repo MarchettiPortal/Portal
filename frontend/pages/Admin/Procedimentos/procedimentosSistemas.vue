@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
 import ProcedimentoCard from '~~/components/Admin/Procedimentos/ProcedimentoCard.vue'
-import ProcedimentoSelect from '~~/components/admin/procedimentos/ProcedimentoSelect.vue'
 
 const showPopup = ref(false);
 

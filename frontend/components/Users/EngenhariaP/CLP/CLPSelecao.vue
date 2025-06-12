@@ -115,7 +115,6 @@ interface BackendResponse {
   message?: string
   error?: string
 }
-
 // Função que faz validações e inicia o reinício 
 function onClickAtualizar() {
   
