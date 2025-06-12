@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.back.js",
-    "start:dev": "concurrently -k -n TSC,NODE \"tsc -w\" \"nodemon dist/server.back.js\""
+    "dev": "concurrently -k -n TSC,NODE \"tsc -w\" \"nodemon dist/server.back.js\""
   },
   "keywords": [],
   "author": "",

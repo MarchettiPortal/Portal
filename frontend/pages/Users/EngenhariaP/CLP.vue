@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import CLPSelecao from '~/components/Users/EngenhariaP/CLP/CLPSelecao.vue'
 import CLPImport from '~/components/Users/EngenhariaP/CLP/CLPImport.vue'
-import CLPExibicao from '~/components/Users/EngenhariaP/CLP/CLPExibicao.vue'
+import CLPExibicao from '~/components/Users/EngenhariaP/CLP/CLPUpload.vue'
 
 definePageMeta({
   layout: "adm-layout",
