@@ -12,11 +12,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!auth.user) {
     return navigateTo('/login');
   }
-
-  const nomesDosGrupos = auth.user.grupos.map((g) => g.nome);
-  const isAdmin = nomesDosGrupos.includes('TI - Infraestrutura');
+  
+  const grupos = auth.user.grupos as unknown as Array<{ nome: string }>
+  const isAdmin = grupos
+    .some(g => g.nome === 'TI - Infraestrutura')
 
   if (isAdmin) {
+    console.log('admin', isAdmin)
     return;
   }
 

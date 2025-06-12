@@ -19,9 +19,6 @@ export const usePermissionStore = defineStore('permissions', {
           { baseURL: config.URL_BACKEND, credentials: 'include' }
         );
         this.permissoes = data;
-        console.log('Permissões recebidas:', data);
-        console.log('Grupos do usuário:', auth.user?.grupos);
-
       } catch {
         this.permissoes = [];
       }
