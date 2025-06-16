@@ -8,48 +8,41 @@ import { pool } from './config/Global/db.config.js';
 import { iniciarAgendador, pararAgendador } from './services/Milvus/Milvus.csvSLA.Scheduler.service.js';
 import { initSocket } from './socket.js'
 
-dotenv.config()
 
-const PORT_HTTP = config.PORT_HTTP;
+// ** Definições do Server **
+dotenv.config() // Inicializa o DOTENV para busca de valores
+const PORT_HTTP = config.PORT_HTTP; // Busca a porta definida no DOTENV do global.config.ts
+const httpServer = http.createServer(app) // Insere na variável as funções do Express
+initSocket(httpServer) // Inicializa Socket.IO sobre o server Express
 
-// Cria httpServer com Express
-const httpServer = http.createServer(app)
-// Inicializa Socket.IO sobre o server
-initSocket(httpServer)
 
-// Servidor HTTP para todas as rotas normais
-// Start no HTTP
+// ** Inicialização do Server **
 httpServer.listen(PORT_HTTP, () => {
-  console.log(`Servidor HTTP e Socket.IO rodando em http://127.0.0.1:${PORT_HTTP}`)
+  console.log(`Servidor HTTP e Socket.IO rodando em http://127.0.0.1:${PORT_HTTP}`) // Start no server em HTTP
 })
 
-// Se quiser HTTPS também, descomente:
+
+// Start no server em HTTP
 // https.createServer(httpsConfig, app).listen(config.PORT_HTTPS, () => {
 //   console.log(`Servidor HTTPS rodando na porta ${config.PORT_HTTPS}`)
 // })
 
 
-iniciarAgendador()
-  //.then(() => console.log('Agendador iniciado automaticamente no boot.'))
-  //.catch((err) => console.error('Erro ao iniciar agendador no boot:', err));
+// ** Funções que inicializam junto com o servidor **
+iniciarAgendador() // Inicializa o agendador de validação de chamados para atualização do banco de dados
 
 
+// ** Funções de desligamento do servidor **
+process.on('SIGINT', shutdown); // Manipulador que detecta sinalização de encerramento e chama a função shutdown()
+process.on('SIGTERM', shutdown); // Manipulador que detecta sinalização de encerramento e chama a função shutdown()
 
-// Graceful shutdown
-async function shutdown() {
-  //console.log('\nEncerrando servidor...')
+async function shutdown() { // Encerramento
   try {
-    pararAgendador()
-    //console.log('⏹️ Agendador parado.')
-
-    await pool.end()
-    //console.log('✅ Conexão com banco encerrada.')
+    pararAgendador() // Para o agendador de validação de chamados para atualização do banco de dados
+    await pool.end() // Finaliza a conexão com o banco de dados
   } catch (err) {
     console.error('Erro ao encerrar recursos:', err)
   } finally {
     process.exit()
   }
 }
-
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);

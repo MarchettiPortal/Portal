@@ -46,18 +46,6 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
   }
 }
 
-// 🔧 Função auxiliar para formatar o tamanho
-function formatarTamanho(bytes: number): string {
-  if (bytes === 0) return '0 B';
-
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const tamanho = bytes / Math.pow(k, i);
-
-  // Duas casas decimais
-  return `${tamanho.toFixed(2)} ${sizes[i]}`;
-}
 
 // 🔧 Função para enviar o arquivo
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
@@ -102,7 +90,6 @@ export async function renomearArquivoFtp(antigoNome: string, novoNome: string) {
     try {
       try {
       await client.rename(antigoNome, novoNome);
-      console.log(`Arquivo renomeado de ${antigoNome} para ${novoNome}`);
     } catch (err: any) {
       if (err.code === 553 && err.message.includes('No such file or directory')) {
         // Validação: verifica se o arquivo novo existe
