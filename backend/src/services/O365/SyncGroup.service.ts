@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { pool } from '../../config/Global/db.config';
-import { getAppTokenGraph } from './O365.Graph.Token.service';
+import { getAppTokenGraph } from './Graph.Token.service';
 
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 

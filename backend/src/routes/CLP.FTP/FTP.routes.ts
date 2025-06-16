@@ -143,29 +143,5 @@ router.get('/logs', async (req, res) => {
   }
 });
 
-/** 
-router.get('/ultimo-log', async (req, res) => {
-  const { clp } = req.query
-  if (!clp || typeof clp !== 'string') {
-    res.status(400).json({ error: 'Parâmetro "clp" é obrigatório e deve ser string.' })
-    return;
-  }
-  try {
-    const result = await pool.query(
-      `
-      SELECT * FROM "ftp_upload_logs"
-      WHERE "clp_selecionado" = $1
-      ORDER BY "data_envio" DESC
-      LIMIT 1
-      `,
-      [clp]
-    )
-    res.json(result.rows[0] || {})
-  } catch (e) {
-    console.error('Erro ao buscar log:', e)
-    res.status(500).json({ error: 'Erro ao buscar log' })
-  }
-})
-*/
 
 export default router;

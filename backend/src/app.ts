@@ -5,6 +5,8 @@ import graphRouter from './routes/O365/O365.routes';
 import clpRouter from './routes/CLP.FTP/CLP.routes'
 import permRouter from './routes/Auth/permissoes.routes'
 import ftpRouter from './routes/CLP.FTP/FTP.routes'
+import statusRouter from './routes/status/status.routes'
+import docRouter from './routes/Documentacao/APIs.routes'
 import { config } from './config/Global/global.config.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -25,11 +27,14 @@ app.use(cookieParser()); // Middleware para ler cookies
 
 // ** Rotas **
 app.use('/auth', authRouter);// Rota de Autenticação e Sessão Ativa
-app.use("/api/milvus",milvusRouter); // Rotas do Milvus e Chamados
+app.use("/api/milvus", milvusRouter); // Rotas do Milvus e Chamados
 app.use('/api/graph', graphRouter); // Rota da integração com Office365 
 app.use('/api/clp', clpRouter); // Rotas CLP
 app.use('/api/ftp', ftpRouter); // Rotas FTP
 app.use('/api/perm', permRouter); // Rotas de Permissões dos Usuários x Páginas
-app.use('/api/ad',adRouter); // Rotas da integração com AD
+app.use('/api/ad', adRouter); // Rotas da integração com AD
+app.use('/api/status', statusRouter); // Rotas de status de serviços e servidores
+app.use('/api/doc', docRouter); // Rotas de documentações
+
 
 export default app;

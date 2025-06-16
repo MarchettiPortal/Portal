@@ -1,14 +1,12 @@
 import { Router } from 'express';
-import { getClpStatus, setClpConfig, checkServiceHealth } from '../../services/CLP/CLP.Att.service'
+import { getClpStatus, setClpConfig } from '../../services/CLP/CLP.Att.service'
 import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP,  } from '../../controllers/CLP/CLP.Controller';
 
 const router = Router();
 
-
 // Chamadas ao serviço Remoto
 router.get('/status', getClpStatus); // Serviço Remoto: Retorna qual CLP está setado
 router.post('/set', setClpConfig); // Serviço Remoto: Altera IP do CLP e reinicia app
-router.get('/health', checkServiceHealth); // Serviço Remoto: Check se o Serviço Remoto está ativo
 
 // Chamadas ao Banco de Dados
 router.get('/list', listarClps) // Lista os CLP's no banco de dados
