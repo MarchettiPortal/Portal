@@ -9,5 +9,4 @@ export interface User {
   grupos: string[];
   /** URL do blob da foto de perfil (ou caminho do placeholder) */
   photo: string;
-  nome:string;
 }

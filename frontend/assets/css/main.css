@@ -6,3 +6,27 @@ body {
 
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+
+/* largura da scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* fundo “trilho” */
+::-webkit-scrollbar-track {
+  background: #f0f0f0;      /* cor de fundo clara */
+  border-radius: 4px;
+}
+
+/* “polegar” (a parte que você arrasta) */
+::-webkit-scrollbar-thumb {
+  background-color: #dc2626; /* vermelho (ex: red-600) */
+  border-radius: 4px;
+  border: 2px solid #f0f0f0; /* cria um contorno “espesso” */
+}
+
+/* polegar ao passar o mouse */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b91c1c; /* vermelho escuro */
+}

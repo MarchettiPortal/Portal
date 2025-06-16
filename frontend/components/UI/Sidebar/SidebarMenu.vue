@@ -26,12 +26,17 @@
     </SidebarMenuGroup>
 
     <!--Grupo TI-Infraestrutura -->
-    <SidebarMenuGroup icon="material-symbols:terminal" label="TI - Infraestrutura" :expanded="expanded">
+      <SidebarMenuGroup
+      v-if="isTI"
+      icon="material-symbols:terminal"
+      label="TI - Infraestrutura"
+      :expanded="expanded"
+    >
       <SidebarSubItem label="Chamados" to="/Admin/chamados" icon="material-symbols:sticky-note-2-outline-rounded" :expanded="expanded" />
       <SidebarSubItem label="Criar chamados" to="/Users/chamados" icon="material-symbols:sticky-note-2-outline-rounded" :expanded="expanded" />
       <SidebarSubItem label="Usuários" to="/Admin/usersEdit" icon="material-symbols:user-attributes" :expanded="expanded" />
       <SidebarSubItem label="Arquivos" to="" icon="material-symbols:docs-outline-rounded" :expanded="expanded" />
-      <SidebarSubItem label="Documentação" to="/Admin/apiDocs" icon="material-symbols:lab-profile-outline-rounded" :expanded="expanded" />
+      <SidebarSubItem label="Documentação API's" to="/Admin/apiDocs" icon="material-symbols:lab-profile-outline-rounded" :expanded="expanded" />
       <SidebarSubItem label="Estoque" to="" icon="material-symbols:stockpot-outline-rounded" :expanded="expanded" />
       <SidebarSubItem label="Pedido de Compras" to="" icon="material-symbols:shopping-cart-outline-rounded" :expanded="expanded" />
       <SidebarSubItem label="Serviços" to="/Admin/Servicos" icon="material-symbols:linked-services-outline" :expanded="expanded" />
@@ -41,7 +46,12 @@
 
 
     <!--Grupo Engenharia de Produto-->
-    <SidebarMenuGroup icon="material-symbols:engineering-outline-sharp" label="Engenharia P." :expanded="expanded">
+    <SidebarMenuGroup
+      v-if="isEngenharia || isTI"
+      icon="material-symbols:engineering-outline-sharp"
+      label="Engenharia P."
+      :expanded="expanded"
+    >
       <SidebarSubItem label="CLP" to="/Users/EngenhariaP/CLP" icon="material-symbols:memory-rounded"
         :expanded="expanded" />
         <SidebarSubItem label="CLPLog" to="/Users/EngenhariaP/CLPLOG" icon="material-symbols:receipt-long-outline-rounded"
@@ -56,9 +66,20 @@ import SidebarMenuGroup from './SidebarMenuGroup.vue'
 import SidebarSubItem from './SidebarSubItem.vue'
 import { computed } from 'vue'
 import { useSidebarStore } from '~/stores/UI/sidebar'
+import { useAuthStore } from '~/stores/User/auth'
+
 
 const props = defineProps<{ expanded: boolean }>()
 
 const sidebar = useSidebarStore()
 const pinnedItems = computed(() => sidebar.pinnedItems)
+const auth = useAuthStore()
+const isTI = computed(() =>
+  auth.user?.grupos?.some((g: any) => (typeof g === 'string' ? g : g.nome) === 'TI - Infraestrutura')
+)
+const isEngenharia = computed(() =>
+  auth.user?.grupos?.some((g: any) =>
+    (typeof g === 'string' ? g : g.nome).toLowerCase().startsWith('engenharia')
+  )
+)
 </script>

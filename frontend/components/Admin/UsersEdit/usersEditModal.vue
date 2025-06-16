@@ -94,6 +94,13 @@
         <div v-else-if="activeTab === 'Milvus'">
           <p class="text-gray-700">Configurações específicas do Milvus aqui.</p>
         </div>
+
+        <div v-else-if="activeTab === 'Permissões'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div v-for="group in availableGroups" :key="group" class="flex items-center space-x-2">
+            <input type="checkbox" :value="group" v-model="selectedGroups" class="border-gray-300 rounded" />
+            <label class="text-sm text-gray-700">{{ group }}</label>
+          </div>
+        </div>
       </div>
 
       <!-- Botões -->
@@ -108,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { DropdownMenuItem } from '@nuxt/ui'
 
@@ -116,7 +123,8 @@ const form = ref({
   nome: 'Eduardo Nitsche da Rosa',
   setor: '',
   status: 'ativo',
-  email: ''
+  email: '',
+  grupos: [] as string[]
 })
 
 const selectedSetor = ref('TI')
@@ -134,10 +142,49 @@ const dropItems = ref<DropdownMenuItem[]>([
   { label: 'Basic', click: () => selectedPermissao.value = 'Basic' }
 ])
 
+const availableGroups = [
+  'Compras',
+  'Engenharia de Processos',
+  'Recursos Humanos',
+  'Fiscal',
+  'Melhoria contínua',
+  'Saúde e Segurança do Trabalho',
+  'gerenciador de projetos',
+  'Custos',
+  'Suporte Administrativo',
+  'Arquivos',
+  'Tecnologia',
+  'Produção',
+  'Logística',
+  'Portaria',
+  'Marketing',
+  'Contábil',
+  'Coordenação',
+  'Gestão',
+  'Engenharia de Produtos',
+  'Recepção',
+  'Diretoria',
+  'TI - Infraestrutura',
+  'PCP',
+  'Almoxarifado',
+  'Informativos',
+  'Faturamento',
+  'Exportação',
+  'Manutenção',
+  'P&D',
+  'Equipe Televendas',
+  'Financeiro',
+  'Qualidade',
+  'Comercial',
+] as const
+
+const selectedGroups = ref<string[]>([])
+
+
 const props = defineProps<{ show: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'save'): void }>()
 
-const tabs = ['AD', 'Microsoft', 'Milvus']
+const tabs = ['AD', 'Microsoft', 'Milvus', 'Permissões']
 const activeTab = ref('AD')
 
 const statusOptions = ref([
@@ -150,6 +197,10 @@ const selectedStatus = ref(statusOptions.value[0])
 // Sincronizar com form.status ao salvar
 watch(selectedStatus, (val) => {
   form.value.status = val.value
+})
+
+watch(selectedGroups, (val) => {
+  form.value.grupos = val
 })
 
 
