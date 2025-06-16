@@ -9,7 +9,7 @@
           <Icon :name="icon" size="24" />
         </div>
         <span
-          class="transition-all duration-300 ease-in-out text-white whitespace-nowrap"
+          class="transition-all duration-300 text-sm ease-in-out text-white whitespace-nowrap"
           :class="labelClass"
         >
           {{ label }}

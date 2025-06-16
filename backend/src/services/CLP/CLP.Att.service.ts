@@ -64,7 +64,9 @@ export async function setClpConfig(req: Request, res: Response) {
 
 export async function checkServiceHealth(req: Request, res: Response) {
   try {
-    const { data } = await axios.get(`${SERVICE_REMOTE_BASE}/status`);
+        const { data } = await axios.get(`${SERVICE_REMOTE_BASE}/status`, {
+      timeout: 3000,
+    });
 
     if (typeof data !== 'object' || data === null) {
       res.status(500).json({ status: 'down', error: 'Resposta inválida do serviço remoto' });
