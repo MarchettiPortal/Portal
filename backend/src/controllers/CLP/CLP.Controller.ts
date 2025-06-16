@@ -10,11 +10,11 @@ export const listarClps = async (_req: Request, res: Response) => {
 
 // Adicionar CLP
 export const adicionarClp = async (req: Request, res: Response) => {
-  const { nome, ip } = req.body
-  if (!nome || !ip)  res.status(400).json({ error: 'Nome e IP obrigatórios' }) 
+  const { nome, ip, ativo, sistema_clp } = req.body
+  if (!nome || !ip || !sistema_clp)  res.status(400).json({ error: 'Nome, IP e Sistema obrigatórios' }) 
 
   try {
-    await pool.query('INSERT INTO clps (nome, ip) VALUES ($1, $2)', [nome, ip])
+    await pool.query('INSERT INTO clps (nome, ip, ativo, sistema_clp) VALUES ($1, $2, $3, $4)', [nome, ip, ativo, sistema_clp])
     res.status(201).json({ success: true })
   } catch (e) {
     res.status(500).json({ error: 'Erro ao adicionar CLP' })
@@ -30,15 +30,8 @@ export const removerClp = async (req: Request, res: Response) => {
 
 // Editar valores de CLP
 export async function atualizarOpcaoCLP(id: number, payload: ClpOpcaoPayload) {
-  const { label, value, sistema_clp = 'padrao' } = payload
+  const { nome, ip, ativo, sistema_clp = 'padrao' } = payload
 
-  const query = `
-    UPDATE clp_opcoes
-    SET label = $1, value = $2, sistema_clp = $3
-    WHERE id = $4
-  `
+  await pool.query('UPDATE clps SET nome = $1, ip = $2, ativo = $3, sistema_clp = $4 WHERE id = $5', [nome, ip, ativo, sistema_clp, id])
 
-  const values = [label, value, sistema_clp, id]
-
-  await pool.query(query, values)
 }

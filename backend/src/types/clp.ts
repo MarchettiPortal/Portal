@@ -6,7 +6,8 @@ export interface ClpOpcao {
 }
 
 export interface ClpOpcaoPayload {
-  label: string
-  value: string
+  nome: string
+  ip: string
+  ativo: boolean
   sistema_clp?: string
 }

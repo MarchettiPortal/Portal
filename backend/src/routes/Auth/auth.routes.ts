@@ -160,13 +160,8 @@ export function sessionGuard(req: Request, res: Response, next: Function) {
 
 
   // 6. ************** IMAGEM CACHE **************
-  router.get('/user/photo', (req: Request, res: Response) => {
+  router.get('/user/photo', sessionGuard, (req: Request, res: Response) => {
     const session = req.cookies?.session;
-
-    if (!session){
-      res.status(401).send('Não autenticado');
-      return;
-    } 
 
     try {
       const user = JSON.parse(session);
