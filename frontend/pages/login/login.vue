@@ -1,16 +1,43 @@
 <template>
-  <div class="relative w-screen h-screen bg-neutral-950 flex items-center justify-center">
-    <!-- Imagem de fundo com sombra -->
-    <div class="absolute w-[85%] h-[95%] rounded shadow-2xl shadow-red-500/40 border border-red-500/20 overflow-hidden">
-      <img src="/images/fundologin.png" alt="Imagem decorativa" class="w-full h-full object-cover" />
-    </div>
-
-    <!-- Card com efeito glassmorphism -->
+  <div
+    class="relative flex items-center justify-center w-screen h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden"
+  >
+    <!-- Blobs animados no fundo -->
     <div
-      class="z-10 w-80 max-w-full p-6 md:p-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-md shadow-lg flex flex-col items-center space-y-6">
-      <button @click="login"
-        class="w-full flex items-center justify-center gap-3 bg-white/10 text-white border border-white/20 px-5 py-3 rounded-md font-medium text-sm tracking-wide hover:bg-white/20 transition duration-200">
-        <img src="/icons/login-icon/microsoft-icon.svg" alt="Microsoft" class="w-5 h-5" />
+      class="absolute top-0 left-0 w-72 h-72 bg-red-600/20 rounded-xs blur-3xl animate-slow-pulse"
+    ></div>
+    <div
+      class="absolute bottom-0 right-0 w-80 h-80 bg-red-600/20 rounded-full blur-3xl animate-slow-spin"
+    ></div>
+
+    <!-- Cartão principal -->
+    <div
+      class="relative z-10 max-w-sm w-full p-8 bg-white/10 backdrop-blur-xl border border-white/30 rounded-xs shadow-lg flex flex-col items-center space-y-6"
+    >
+      <!-- Logo + Tagline -->
+      <img
+        src="/Public/images/MarchettiLogo.png"
+        alt="Logo Marchetti"
+        class="w-60 h-auto"
+      />
+      <h2 class="text-white text-2xl font-semibold font-sans">
+        Bem-vindo à Marchetti
+      </h2>
+      <p class="text-gray-300 text-base text-center leading-relaxed">
+        Faça login para continuar
+      </p>
+
+      <!-- Botão de login -->
+      <button
+        @click="login"
+        class="w-full flex items-center justify-center gap-3 py-3 font-medium rounded-xs bg-red-600 text-white shadow-md transform transition 
+               hover:bg-red-700 focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+      >
+        <img
+          src="/icons/login-icon/microsoft-icon.svg"
+          alt="Microsoft"
+          class="w-5 h-5"
+        />
         Entrar com Microsoft
       </button>
     </div>
@@ -28,3 +55,20 @@ definePageMeta({
   path: '/login',
 })
 </script>
+
+<style scoped>
+@keyframes slow-pulse {
+  0%, 100% { transform: scale(1) }
+  50% { transform: scale(1.1) }
+}
+@keyframes slow-spin {
+  from { transform: rotate(0deg) }
+  to   { transform: rotate(360deg) }
+}
+.animate-slow-pulse {
+  animation: slow-pulse 8s ease-in-out infinite;
+}
+.animate-slow-spin {
+  animation: slow-spin 20s linear infinite;
+}
+</style>
