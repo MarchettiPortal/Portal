@@ -5,7 +5,7 @@
       class="h-full bg-[#202124] text-white p-4 pt-1 flex flex-col transition-all duration-300"
       :class="isExpanded ? 'w-64' : 'w-16'"
     >
-      <div class="flex-1">
+      <div class="flex-1 min-h-0">
         <SidebarLogo :expanded="isExpanded" />
         <SidebarMenu :expanded="isExpanded" />
       </div>

@@ -9,7 +9,7 @@
     </div>
 
     <span
-      class="transition-all whitespace-nowrap duration-300 ease-in-out text-white"
+      class="transition-all text-sm whitespace-nowrap duration-300 ease-in-out text-white"
       :class="expanded ? 'opacity-100 ml-1 w-auto' : 'opacity-0 ml-0 w-0 pointer-events-none'"
     >
       {{ label }}
