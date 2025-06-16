@@ -3,13 +3,14 @@ import axios from 'axios';
 import { logger } from '../../utils/logger';
 import { setReiniciando } from '../../flags/wpsFTP';
 import { getSocket } from '../../socket';
+import { config } from '../../config/Global/global.config';
 
-const SERVICE_REMOTE_BASE = 'http://192.168.0.5:8080';
 const TIMEOUT = 120_000;
 
+// Busca qual CLP está selecionado
 export async function getClpStatus(req: Request, res: Response) {
   try {
-    const { data } = await axios.get(`${SERVICE_REMOTE_BASE}/clp/status`);
+    const { data } = await axios.get(`${config.BASE_URL_NGINX}/clp/status`);
     res.json(data);
   } catch (error) {
     logger.error('Erro ao obter status do CLP:', error);
@@ -17,6 +18,7 @@ export async function getClpStatus(req: Request, res: Response) {
   }
 }
 
+// Edita o CLP conforme informações vindas do Frontend
 export async function setClpConfig(req: Request, res: Response) {
   const { ip, userID } = req.body;
   logger.warn(userID)
@@ -36,10 +38,10 @@ export async function setClpConfig(req: Request, res: Response) {
   setReiniciando(true, userID);
 
   try {
-    logger.info(`[BACKEND][SET CLP] Enviando IP ${ip} para ${SERVICE_REMOTE_BASE}/clp/config`);
+    logger.info(`[BACKEND][SET CLP] Enviando IP ${ip} para ${config.BASE_URL_NGINX}/clp/config`);
 
     const { data } = await axios.post(
-      `${SERVICE_REMOTE_BASE}/clp/config`,
+      `${config.BASE_URL_NGINX}/clp/config`,
       { ip },
       {
         timeout: TIMEOUT,
@@ -62,23 +64,6 @@ export async function setClpConfig(req: Request, res: Response) {
 
 ///////////////////////////
 
-export async function checkServiceHealth(req: Request, res: Response) {
-  try {
-        const { data } = await axios.get(`${SERVICE_REMOTE_BASE}/status`, {
-      timeout: 3000,
-    });
-
-    if (typeof data !== 'object' || data === null) {
-      res.status(500).json({ status: 'down', error: 'Resposta inválida do serviço remoto' });
-      return;
-    }
-
-    res.json({ status: 'up', ...data });
-  } catch (error) {
-    logger.error('Erro ao verificar health do serviço remoto:', error);
-    res.status(500).json({ status: 'down' });
-  }
-}
 
 
 
