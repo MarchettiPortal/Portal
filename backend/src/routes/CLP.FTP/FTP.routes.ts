@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { getSocket } from '../../socket';
-import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp } from '../../services/FTP/FTP.Client.service'
+import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp  } from '../../services/FTP/FTP.Client.service'
 import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.service'
 import multer from 'multer';
 import fs from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
+
 
 const upload = multer({ dest: 'uploads/' });
 const router = Router();
@@ -142,6 +143,8 @@ router.get('/logs', async (req, res) => {
     res.status(500).json({ error: 'Erro ao listar logs' });
   }
 });
+
+
 
 
 export default router;

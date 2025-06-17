@@ -24,7 +24,6 @@
       :arquivos="arquivosEmExecucao"
       :editando-arquivo="editandoArquivo"
       v-model:nome-editado="nomeEditado"
-      @baixar="baixarArquivo"
       @ativar-edicao="ativarEdicao"
       @confirmar-renomear-inline="confirmarRenomearInline"
       @abrir-modal-excluir="abrirModalExcluir"
@@ -112,28 +111,6 @@ const isUploading = ref(false)
 const isSuccess = ref(false)
 const arquivoArrastado = ref<File | null>(null)
 
-// Baixar o arquivo
-const baixarArquivo = async (arquivo: Arquivo) => {
-  try {
-    const response = await axios.get(`${config.API_BACKEND}/clp/arquivo/download`, {
-      params: {
-        nome: arquivo.nomeArquivo,
-        clp: clpStore.clpText
-      },
-      responseType: 'blob'
-    })
-    const url = URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', arquivo.nomeArquivo)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  } catch {
-    showError('Erro ao baixar arquivo.')
-  }
-}
 
 // Helpers gerais
 const showError = (msg: string) => {
@@ -143,7 +120,7 @@ const showError = (msg: string) => {
 
 const fetchUploadStatus = async () => {
   try {
-    const { data } = await axios.get(`${config.API_BACKEND}/clp/status-global`)
+    const { data } = await axios.get(`${config.API_BACKEND}/ftp/status-global`)
     uploadLocked.value = data.ftp.enviando
   } catch (e) {
     console.warn('Falha ao buscar status de upload', e)
@@ -180,7 +157,7 @@ const buscarArquivoEmExecucao = async () => {
   }
 
   try {
-    const { data } = await axios.get(`${config.API_BACKEND}/clp/arquivo`, {
+    const { data } = await axios.get(`${config.API_BACKEND}/ftp/arquivo`, {
       params: { clp: clpStore.clpText }
     })
 
@@ -226,7 +203,7 @@ const confirmarRenomearInline = async (arquivo: Arquivo) => {
   }
 
   try {
-    await axios.patch(`${config.API_BACKEND}/clp/arquivo/renomear`, {
+    await axios.patch(`${config.API_BACKEND}/ftp/arquivo/renomear`, {
       antigoNome: arquivo.nomeArquivo,
       novoNome: novoNomeCompleto
     })
@@ -279,7 +256,7 @@ const confirmarDescricao = async () => {
   formData.append('clp', clpStore.clpText)
 
   try {
-    await axios.post(`${config.API_BACKEND}/clp/upload`, formData)
+    await axios.post(`${config.API_BACKEND}/ftp/upload`, formData)
     lastUploadedArquivo.value = arquivoSelecionado.value.nomeArquivo
     arquivosPendentes.value = arquivosPendentes.value.filter(
       f => f.nomeArquivo !== arquivoSelecionado.value!.nomeArquivo
@@ -305,7 +282,7 @@ const confirmarExcluir = async () => {
   if (!arquivoSelecionado.value) return
   try {
     await axios.delete(
-      `${config.API_BACKEND}/clp/arquivo/${encodeURIComponent(
+      `${config.API_BACKEND}/ftp/arquivo/${encodeURIComponent(
         arquivoSelecionado.value.nomeArquivo
       )}`
     )

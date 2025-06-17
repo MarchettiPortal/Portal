@@ -2,6 +2,7 @@ import { Client } from 'basic-ftp';
 import fs from 'fs';
 import { getSocket } from '../../socket'; 
 
+
 const FTP_CONFIG = {
   host:'SV-WPS-WEG',
   user: 'admin',
@@ -143,3 +144,5 @@ export async function excluirArquivoFtp(nomeArquivo: string) {
     client.close();
   }
 }
+
+
