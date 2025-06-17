@@ -7,6 +7,7 @@ import { config } from './config/Global/global.config.js'
 import { pool } from './config/Global/db.config.js';
 import { iniciarAgendador, pararAgendador } from './services/Milvus/Milvus.csvSLA.Scheduler.service.js';
 import { initSocket } from './socket.js'
+import './workers/O365.UsersGroups.refresh.worker.js'; 
 
 
 // ** Definições do Server **

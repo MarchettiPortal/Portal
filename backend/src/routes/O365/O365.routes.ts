@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import backRouter from './back.O365.routes'
 import {
   listUsuarios,
   listGrupos,
@@ -11,21 +10,35 @@ import {
   listGrupoPermissoes,
   addGrupoPermissao,
   updateGrupoPermissao,
-  deleteGrupoPermissao
+  deleteGrupoPermissao,
+  listCampoUsuarios,
+  listCamposUsuarios
 } from '../../controllers/O365/front.O365.controller';
+import { syncAllTeamsGroupsAndMembers } from '../../services/O365/SyncGroup.service';
 
 const router = Router();
 
 // Rotas relacionadas ao Backend
-router.get('/back', backRouter); // /api/graph/back/sync-teams-groups - Sincroniza todos os USUÁRIOS, GRUPOS e USUÁRIOS x GRUPOS do Banco de Dados com o O365 automaticamente
+router.get('/back/sync-users-groups', async (req, res) => {
+  try {
+    await syncAllTeamsGroupsAndMembers();
+    res.json({ message: 'Sincronização concluída com sucesso.' });
+  } catch (error: any) {
+    console.error('Erro ao sincronizar grupos do Teams:', error.message);
+    res.status(500).json({ error: 'Erro interno ao sincronizar grupos.' });
+  }
+});
 
 // Rotas relacionadas ao Frontend
 // Listagens
-router.get('/users', listUsuarios); // LISTA todos os USUÁRIOS no Banco de Dados
-router.get('/groups', listGrupos); // LISTA todos os GRUPOS no Banco de Dados
+router.get('/All-users', listUsuarios); // LISTA todos os USUÁRIOS no Banco de Dados
+router.get('/All-groups', listGrupos); // LISTA todos os GRUPOS no Banco de Dados
 router.get('/users-groups', listUsuariosGrupos); // LISTA todos os GRUPOS e MEMBROS no Banco de Dados
 router.get('/routesDB', listPermissoes); // LISTA todas as ROTAS no Banco de Dados
 router.get('/groups-perms', listGrupoPermissoes); // LISTA todas as ROTAS x GRUPOS e/ou USUÁRIOS no Banco de Dados
+router.get('/users/:campo', listCampoUsuarios); // LISTA todos os valores de uma Coluna de acordo com o Campo enviado pelo Frontend
+router.get('/camposusers', listCamposUsuarios); // LISTA todos os nomes de colunas da tabela USUÁRIOS - USADO PARA DEBUG RÁPIDO
+
 
 // Rotas
 router.post('/routesDB', createPermissao); // ADICIONA uma ROTA no banco de dados

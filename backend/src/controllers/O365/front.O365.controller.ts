@@ -31,6 +31,59 @@ export const listGrupoPermissoes = async (_req: Request, res: Response) => {
   res.json(result.rows);
 };
 
+// Lista os dados da tabela Usuários de acordo com o Campo solicitado no Frontend
+export async function listCampoUsuarios(req: Request, res: Response) {
+  const { campo } = req.params;
+
+  try {
+    // 1. Obtém colunas da tabela "usuarios"
+    const colunasRes = await pool.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'usuarios'
+    `);
+
+    const colunasValidas = colunasRes.rows.map((r) => r.column_name);
+
+    if (!colunasValidas.includes(campo)) {
+      res.status(400).json({ erro: `Campo '${campo}' não é válido.` });
+      return;
+    }
+
+    // 2. Executa a query para retornar id + campo
+    const query = `SELECT id, ${campo} FROM usuarios ORDER BY id`;
+    const { rows } = await pool.query(query);
+
+    res.status(200).json(rows);
+    return;
+  } catch (err) {
+    console.error(`Erro ao listar campo ${campo}:`, err);
+    res.status(500).json({ erro: 'Erro ao acessar o banco de dados.' });
+    return;
+  }
+}
+
+
+// Listar as colunas da tabela Usuários para DEBUG rápido
+export async function listCamposUsuarios(req: Request, res: Response) {
+  try {
+    const result = await pool.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'usuarios'
+      ORDER BY ordinal_position;
+    `);
+
+    const colunas = result.rows.map(r => r.column_name);
+    res.status(200).json({ colunas });
+    return;
+  } catch (err) {
+    console.error('Erro ao listar colunas da tabela usuarios:', err);
+    res.status(500).json({ erro: 'Erro ao acessar o banco de dados.' });
+    return;
+  }
+}
+
 // Cria uma nova permissão (rota).
 export const createPermissao = async (req: Request, res: Response) => {
   const { rota, nome_visivel, grupo_pai } = req.body;
