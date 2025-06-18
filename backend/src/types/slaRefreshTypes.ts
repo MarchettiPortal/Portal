@@ -1,10 +1,4 @@
-// types/slaRefreshTypes.ts
-export interface MudancaDetectada {
-    codigo: string; // Garantindo que será sempre string
-    campo: string;
-    valorAnterior: string;
-    valorNovo: string;
-}
+import { MudancaDetectada } from './common';
 
 export interface SLARefreshStatus {
     enabled: boolean;

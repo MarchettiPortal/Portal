@@ -1,12 +1,11 @@
 import winston from 'winston';
 import path from 'path';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 
 // Garante que a pasta de logs existe
 const logDir = path.resolve('logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+fs.mkdir(logDir, { recursive: true }).catch(() => { /* ignore */ });
+
 
 export const logger = winston.createLogger({
   level: 'info',

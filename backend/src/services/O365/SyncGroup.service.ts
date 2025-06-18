@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { pool } from '../../config/Global/db.config';
 import { getAppTokenGraph } from './Graph.Token.service';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
@@ -12,9 +12,7 @@ const syncQueue: Promise<void>[] = [];
 
 // Diretório de logs
 const logDir = path.resolve(process.cwd(), 'logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
-}
+fs.mkdir(logDir, { recursive: true }).catch(() => { /* ignore */ });
 
 interface ADGrupo { id: string; nome: string }
 interface ADUser { 
@@ -116,8 +114,8 @@ export async function syncAllTeamsGroupsAndMembers() {
         );
 
         ativo = res.data.accountEnabled ?? true;
-        if (ativo === false) {
-          fs.appendFileSync(
+                if (ativo === false) {
+          await fs.appendFile(
             path.join(logDir, 'inativos.log'),
             `${new Date().toISOString()} | ${usuarioBase.mail} | accountEnabled: false\n`
           );
@@ -143,7 +141,7 @@ export async function syncAllTeamsGroupsAndMembers() {
         recursos: recursoUserIds.has(usuarioBase.id)
       };
 
-      fs.appendFileSync(
+      await fs.appendFile(
         path.join(logDir, 'salvos.log'),
         `${new Date().toISOString()} | ${usuarioFinal.email} | ${JSON.stringify({
           id: usuarioFinal.id,

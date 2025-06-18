@@ -1,3 +1,5 @@
+import { MudancaDetectada } from "./common";
+
 export type Prioridade = 'Baixo' | 'Médio' | 'Alto' | 'Crítico' | 'Não Possui' | "Planejado";
 export type StatusChamado = 'A fazer' | 'Em Andamento' | 'Pausado' | 'Finalizado' | 'Atendendo' | 'Não Possui' | 'Reaberto';
 
@@ -39,13 +41,6 @@ export interface ChamadoBanco {
     mesa_trabalho: string;
     tecnico: string;
 
-}
-
-export interface MudancaDetectada {
-    codigo: string | number;
-    campo: string;
-    valorAnterior: string;
-    valorNovo: string;
 }
 
 export interface ResultadoAtualizacao {

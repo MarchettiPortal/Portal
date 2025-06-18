@@ -1,13 +1,14 @@
 import { Client } from 'basic-ftp';
-import fs from 'fs';
-import { getSocket } from '../../socket'; 
+import { promises as fs } from 'fs';
+import { getSocket } from '../../socket';
+import ftpConfig from '../../config/FTP/dotenv.ftp.config';
 
 
 const FTP_CONFIG = {
-  host:'SV-WPS-WEG',
-  user: 'admin',
-  password: 'weg',
-  port:2221,
+  host: ftpConfig.host,
+  user: ftpConfig.user,
+  password: ftpConfig.password,
+  port: ftpConfig.port,
 };
 
 type ArquivoFtp = {
@@ -23,21 +24,17 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
     await client.access(FTP_CONFIG);
     const arquivos = await client.list(caminho);
     const arquivosVisiveis = arquivos.filter(a => !a.name.startsWith('.'));
-    const arquivosComTamanho: ArquivoFtp[] = [];
-
-    for (const a of arquivosVisiveis) {
-      let tamanho = 0;
-      try {
-        tamanho = await client.size(`${a.name}`);
-      } catch (e) {
-        console.log(`Erro ao buscar tamanho de ${a.name}:`, e);
-      }
-
-      arquivosComTamanho.push({
-        nome: a.name,
-        tamanho: tamanho,
-      });
-    }
+    const arquivosComTamanho = await Promise.all(
+      arquivosVisiveis.map(async (a) => {
+        let tamanho = 0;
+        try {
+          tamanho = await client.size(`${a.name}`);
+        } catch (e) {
+          console.log(`Erro ao buscar tamanho de ${a.name}:`, e);
+        }
+        return { nome: a.name, tamanho } as ArquivoFtp;
+      })
+    );
 
     return arquivosComTamanho;
   } catch (error) {
@@ -59,9 +56,9 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
       ...FTP_CONFIG,
       secure: false,
     });
-  client.ftp.socket.setTimeout(120000); // 120 segundos
+    client.ftp.socket.setTimeout(120000); // 120 segundos
 
-    const tamanhoTotal = fs.statSync(localPath).size;
+    const { size: tamanhoTotal } = await fs.stat(localPath);
 
     client.trackProgress(info => {
       const percent = Math.round((info.bytes / tamanhoTotal) * 100);
