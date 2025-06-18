@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getEnvVar } from '../../utils/env';
 
 const api = axios.create({
-  baseURL: process.env.AD_SERVICE_URL || 'http://192.168.0.5:8080',
+  baseURL: getEnvVar('AD_SERVICE_URL'),
   timeout: 5000
 });
 

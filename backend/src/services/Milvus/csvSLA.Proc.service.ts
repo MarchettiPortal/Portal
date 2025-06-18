@@ -1,11 +1,11 @@
-import fs from 'fs';
+import { promises as fs, createReadStream } from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser'
 import pool from '../../config/Global/db.config'
 import { pipeline } from 'stream/promises'
 import { parse, format, getYear, differenceInMilliseconds } from 'date-fns'
 import { pt } from 'date-fns/locale'
-import { upsertTicket } from './Milvus.csvSLA.DB.service.js';
+import { upsertTicket } from './csvSLA.DB.service.js';
 import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config.js'
 import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData.js';
 import { ParsedRow } from '../../types/csvSLA'
@@ -17,7 +17,7 @@ export async function processCSV(): Promise<void> {
 
   try {
     await pipeline(
-      fs.createReadStream(csvPath, { encoding: 'utf-8' }),
+      createReadStream(csvPath, { encoding: 'utf-8' }),
       csvParser({ separator: ';' }),
       async function* (source) {
         for await (const rawRow of source) {
@@ -35,8 +35,6 @@ export async function processCSV(): Promise<void> {
     console.error('Falha no pipeline de CSV:', err)
     throw err
   }finally {
-    await pool.end()
-    //console.log('Pool encerrado.')
   }
 }
 

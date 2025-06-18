@@ -3,7 +3,7 @@ import { getSocket } from '../../socket';
 import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp  } from '../../services/FTP/FTP.Client.service'
 import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.service'
 import multer from 'multer';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
 
 
@@ -52,7 +52,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
       .to(`clp:${clp}`)
       .emit('ftp-upload-completo', { usuario, clp })
 
-    fs.unlinkSync(localPath); // Remove arquivo local temporário
+    await fs.unlink(localPath); // Remove arquivo local temporário
     res.json({ sucesso: true }); // ✅ ÚNICO ponto que envia resposta
   } catch (error: any) {
     console.error('[ERRO UPLOAD]', error);

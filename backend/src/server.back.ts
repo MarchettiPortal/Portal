@@ -1,17 +1,18 @@
 import app from './app.js';
 import https from 'https';
 import http from 'http';
-import { httpsConfig  } from './config/Global/https.config.js';
+import { getHttpsConfig  } from './config/Global/https.config.js';
 import dotenv from 'dotenv';
 import { config } from './config/Global/global.config.js'
 import { pool } from './config/Global/db.config.js';
-import { iniciarAgendador, pararAgendador } from './services/Milvus/Milvus.csvSLA.Scheduler.service.js';
+import { iniciarAgendador, pararAgendador } from './services/Milvus/csvSLA.Scheduler.service.js';
 import { initSocket } from './socket.js'
 import './workers/O365.UsersGroups.refresh.worker.js'; 
 
 
 // ** Definições do Server **
 dotenv.config() // Inicializa o DOTENV para busca de valores
+const IP_SERVER = config.BASE_URL_BACKEND; // Endereço do server
 const PORT_HTTP = config.PORT_HTTP; // Busca a porta definida no DOTENV do global.config.ts
 const httpServer = http.createServer(app) // Insere na variável as funções do Express
 initSocket(httpServer) // Inicializa Socket.IO sobre o server Express
@@ -19,7 +20,7 @@ initSocket(httpServer) // Inicializa Socket.IO sobre o server Express
 
 // ** Inicialização do Server **
 httpServer.listen(PORT_HTTP, () => {
-  console.log(`Servidor HTTP e Socket.IO rodando em http://127.0.0.1:${PORT_HTTP}`) // Start no server em HTTP
+  console.log(`Servidor HTTP e Socket.IO rodando em ${IP_SERVER}`) // Start no server em HTTP
 })
 
 

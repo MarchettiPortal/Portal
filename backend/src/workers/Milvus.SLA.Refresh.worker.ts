@@ -1,5 +1,5 @@
 import { parentPort } from 'worker_threads';
-import { slaRefreshAutomatico } from '../services/Milvus/Milvus.csvSLA.AutoRefresh.service';
+import { slaRefreshAutomatico } from '../services/Milvus/csvSLA.AutoRefresh.service';
 
 async function run() {
   try {

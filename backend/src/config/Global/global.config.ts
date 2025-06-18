@@ -1,11 +1,15 @@
-import "dotenv/config";
+import 'dotenv/config';
+import { getEnvVar } from '../../utils/env';
 
-const BASE_URL_BACKEND = 'http://localhost:3005';
-const BASE_URL_FRONTEND = 'http://localhost:3000';
-const BASE_URL_NGINX = 'http://192.168.0.5:8080'
-const BASE_URL_SERVER_WPS = '192.168.1.86'
-const BASE_URL_SERVER_DATABASE = '192.168.0.6'
-const BASE_URL_SERVER_NGINX = '192.168.0.5'
+const PORT_HTTP = parseInt(getEnvVar('PORT_HTTP'), 10);
+const PORT_HTTPS = parseInt(getEnvVar('PORT_HTTP'), 10);
+
+const BASE_URL_BACKEND = `${getEnvVar('BASE_URL_BACKEND')}:${PORT_HTTP}`;
+const BASE_URL_FRONTEND = getEnvVar('BASE_URL_FRONTEND');
+const BASE_URL_NGINX = getEnvVar('BASE_URL_NGINX');
+const BASE_URL_SERVER_WPS = getEnvVar('BASE_URL_SERVER_WPS');
+const BASE_URL_SERVER_DATABASE = getEnvVar('BASE_URL_SERVER_DATABASE');
+const BASE_URL_SERVER_NGINX = getEnvVar('BASE_URL_SERVER_NGINX');
 
 export const config = {
   BASE_URL_BACKEND,
@@ -19,6 +23,6 @@ export const config = {
   HOMEPAGE_URL_FRONTEND_ADMIN: `${BASE_URL_FRONTEND}/admin/home`,
   LOGIN_URL_FRONTEND: `${BASE_URL_FRONTEND}/login`,
   HOMEPAGE_URL_FRONTEND_HOME: `${BASE_URL_FRONTEND}/home`,
-  PORT_HTTPS:3006,
-  PORT_HTTP:3005
+  PORT_HTTPS,
+  PORT_HTTP,
 };
