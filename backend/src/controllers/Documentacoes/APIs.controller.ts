@@ -6,9 +6,23 @@ import { getAllSections, getRoutesBySection, createSection, createRoute, updateS
 
 // Lista todas as Sections cadastradas no banco
 export const listSections = async (req: Request, res: Response) => {
-  const sections = await getAllSections;
-  res.json(sections);
+
+  try {
+
+    const sections = await getAllSections(); // <- aqui estava o erro
+
+    res.json(sections);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({ error: 'Erro ao buscar seções' });
+
+  }
+
 };
+ 
 
 // Adiciona Sections ao banco de dados
 export const addSections = async (req: Request, res: Response) => {

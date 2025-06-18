@@ -115,7 +115,7 @@ const arquivoArrastado = ref<File | null>(null)
 // Baixar o arquivo
 const baixarArquivo = async (arquivo: Arquivo) => {
   try {
-    const response = await axios.get(`${config.API_BACKEND}/clp/arquivo/download`, {
+    const response = await axios.get(`${config.API_BACKEND}/ftp/arquivo/download`, {
       params: {
         nome: arquivo.nomeArquivo,
         clp: clpStore.clpText
@@ -143,7 +143,7 @@ const showError = (msg: string) => {
 
 const fetchUploadStatus = async () => {
   try {
-    const { data } = await axios.get(`${config.API_BACKEND}/clp/status-global`)
+    const { data } = await axios.get(`${config.API_BACKEND}/ftp/status-global`)
     uploadLocked.value = data.ftp.enviando
   } catch (e) {
     console.warn('Falha ao buscar status de upload', e)
@@ -180,7 +180,7 @@ const buscarArquivoEmExecucao = async () => {
   }
 
   try {
-    const { data } = await axios.get(`${config.API_BACKEND}/clp/arquivo`, {
+    const { data } = await axios.get(`${config.API_BACKEND}/ftp/arquivo`, {
       params: { clp: clpStore.clpText }
     })
 
@@ -226,7 +226,7 @@ const confirmarRenomearInline = async (arquivo: Arquivo) => {
   }
 
   try {
-    await axios.patch(`${config.API_BACKEND}/clp/arquivo/renomear`, {
+    await axios.patch(`${config.API_BACKEND}/ftp/arquivo/renomear`, {
       antigoNome: arquivo.nomeArquivo,
       novoNome: novoNomeCompleto
     })
@@ -279,7 +279,7 @@ const confirmarDescricao = async () => {
   formData.append('clp', clpStore.clpText)
 
   try {
-    await axios.post(`${config.API_BACKEND}/clp/upload`, formData)
+    await axios.post(`${config.API_BACKEND}/ftp/upload`, formData)
     lastUploadedArquivo.value = arquivoSelecionado.value.nomeArquivo
     arquivosPendentes.value = arquivosPendentes.value.filter(
       f => f.nomeArquivo !== arquivoSelecionado.value!.nomeArquivo
@@ -305,7 +305,7 @@ const confirmarExcluir = async () => {
   if (!arquivoSelecionado.value) return
   try {
     await axios.delete(
-      `${config.API_BACKEND}/clp/arquivo/${encodeURIComponent(
+      `${config.API_BACKEND}/ftp/arquivo/${encodeURIComponent(
         arquivoSelecionado.value.nomeArquivo
       )}`
     )

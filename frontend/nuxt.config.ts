@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/icon', '@pinia/nuxt', '@nuxt/ui',],
   plugins: ['~/plugins/socket.client.ts'],
 
+
   components: true,
 
   vite: {

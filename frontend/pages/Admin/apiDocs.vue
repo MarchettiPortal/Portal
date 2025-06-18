@@ -6,10 +6,10 @@
         <span>Documentação das APIs</span>
       </h1>
       <button
-        @click="openModal = true"
-        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer transition"
+        @click="tab='api'; openModal = true"
+        class="btn btn-danger"
       >
-        + Adicionar API
+        + Adicionar
       </button>
     </div>
 
@@ -19,9 +19,9 @@
         v-model="search"
         type="text"
         placeholder="Buscar rota..."
-        class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+        class="form-control flex-1"
       />
-      <select v-model="methodFilter" class="border border-gray-300 rounded px-3 py-2 focus:outline-none">
+      <select v-model="methodFilter" class="form-select mt-2 sm:mt-0">
         <option value="">Todos métodos</option>
         <option value="GET">GET</option>
         <option value="POST">POST</option>
@@ -33,14 +33,16 @@
 
     <!-- Seções -->
     <ApiSection
-  v-for="s in docs"
-  :key="s.title"
-  :title="s.title"
-  :routes="s.routes"
-  :filter="search"
-  :methodFilter="methodFilter"
-  @delete-route="deleteApi"
-/>
+      v-for="s in docs"
+      :key="s.id"
+      :id="s.id"
+      :title="s.title"
+      :routes="s.routes"
+      :filter="search"
+      :methodFilter="methodFilter"
+      @delete-route="deleteApi"
+      @delete-section="deleteSection"
+    />
 
 
     <!-- Modal de Adicionar API -->
@@ -50,71 +52,96 @@
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       >
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-          <h2 class="text-xl font-semibold mb-4">Adicionar nova API</h2>
-          <form @submit.prevent="addApi">
-            <!-- Escolher seção existente ou criar nova -->
-            <label class="block mb-2">
-              <span class="text-sm font-medium">Seção</span>
-              <select v-model="form.section" class="mt-1 block w-full border-gray-300 rounded">
+          <div class="flex border-b mb-4 space-x-2">
+            <button
+              :class="tab==='api' ? activeTab : inactiveTab"
+              @click="tab='api'"
+            >
+              Nova API
+            </button>
+            <button
+              :class="tab==='section' ? activeTab : inactiveTab"
+              @click="tab='section'"
+            >
+              Nova Seção
+            </button>
+          </div>
+
+          <!-- Formulário para adicionar API -->
+          <form v-if="tab==='api'" @submit.prevent="addApi" class="space-y-3">
+            <div class="mb-3">
+              <label class="form-label">Seção</label>
+              <select v-model="apiForm.section" class="form-select">
                 <option disabled value="">Selecione...</option>
-                <option v-for="s in docs" :key="s.title" :value="s.title">{{ s.title }}</option>
+                <option v-for="s in docs" :key="s.id" :value="s.title">{{ s.title }}</option>
                 <option value="__new">+ Nova seção</option>
               </select>
-            </label>
-            <label v-if="form.section==='__new'" class="block mb-2">
-              <span class="text-sm font-medium">Nome da nova seção</span>
+            </div>
+            <div v-if="apiForm.section==='__new'" class="mb-3">
+              <label class="form-label">Nome da nova seção</label>
               <input
-                v-model="form.newSectionName"
+                v-model="apiForm.newSectionName"
                 type="text"
-                class="mt-1 block w-full border-gray-300 rounded"
+                class="form-control"
                 placeholder="Ex: Pagamentos"
                 required
               />
-            </label>
-
-            <!-- Campos da rota -->
-            <label class="block mb-2">
-              <span class="text-sm font-medium">Método</span>
-              <select v-model="form.method" required class="mt-1 block w-full border-gray-300 rounded">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Método</label>
+              <select v-model="apiForm.method" required class="form-select">
                 <option disabled value="">Selecione...</option>
                 <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATH</option>
               </select>
-            </label>
-            <label class="block mb-2">
-              <span class="text-sm font-medium">URL</span>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL</label>
               <input
-                v-model="form.url"
+                v-model="apiForm.url"
                 type="text"
-                class="mt-1 block w-full border-gray-300 rounded"
+                class="form-control"
                 placeholder="/api/exemplo"
                 required
               />
-            </label>
-            <label class="block mb-4">
-              <span class="text-sm font-medium">Descrição</span>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrição</label>
               <input
-                v-model="form.desc"
+                v-model="apiForm.desc"
                 type="text"
-                class="mt-1 block w-full border-gray-300 rounded"
+                class="form-control"
                 placeholder="O que essa rota faz?"
                 required
               />
-            </label>
-
-            <!-- Ações -->
-            <div class="flex justify-end space-x-2">
-              <button
-                type="button"
-                @click="openModal = false; resetForm()"
-                class="px-4 py-2 rounded border border-gray-300 cursor-pointer hover:bg-gray-100"
-              >
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-2">
+              <button type="button" @click="closeModal" class="btn btn-outline-secondary">
                 Cancelar
               </button>
-              <button
-                type="submit"
-                class="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-700"
-              >
+              <button type="submit" class="btn btn-danger">
                 Adicionar
+              </button>
+            </div>
+          </form>
+
+          <!-- Formulário para adicionar Seção -->
+          <form v-else @submit.prevent="addSection" class="space-y-3">
+            <div class="mb-3">
+              <label class="form-label">Título da Seção</label>
+              <input
+                v-model="sectionForm.title"
+                type="text"
+                class="form-control"
+                placeholder="Nova seção"
+                required
+              />
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-2">
+              <button type="button" @click="closeModal" class="btn btn-outline-secondary">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-danger">
+                Salvar
               </button>
             </div>
           </form>
@@ -125,68 +152,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import ApiSection from '~/components/Admin/DocApi/ApiSection.vue'
+import { config } from '~/config/global.config'
 
-interface RouteDoc { method: string; url: string; desc: string }
-interface SectionDoc { title: string; routes: RouteDoc[] }
+const activeTab = 'px-3 py-2 border-b-2 border-red-600 font-medium text-red-600'
+const inactiveTab = 'px-3 py-2 text-gray-600'
+
+interface RouteDoc { id?: number; method: string; url: string; desc: string }
+interface SectionDoc { id: number; title: string; routes: RouteDoc[] }
 
 definePageMeta({
   layout: 'adm-layout',
   middleware: ['permissao']
 })
 
-const docs = ref<SectionDoc[]>([
-  {
-    title: 'Autenticação',
-    routes: [
-      { method: 'GET',  url: '/auth/login',      desc: 'Inicia o fluxo de login' },
-      { method: 'GET',  url: '/auth/redirect',   desc: 'Callback de autenticação' },
-      { method: 'POST', url: '/auth/logout',     desc: 'Finaliza a sessão atual' },
-      { method: 'GET',  url: '/auth/me',         desc: 'Dados da sessão ativa' },
-      { method: 'GET',  url: '/auth/user/photo', desc: 'Foto do usuário logado' }
-    ]
-  },
-  {
-    title: 'Chamados (Milvus)',
-    routes: [
-      { method: 'GET',    url: '/api/milvus/chamados',         desc: 'Lista todos os chamados' },
-      { method: 'POST',   url: '/api/milvus/chamados',         desc: 'Cria um chamado' },
-      { method: 'PUT',    url: '/api/milvus/chamados/:codigo', desc: 'Atualiza um chamado' },
-      { method: 'DELETE', url: '/api/milvus/chamados/:codigo', desc: 'Remove um chamado' }
-    ]
-  },
-  {
-    title: 'Office 365',
-    routes: [
-      { method: 'GET', url: '/api/graph/users',             desc: 'Lista usuários do Microsoft 365' },
-      { method: 'GET', url: '/api/graph/sync-teams-groups', desc: 'Sincroniza grupos do Teams' }
-    ]
-  },
-  {
-    title: 'Active Directory',
-    routes: [
-      { method: 'GET',  url: '/api/ad/groups', desc: 'Lista grupos do AD' },
-      { method: 'POST', url: '/api/ad/users',  desc: 'Cria usuário no AD' },
-      { method: 'GET',  url: '/api/ad/status', desc: 'Verifica o status do serviço' }
-    ]
-  },
-  {
-    title: 'CLP e FTP',
-    routes: [
-      { method: 'GET',  url: '/api/clp/status', desc: 'Retorna CLP em Execução' },
-      { method: 'POST', url: '/api/clp/set',    desc: 'Configura IP do CLP' },
-      { method: 'POST', url: '/api/clp/upload', desc: 'Envia arquivo via FTP' },
-      { method: 'GET',  url: '/api/clp/health', desc: 'Status do serviço CLP/WPS' }
-    ]
+const docs = ref<SectionDoc[]>([])
+
+async function fetchDocs() {
+  try {
+    const { data: sections } = await axios.get(`${config.API_BACKEND}/doc/listSections`)
+    const all: SectionDoc[] = []
+    for (const sec of sections) {
+      const { data: routes } = await axios.get(`${config.API_BACKEND}/doc/listRoutes/${sec.id}`)
+      all.push({
+        id: sec.id,
+        title: sec.title,
+        routes: routes.map((r: any) => ({ id: r.id, method: r.method, url: r.url, desc: r.description }))
+      })
+    }
+    docs.value = all
+  } catch (err) {
+    console.error('Erro ao carregar documentação:', err)
   }
-])
+}
+
+onMounted(fetchDocs)
 
 const search = ref('')
 const methodFilter = ref('')
 
 const openModal = ref(false)
-const form = ref({
+const tab = ref<'api' | 'section'>('api')
+
+const apiForm = ref({
   section: '' as string,
   newSectionName: '',
   method: '' as string,
@@ -194,41 +204,102 @@ const form = ref({
   desc: '' as string
 })
 
-function resetForm() {
-  form.value = {
+const sectionForm = ref({
+  title: ''
+})
+
+function resetForms() {
+  apiForm.value = {
     section: '',
     newSectionName: '',
     method: '',
     url: '',
     desc: ''
   }
+  sectionForm.value = { title: '' }
 }
 
-function addApi() {
-  let sectionTitle = form.value.section
-  if (sectionTitle === '__new') {
-    sectionTitle = form.value.newSectionName.trim()
-    if (!sectionTitle) return
-    docs.value.push({ title: sectionTitle, routes: [] })
-  }
-  const section = docs.value.find(s => s.title === sectionTitle)
-  if (!section) return
-  section.routes.push({
-    method: form.value.method,
-    url: form.value.url,
-    desc: form.value.desc
-  })
+function closeModal() {
   openModal.value = false
-  resetForm()
+  resetForms()
 }
 
-function deleteApi(payload: { section: string; route: RouteDoc }) {
-  const sec = docs.value.find(s => s.title === payload.section)
+async function addApi() {
+  let sectionTitle = apiForm.value.section
+  let target: SectionDoc | undefined
+  let sectionId: number | null = null
+  if (sectionTitle === '__new') {
+    sectionTitle = apiForm.value.newSectionName.trim()
+    if (!sectionTitle) return
+    try {
+      const { data } = await axios.post(`${config.API_BACKEND}/doc/addSections`, {
+        title: sectionTitle,
+        display_order: docs.value.length + 1,
+      })
+      sectionId = data.id
+      target = { id: data.id, title: sectionTitle, routes: [] }
+      docs.value.push(target)
+    } catch (err) {
+      console.error('Erro ao criar seção:', err)
+      return
+    }
+  } else {
+    target = docs.value.find(s => s.title === sectionTitle)
+    if (!target) return
+    sectionId = target.id
+  }
+
+  try {
+    const { data } = await axios.post(`${config.API_BACKEND}/doc/addRoutes`, {
+      section_id: sectionId,
+      method: apiForm.value.method,
+      url: apiForm.value.url,
+      description: apiForm.value.desc,
+      display_order: target!.routes.length + 1,
+    })
+    target.routes.push({ id: data.id, method: data.method, url: data.url, desc: data.description })
+    closeModal()
+  } catch (err) {
+    console.error('Erro ao adicionar API:', err)
+  }
+}
+
+async function addSection() {
+  const title = sectionForm.value.title.trim()
+  if (!title) return
+  try {
+    const { data } = await axios.post(`${config.API_BACKEND}/doc/addSections`, {
+      title,
+      display_order: docs.value.length + 1,
+    })
+    docs.value.push({ id: data.id, title: data.title, routes: [] })
+    closeModal()
+  } catch (err) {
+    console.error('Erro ao criar seção:', err)
+  }
+}
+
+async function deleteApi(payload: { sectionId: number; route: RouteDoc }) {
+  const sec = docs.value.find(s => s.id === payload.sectionId)
   if (!sec) return
-  const idx = sec.routes.findIndex(r =>
-    r.method === payload.route.method && r.url === payload.route.url
-  )
-  if (idx !== -1) sec.routes.splice(idx, 1)
+  try {
+    await axios.delete(`${config.API_BACKEND}/doc/deleteRoute/${payload.route.id}`)
+    const idx = sec.routes.findIndex(r => r.id === payload.route.id)
+    if (idx !== -1) sec.routes.splice(idx, 1)
+  } catch (err) {
+    console.error('Erro ao remover rota:', err)
+  }
+}
+
+async function deleteSection(id: number) {
+  const idx = docs.value.findIndex(s => s.id === id)
+  if (idx === -1) return
+  try {
+    await axios.delete(`${config.API_BACKEND}/doc/deleteSections/${id}`)
+    docs.value.splice(idx, 1)
+  } catch (err) {
+    console.error('Erro ao remover seção:', err)
+  }
 }
 
 </script>

@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 
-interface RouteDoc { method: string; url: string; desc: string }
+interface RouteDoc { id?: number; method: string; url: string; desc: string }
 const props = defineProps<{ route: RouteDoc }>()
 
 function copy() {

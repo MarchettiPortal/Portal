@@ -13,7 +13,7 @@ let intervalId: ReturnType<typeof setInterval>|null = null
 export function useClpFtpStatus() {
   const fetchStatus = async () => {
     try {
-      const { data } = await axios.get(`${config.API_BACKEND}/clp/status-global`)
+      const { data } = await axios.get(`${config.API_BACKEND}/ftp/status-global`)
       status.value = data
     } catch (err) {
       console.error('[useClpFtpStatus] erro ao buscar status:', err)
