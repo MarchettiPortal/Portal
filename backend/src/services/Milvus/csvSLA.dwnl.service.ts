@@ -3,7 +3,12 @@ import path from 'path';
 import https from 'https';
 import dotenvConfig from '../../config/Milvus/dotenv.milvus.config.js';
 
-
+/**
+ * Realiza o download do arquivo CSV de SLA do Milvus.
+ *
+ * @returns Promessa resolvida quando o arquivo for baixado e salvo.
+ * @throws Erros de rede ou gravação em disco.
+ */
 export async function downloadCSV(): Promise<void> {
     const url = dotenvConfig.URL_CSV_MLVUS;
     const AUTH_TOKEN = dotenvConfig.API_MILVUS;

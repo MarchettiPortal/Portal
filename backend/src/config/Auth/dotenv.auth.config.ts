@@ -3,9 +3,10 @@ import { getEnvVar } from '../../utils/env';
 import { config } from '../Global/global.config';
 
 
-//const REDIRECT_URI_IMPORTED = config.BASE_URL_BACKEND;
+/**
+ * Configurações padrão para realizar processo de autenticação na Microsoft
+ */
 
-// Importando os valores do .env
 const dotenvConfig = {
     CLIENT_ID: getEnvVar('CLIENT_ID'),
     CLIENT_SECRET: getEnvVar('CLIENT_SECRET'),

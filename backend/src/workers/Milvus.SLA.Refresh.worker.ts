@@ -1,6 +1,10 @@
 import { parentPort } from 'worker_threads';
 import { slaRefreshAutomatico } from '../services/Milvus/csvSLA.AutoRefresh.service';
 
+/**
+ * Executa o worker responsável por disparar a atualização automática do SLA.
+ * Envia mensagens de sucesso ou erro para o processo pai.
+ */
 async function run() {
   try {
     const resultado = await slaRefreshAutomatico();

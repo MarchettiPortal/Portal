@@ -1,15 +1,20 @@
 import 'dotenv/config';
 import { getEnvVar } from '../../utils/env';
 
+/**
+ * Variáveis globais utilizadas por todo o código
+ * 
+ * Export dos valores
+ */
 const PORT_HTTP = parseInt(getEnvVar('PORT_HTTP'), 10);
 const PORT_HTTPS = parseInt(getEnvVar('PORT_HTTP'), 10);
-
 const BASE_URL_BACKEND = `${getEnvVar('BASE_URL_BACKEND')}:${PORT_HTTP}`;
 const BASE_URL_FRONTEND = getEnvVar('BASE_URL_FRONTEND');
 const BASE_URL_NGINX = getEnvVar('BASE_URL_NGINX');
 const BASE_URL_SERVER_WPS = getEnvVar('BASE_URL_SERVER_WPS');
 const BASE_URL_SERVER_DATABASE = getEnvVar('BASE_URL_SERVER_DATABASE');
 const BASE_URL_SERVER_NGINX = getEnvVar('BASE_URL_SERVER_NGINX');
+
 
 export const config = {
   BASE_URL_BACKEND,

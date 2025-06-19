@@ -8,7 +8,11 @@ import { logger } from '../../utils/logger'
 
 let intervalId: NodeJS.Timeout | null = null
 
- // Retorna true se o agendador estiver ativo (coluna valor = true)
+/**
+ * Verifica no banco se o agendador automático está habilitado.
+ *
+ * @returns `true` quando o agendador deve estar ativo.
+ */
 export async function getAgendadorStatus(): Promise<boolean> {
   const { rows } = await pool.query<{ valor: boolean }>(
     `SELECT valor
@@ -21,7 +25,11 @@ export async function getAgendadorStatus(): Promise<boolean> {
 }
 
 
-// Atualiza o status do agendador (valor booleano)
+/**
+ * Atualiza no banco de dados o estado do agendador.
+ *
+ * @param ativo Novo estado desejado.
+ */
 export async function setAgendadorStatus(ativo: boolean): Promise<void> {
   logger.info('agendador Iniciado')
   await pool.query(
@@ -33,7 +41,10 @@ export async function setAgendadorStatus(ativo: boolean): Promise<void> {
 }
 
 
-//Executa o refresh se estiver em horário de expediente
+/**
+ * Executa o refresh se estiver em horário de expediente
+ *
+ */
 async function executarRefreshSeHorarioPermitido() {
   const agora = new Date()
   const dia = agora.getDay()             // 0=Dom,1=Seg...6=Sáb
@@ -56,16 +67,22 @@ async function executarRefreshSeHorarioPermitido() {
 }
 
 
-// Inicia o agendador com delay (ms). Se já estiver ativo, reinicia o timer.
-
+/**
+ * Inicia o agendador com um atraso opcional.
+ * Reinicia o timer caso já esteja ativo.
+ *
+ * @param delay Tempo em milissegundos para a primeira execução.
+ */
 export async function iniciarAgendador(delay = 0) {
   if (intervalId) clearTimeout(intervalId)
   if (!(await getAgendadorStatus())) return
   intervalId = setTimeout(executarRefreshSeHorarioPermitido, delay)
 }
 
- // Para o agendador (limpa o timer)
- 
+
+/**
+ * Interrompe o agendador limpando o temporizador ativo.
+ */
 export function pararAgendador() {
    if (intervalId) {
     clearTimeout(intervalId)

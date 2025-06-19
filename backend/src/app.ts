@@ -15,7 +15,11 @@ import { errorHandler } from './middleware/errorHandler'
 
 //import officeRouter from './routes/office365.routes'
 
-const app = express(); // Aplicando na variável APP todo o Framework do Express
+/**
+ * Instância principal do aplicativo Express contendo todas as rotas e
+ * middlewares configurados para a API.
+ */
+const app = express(); 
 
 // ** Middlewares **
 app.use( // Middleware para permitir cookies cross-origin (CORS)

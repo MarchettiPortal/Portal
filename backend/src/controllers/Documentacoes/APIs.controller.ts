@@ -11,8 +11,6 @@ import {
 } from '../../services/Documentacao/apiBD.service';
 import { logger } from '../../utils/logger';
 
-// ** Sections **
-
 /**
  * Lista todas as Sections cadastradas no banco.
  *
@@ -47,7 +45,6 @@ export const addSections = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao criar seção' });
   }
 };
-
 
 /**
  * Edita uma Section existente.
@@ -88,7 +85,6 @@ export const deleteSections = async (req: Request, res: Response) => {
 
 
 
-// ** Routes x Sections **
 /**
  * Lista rotas pertencentes a uma Section.
  *
@@ -100,7 +96,6 @@ export const listRoutesBySection = async (req: Request, res: Response) => {
   const routes = await getRoutesBySection(sectionId);
   res.json(routes);
 };
-
 
 /**
  * Adiciona uma nova rota vinculada a uma Section.
@@ -125,8 +120,6 @@ export const addRoutesBySection = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao criar rota' });
   }
 };
-
-
 
 /**
  * Edita uma rota existente.

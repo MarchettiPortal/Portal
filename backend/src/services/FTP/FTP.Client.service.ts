@@ -19,8 +19,10 @@ const FTP_CONFIG = {
 // 🔧 Função para listar os arquivos
 /**
  * Lista arquivos disponíveis em um diretório FTP.
+ * 
  * @param caminho Caminho remoto a ser listado.
  * @returns Lista de arquivos com seus tamanhos.
+ * @throws Propaga erros de conexão ou listagem.
  */
 export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
   const client = new Client();
@@ -55,6 +57,8 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
  * @param localPath Caminho local do arquivo a ser enviado.
  * @param remotePath Nome do arquivo remoto de destino.
  * @param socketId Id da conexão Socket.IO para envio de progresso.
+ * @returns Promessa resolvida quando o upload for finalizado.
+ * @throws Erros de conexão ou upload.
  */
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
   const client = new Client();
@@ -96,6 +100,8 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
  * Renomeia um arquivo no servidor FTP, validando possíveis falhas.
  * @param antigoNome Nome atual do arquivo.
  * @param novoNome Novo nome solicitado.
+ * @returns Promessa resolvida após a operação.
+ * @throws Erros de conexão ou renomeação.
  */
 export async function renomearArquivoFtp(antigoNome: string, novoNome: string) {
   const client = new Client();
@@ -150,9 +156,11 @@ export async function renomearArquivoFtp(antigoNome: string, novoNome: string) {
 /**
  * Remove um arquivo do servidor FTP.
  * @param nomeArquivo Nome do arquivo a ser removido.
+ * @returns Promessa resolvida quando o arquivo for excluído.
+ * @throws Erros de conexão ou exclusão.
  */
 
-export async function excluirArquivoFtp(nomeArquivo: string) {
+export async function excluirArquivoFtp(nomeArquivo: string): Promise<void> {
   const client = new Client();
   try {
     await client.access(FTP_CONFIG);
