@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { pool } from '../../config/Global/db.config';
 import * as o365Repo from '../../repositories/o365.repository';
 
 /**

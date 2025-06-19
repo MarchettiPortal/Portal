@@ -1,5 +1,5 @@
 import { pool } from '../config/Global/db.config';
-import { ClpOpcaoPayload } from '../types/clp';
+import { ClpOpcaoPayload } from '../types/clp.ftp';
 
 export async function findActiveClps() {
   const { rows } = await pool.query('SELECT * FROM clps WHERE ativo = TRUE ORDER BY nome');

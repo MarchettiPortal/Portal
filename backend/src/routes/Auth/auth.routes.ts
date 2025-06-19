@@ -6,6 +6,7 @@ import dotenvConfig from '../../config/Auth/dotenv.auth.config';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import NodeCache from 'node-cache';
+import { logger } from '../../utils/logger';
 
 dotenv.config();
 
@@ -97,9 +98,9 @@ router.get('/redirect', async (req: Request, res: Response) => {
       //console.log('foto salva no cache')
     } catch (photoError) {
       if (axios.isAxiosError(photoError)) {
-        console.warn('Erro ao buscar imagem de perfil:', photoError.response?.status || photoError.message);
+        logger.warn(`Erro ao buscar imagem de perfil: ${photoError.response?.status || photoError.message}`);
       } else {
-        console.warn('Erro inesperado ao buscar imagem de perfil:', (photoError as Error).message);
+        logger.warn(`Erro inesperado ao buscar imagem de perfil: ${(photoError as Error).message}`);
       }
     }
 

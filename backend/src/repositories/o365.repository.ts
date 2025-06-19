@@ -41,6 +41,22 @@ export async function listGrupoPermissoes() {
 }
 
 /**
+ * Lista permissões visíveis para determinados grupos.
+ */
+export async function listPermissoesPorGrupos(nomes: string[]) {
+  const { rows } = await pool.query(
+    `SELECT DISTINCT p.rota, p.nome_visivel, p.grupo_pai
+       FROM grupo_permissoes gp
+       JOIN permissoes p ON p.id = gp.permissao_id
+       JOIN ad_grupos g ON g.id = gp.grupo_id
+      WHERE g.nome = ANY($1)
+      ORDER BY p.grupo_pai, p.nome_visivel`,
+    [nomes]
+  );
+  return rows;
+}
+
+/**
  * Seleciona apenas o campo informado para todos os usuários.
  */
 export async function selectCampoUsuarios(campo: string) {

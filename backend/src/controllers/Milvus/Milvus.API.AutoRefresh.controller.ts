@@ -6,12 +6,12 @@ import { Worker } from 'worker_threads';
 export async function getRefreshAuto(req: Request, res: Response) {
   try {
 
-    const workerPath = path.resolve(__dirname, '../workers/Milvus.SLA.Refresh.worker.js');
+    const workerPath = path.resolve(__dirname, '../../workers/Milvus.SLA.Refresh.worker.js');
     const worker = new Worker(workerPath);
     
     worker.on('message', (msg) => {
       if (msg.status === 'success') {
-        //console.log('✅ Worker finalizou com sucesso.');
+        console.log('✅ Worker finalizou com sucesso.');
       } else {
         console.error('❌ Erro no worker:', msg.error);
       }

@@ -13,5 +13,5 @@ export const config = {
   AUTH_URL_BACKEND: `${URL_BACKEND}/auth/login`,
   CHECK_SESSION_BACKEND: `${URL_BACKEND}/auth/check`,
   LOGOUT_URL_BACKEND:`${URL_BACKEND}/auth/logout`,
-  API_MILVUS_BACKEND: `${API_BACKEND}/milvus/`,
+  API_MILVUS_BACKEND: `${API_BACKEND}/milvus`,
 };

@@ -11,3 +11,8 @@ export interface ClpOpcaoPayload {
   ativo: boolean
   sistema_clp?: string
 }
+
+export interface ArquivoFtp {
+  nome: string;
+  tamanho: number;
+}

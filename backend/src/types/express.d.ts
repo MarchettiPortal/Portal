@@ -1,4 +1,4 @@
-import { User } from './user';
+import { User } from './auth';
 import 'express-session';
 import 'express';
 
