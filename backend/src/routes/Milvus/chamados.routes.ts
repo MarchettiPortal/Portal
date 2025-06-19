@@ -40,13 +40,19 @@ router.put('/chamados/:codigo', validate(codigoParamSchema, 'params'), validate(
 router.delete('/chamados/:codigo', validate(codigoParamSchema, 'params'), chamadosController.excluirChamado); // Rota para excluir um chamado/valor
 
 router.get('/chamados/setor', chamadosController.getChamadosPorSetor); // chamados por setor
-router.get('/dashboard/operador', chamadosController.getChamadosPorOperador); // chamados por operador
-router.get('/dashboard/prioridade', chamadosController.getChamadosPorPrioridade); // chamados por prioridade
-router.get('/dashboard/sla', chamadosController.getChamadosPorSLA); // chamados SLA
-router.get('/dashboard/local', chamadosController.getChamadosPorLocal); // chamados por Local
-router.get('/dashboard/reabertos', chamadosController.getChamadosReabertos); // chamados reabertos
+router.get('/chamados/operador', chamadosController.getChamadosPorOperador); // chamados por operador
+router.get('/chamados/prioridade', chamadosController.getChamadosPorPrioridade); // chamados por prioridade
+router.get('/chamados/sla', chamadosController.getChamadosPorSLA); // chamados SLA
+router.get('/chamados/local', chamadosController.getChamadosPorLocal); // chamados por Local
+router.get('/chamados/reabertos', chamadosController.getChamadosReabertos); // chamados reabertos
 
-
+/*
+* Eu fiz uma lógica: 
+* router.get('/users/:campo', validate(campoParamSchema, 'params'), listCampoUsuarios); 
+* Que LISTA todos os valores de uma Coluna de acordo com o Campo enviado pelo Frontend
+* Implementar isso aqui, ou então tipo, uma rota retorna ao frontend todas as tabelas da coluna Chamados, e o frontend seleciona quais que quer, com filtros e tal
+* Depois envia pra uma rota aqui no back que interpreta e retorna, sem precisar ter uma rota pra cada coisa
+*/
 
 
 

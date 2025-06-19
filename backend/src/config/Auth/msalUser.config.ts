@@ -1,7 +1,9 @@
 import { ConfidentialClientApplication, Configuration } from '@azure/msal-node';
 import dotenvConfig from './dotenv.auth.config';
 
-// Configuração MSAL com clientId, tenant e clientSecret
+/**
+ * Configuração MSAL com clientId, tenant e clientSecret para o MSAL Client
+ */
 const config: Configuration = {
   auth: {
     clientId: dotenvConfig.CLIENT_ID,
@@ -10,5 +12,7 @@ const config: Configuration = {
   },
 };
 
-// Exporta uma instância do cliente confidencial MSAL
+/**
+ * Exporta uma instância do cliente confidencial MSAL.
+ */
 export const cca = new ConfidentialClientApplication(config);

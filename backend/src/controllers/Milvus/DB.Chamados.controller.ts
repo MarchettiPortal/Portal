@@ -12,7 +12,11 @@ const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
 
 // *********** CONSULTAS ***********
 
-/** Lista todos os chamados. */
+/**
+ * Lista os Chamados.
+ * @route GET /api/milvus/chamados.
+ * @returns Lista os CHAMADOS cadastrados no banco de dados.
+ */
 export const listarChamados = async (req: Request, res: Response) => {
   try {
     const chamados = await chamadosService.consultarChamados();
@@ -23,7 +27,11 @@ export const listarChamados = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por setor. */
+/**
+ * Lista os Chamados.
+ * @route GET /api/milvus/chamados/setor.
+ * @returns Lista os CHAMADOS por SETOR cadastrados no banco de dados.
+ */
 export const getChamadosPorSetor = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSetor();

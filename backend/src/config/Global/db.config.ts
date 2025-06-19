@@ -2,7 +2,9 @@ import { Pool } from 'pg';
 import 'dotenv/config';
 import { getEnvVar } from '../../utils/env';
 
-// Autenticação e variáveis para criação da POOL de conexão ao Banco de Dados, reutilizada no restante do backend
+/**
+ * Autenticação e variáveis para criação da POOL de conexão ao Banco de Dados
+ */
 export const dbConfig = {
   user: getEnvVar('PG_USER'), 
   host: getEnvVar('PG_HOST'),
@@ -16,7 +18,9 @@ export const dbConfig = {
   application_name: getEnvVar('PG_APPLICATION_NAME')
 };
 
-// Criação e exportação do pool de conexões
+/**
+ * Pool de conexões reutilizado por toda a aplicação.
+ */
 export const pool = new Pool(dbConfig);
 
 

@@ -3,7 +3,11 @@ import { ClpOpcaoPayload } from '../../types/clp.ftp'
 import * as clpRepo from '../../repositories/clp.repository';
 import * as clpService from '../../services/CLP/CLP.Att.service';
 
-// Listar CLP
+/**
+ * Lista os CLP's.
+ * @route GET /api/clp/list.
+ * @returns Lista de CLP's cadastrados no banco de dados.
+ */
 export const listarClps = async (_req: Request, res: Response) => {
   const clps = await clpRepo.findActiveClps();
   res.json(clps);

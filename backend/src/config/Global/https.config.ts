@@ -1,5 +1,10 @@
 import { promises as fs } from 'fs';
 
+/**
+ * Carrega os certificados utilizados pelo servidor HTTPS.
+ *
+ * @returns Objeto contendo chave, certificado e cadeia de certificação
+ */
 export async function getHttpsConfig() {
   return {
     key: await fs.readFile('src/cert/key.key'),
