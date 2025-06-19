@@ -3,6 +3,7 @@ import { pool } from '../../config/Global/db.config';
 import { getAppTokenGraph } from './Graph.Token.service';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { ADGrupo, ADUser, GraphGroup, GraphResponse, GraphUser } from '../../types/o365';
 
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MAX_CONCURRENT_MEMBERS = 20;
@@ -12,38 +13,7 @@ const syncQueue: Promise<void>[] = [];
 
 // Diretório de logs
 const logDir = path.resolve(process.cwd(), 'logs');
-fs.mkdir(logDir, { recursive: true }).catch(() => { /* ignore */ });
 
-interface ADGrupo { id: string; nome: string }
-interface ADUser { 
-  id: string; 
-  name: string; 
-  email: string; 
-  groups: ADGrupo[]; 
-  licencas?: string[];
-  ativo?: boolean;
-  servicos?: boolean;
-  recursos?: boolean;
-}
-
-interface GraphUser {
-  id: string;
-  displayName: string;
-  mail: string;
-  assignedLicenses: [];
-  accountEnabled: boolean;
-  userPrincipalName:string;
-}
-
-interface GraphGroup {
-  id: string;
-  displayName: string;
-}
-
-interface GraphResponse<T> {
-  value: T[];
-  '@odata.nextLink'?: string;
-}
 
 // --- Função principal
 export async function syncAllTeamsGroupsAndMembers() {
