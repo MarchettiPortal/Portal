@@ -1,11 +1,23 @@
 import { Request, Response } from 'express';
-import { getAllSections, getRoutesBySection, createSection, createRoute, updateSection, removeSection, updateRoute, removeRoute} from '../../services/Documentacao/apiBD.service';
-
+import {
+  getAllSections,
+  getRoutesBySection,
+  createSection,
+  createRoute,
+  updateSection,
+  removeSection,
+  updateRoute,
+  removeRoute,
+} from '../../services/Documentacao/apiBD.service';
 
 // ** Sections **
 
 /**
  * Lista todas as Sections cadastradas no banco.
+ *
+ * @param _req Express request
+ * @param res Express response
+ * @returns JSON com as seções encontradas
  */
 export const listSections = async (req: Request, res: Response) => {
   try {
@@ -19,6 +31,10 @@ export const listSections = async (req: Request, res: Response) => {
 
 /**
  * Adiciona uma nova Section ao banco de dados.
+ *
+ * @param req Express request contendo `title` e `display_order`
+ * @param res Express response
+ * @returns Section criada
  */
 export const addSections = async (req: Request, res: Response) => {
   const { title, display_order } = req.body;
@@ -34,6 +50,9 @@ export const addSections = async (req: Request, res: Response) => {
 
 /**
  * Edita uma Section existente.
+ *
+ * @param req Express request com params.id e body
+ * @param res Express response
  */
 export const editSections = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -50,6 +69,9 @@ export const editSections = async (req: Request, res: Response) => {
 
 /**
  * Remove uma Section do banco de dados.
+ *
+ * @param req Express request com params.id
+ * @param res Express response
  */
 export const deleteSections = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -65,12 +87,12 @@ export const deleteSections = async (req: Request, res: Response) => {
 
 
 
-
-
 // ** Routes x Sections **
-
 /**
  * Lista rotas pertencentes a uma Section.
+ *
+ * @param req Express request com params.sectionId
+ * @param res Express response
  */
 export const listRoutesBySection = async (req: Request, res: Response) => {
   const sectionId = Number(req.params.sectionId);
@@ -81,6 +103,10 @@ export const listRoutesBySection = async (req: Request, res: Response) => {
 
 /**
  * Adiciona uma nova rota vinculada a uma Section.
+ *
+ * @param req Express request contendo dados da rota
+ * @param res Express response
+ * @returns Rota criada
  */
 export const addRoutesBySection = async (req: Request, res: Response) => {
   const { section_id, method, url, description, display_order } = req.body;
@@ -103,6 +129,9 @@ export const addRoutesBySection = async (req: Request, res: Response) => {
 
 /**
  * Edita uma rota existente.
+ *
+ * @param req Express request com params.id e body
+ * @param res Express response
  */
 export const editRouteBySection = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -119,6 +148,9 @@ export const editRouteBySection = async (req: Request, res: Response) => {
 
 /**
  * Remove uma rota vinculada a uma Section.
+ *
+ * @param req Express request com params.id
+ * @param res Express response
  */
 export const deleteRouteBySection = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
