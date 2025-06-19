@@ -1,12 +1,23 @@
 import { Router } from 'express';
-import { getClpStatus, setClpConfig } from '../../services/CLP/CLP.Att.service'
+import { getClpStatus, setClpConfig } from '../../controllers/CLP/CLP.Controller'
 import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP,  } from '../../controllers/CLP/CLP.Controller';
+import { validate } from '../../middleware/validate'
+import { setClpConfigSchema } from '../../validators/clp'
 
 const router = Router();
 
 // Chamadas ao serviço Remoto
-router.get('/status', getClpStatus); // Serviço Remoto: Retorna qual CLP está setado
-router.post('/set', setClpConfig); // Serviço Remoto: Altera IP do CLP e reinicia app
+/**
+ * Obtém o status atual do CLP.
+ * @route GET /api/clp/status
+ */
+router.get('/status', getClpStatus);
+
+/**
+ * Define o IP do CLP e reinicia o serviço remoto.
+ * @route POST /api/clp/set
+ */
+router.post('/set', validate(setClpConfigSchema), setClpConfig);
 
 // Chamadas ao Banco de Dados
 router.get('/list', listarClps) // Lista os CLP's no banco de dados

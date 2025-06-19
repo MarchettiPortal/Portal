@@ -36,7 +36,8 @@
     "ping": "^0.4.4",
     "socket.io": "^4.8.1",
     "stream-buffers": "^3.0.3",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
