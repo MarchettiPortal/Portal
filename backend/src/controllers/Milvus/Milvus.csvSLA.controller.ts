@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { processCSV } from "../../services/Milvus/csvSLA.Proc.service.js";
 import { downloadCSV} from "../../services/Milvus/csvSLA.dwnl.service.js"
+import { logger } from "../../utils/logger"
 
 
 // ** Funções **
@@ -17,7 +18,7 @@ export async function getRefresh(req: Request, res: Response) {
         await refreshCSVData();
         res.status(200).json({ message: "Refresh Manual/Semanal com sucesso!" });
     } catch(error) {
-        console.error("Erro ao Baixar o CSV:", error);
+        logger.error("Erro ao Baixar o CSV:", error);
         if (error instanceof Error) {
             res.status(500).json({ error: error.message || "Erro ao realizar Refresh Manual/Semanal!" });
         } else {

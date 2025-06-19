@@ -7,6 +7,7 @@ import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
 import { validate } from '../../middleware/validate';
 import { renameFileSchema, fileParamSchema } from '../../validators/ftp';
+import { logger } from '../../utils/logger';
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -57,7 +58,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
     await fs.unlink(localPath); // Remove arquivo local temporário
     res.json({ sucesso: true }); // ✅ ÚNICO ponto que envia resposta
   } catch (error: any) {
-    console.error('[ERRO UPLOAD]', error);
+    logger.error('[ERRO UPLOAD]', error);
     res.status(500).json({ error: 'Falha', detalhes: error.message });
   } finally{
     setEnviandoArquivo(false, null);

@@ -8,6 +8,7 @@ import {
   normalizeStatus,
   normalizeString
 } from '../../utils/normalizeData'
+import { logger } from '../../utils/logger'
 
 const MESAS_PERMITIDAS = [
   'Mesa Infraestrutura',
@@ -24,7 +25,7 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
   const apiMap = new Map<string, ChamadoAPI>()
 
   for (const c of rawApi) {
-    //console.log(`Tipo do código da API (${c.codigo}):`, typeof c.codigo)  // Log tipo real da API
+    //logger.log(`Tipo do código da API (${c.codigo}):`, typeof c.codigo)  // Log tipo real da API
 
     const codigoStr = String(c.codigo)  // Converte para string
 
@@ -52,7 +53,7 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
   
   const dbMap = new Map<string, ChamadoAPI>()
   for (const b of rawDb) {
-    //console.log(`Tipo do código do banco (${b.codigo}):`, typeof b.codigo)  // Verificar tipo do banco
+    //logger.log(`Tipo do código do banco (${b.codigo}):`, typeof b.codigo)  // Verificar tipo do banco
     const codigoStr = String(b.codigo)  // Garantir que o código seja tratado como string
 
     dbMap.set(codigoStr, {
@@ -70,32 +71,32 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
     // Novo chamado?
     if (!dbCh) {
       const reason = `Chamado ${codigo} não existia no DB`
-      //console.log('🔁 Refresh executado. Motivo:', reason)
+      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason: `Chamado ${codigo} não existia no DB.` }
     }
     // Compare campo a campo
     if (apiCh.prioridade !== dbCh.prioridade) {
       const reason = `prioridade diferente no ${codigo}`
-      //console.log('🔁 Refresh executado. Motivo:', reason)
+      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.status !== dbCh.status) {
       const reason = `status diferente no ${codigo}`
-      //console.log('🔁 Refresh executado. Motivo:', reason)
+      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.mesa_trabalho !== dbCh.mesa_trabalho) {
       const reason = `mesa_trabalho diferente no ${codigo}`
-      //console.log('🔁 Refresh executado. Motivo:', reason)
+      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.tecnico !== dbCh.tecnico) {
       const reason = `tecnico diferente no ${codigo}`
-      //console.log('🔁 Refresh executado. Motivo:', reason)
+      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
             return { refreshed: true, reason }
 }
@@ -104,6 +105,6 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
   }
 
   // 4) Se chegou aqui, não achou diferença
-  //console.log('✅ Nenhuma mudança detectada no SLA.')
+  //logger.log('✅ Nenhuma mudança detectada no SLA.')
   return { refreshed: false }
 }

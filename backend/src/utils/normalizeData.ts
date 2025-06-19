@@ -1,4 +1,4 @@
-import { Prioridade, StatusChamado } from '../types/chamado';
+import { Prioridade, StatusChamado } from '../types/milvus';
 
 
 export function normalizePossui(value: string | null): string {

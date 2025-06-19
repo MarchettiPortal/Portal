@@ -9,6 +9,7 @@ import { upsertTicket } from './csvSLA.DB.service.js';
 import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config.js'
 import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData.js';
 import { ParsedRow } from '../../types/milvus'
+import { logger } from '../../utils/logger'
 
 
 // Função que chama a manipulação dos dados do CSV e depois chama a inserção dos dados no Banco
@@ -25,14 +26,14 @@ export async function processCSV(): Promise<void> {
             const row = manipulateData(rawRow)
             await upsertTicket(row)
           } catch (err) {
-            console.error('Erro ao processar linha:', rawRow, err)
+            logger.error('Erro ao processar linha:', rawRow, err)
           }
         }
       }
     )
-    //console.log('Processamento do CSV concluído!')
+    //logger.log('Processamento do CSV concluído!')
   } catch (err) {
-    console.error('Falha no pipeline de CSV:', err)
+    logger.error('Falha no pipeline de CSV:', err)
     throw err
   }finally {
   }
@@ -152,7 +153,7 @@ export function manipulateData(row: any) {
         )
         row.SLA = (diffMs / 3_600_000).toFixed(2)
     } catch (err) {
-        console.error('Erro ao processar datas/SLA:', err)
+        logger.error('Erro ao processar datas/SLA:', err)
     }
         
 

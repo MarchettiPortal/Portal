@@ -1,6 +1,7 @@
 // src/services/Milvus.csvSLA.DB.service.ts
 import { pool } from '../../config/Global/db.config'
 import { Ticket } from '../../types/milvus'
+import { logger } from '../../utils/logger'
 
 
 /**
@@ -98,7 +99,7 @@ export async function upsertTicket(raw: Record<string, any>) {
     await pool.query(sql, params)
   } catch (err) {
     // Jogar o erro para a camada superior, se precisar abortar o pipeline
-    console.error('Erro no upsertTicket:', err)
+    logger.error('Erro no upsertTicket:', err)
     throw err
   }
 }

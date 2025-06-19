@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as o365Repo from '../../repositories/o365.repository';
+import { logger } from '../../utils/logger';
 
 /**
  * Lista todos os usuários cadastrados no banco.
@@ -53,7 +54,7 @@ export async function listCampoUsuarios(req: Request, res: Response) {
     res.status(200).json(rows);
     return;
   } catch (err) {
-    console.error(`Erro ao listar campo ${campo}:`, err);
+    logger.error(`Erro ao listar campo ${campo}:`, err);
     res.status(500).json({ erro: 'Erro ao acessar o banco de dados.' });
     return;
   }
@@ -65,7 +66,7 @@ export async function listCamposUsuarios(req: Request, res: Response) {
     res.status(200).json({ colunas });
     return;
   } catch (err) {
-    console.error('Erro ao listar colunas da tabela usuarios:', err);
+    logger.error('Erro ao listar colunas da tabela usuarios:', err);
     res.status(500).json({ erro: 'Erro ao acessar o banco de dados.' });
     return;
   }

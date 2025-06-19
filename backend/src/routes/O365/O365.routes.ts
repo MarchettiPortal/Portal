@@ -17,6 +17,7 @@ import {
 import { syncAllTeamsGroupsAndMembers } from '../../services/O365/SyncGroup.service';
 import { validate } from '../../middleware/validate';
 import { permissaoSchema, grupoPermissaoSchema, idParamSchema, campoParamSchema } from '../../validators/o365';
+import { logger } from '../../utils/logger'
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.get('/back/sync-users-groups', async (req, res) => {
     await syncAllTeamsGroupsAndMembers();
     res.json({ message: 'Sincronização concluída com sucesso.' });
   } catch (error: any) {
-    console.error('Erro ao sincronizar grupos do Teams:', error.message);
+    logger.error('Erro ao sincronizar grupos do Teams:', error.message);
     res.status(500).json({ error: 'Erro interno ao sincronizar grupos.' });
   }
 });

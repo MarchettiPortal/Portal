@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { pool } from '../../config/Global/db.config';
 import * as chamadosService from '../../services/Milvus/CRUD.Chamados.service.js';
+import { logger } from '../../utils/logger';
 
 // Função para calcular SLA total (Data de Solução - Data de Criação)
 const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
@@ -17,7 +18,7 @@ export const listarChamados = async (req: Request, res: Response) => {
     const chamados = await chamadosService.consultarChamados();
     res.status(200).json(chamados);
   } catch (error) {
-    console.error('Erro ao listar chamados:', error);
+    logger.error('Erro ao listar chamados:', error);
     res.status(500).json({ error: 'Erro ao listar chamados' });
   }
 };
@@ -28,7 +29,7 @@ export const getChamadosPorSetor = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosPorSetor();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao buscar chamados por setor:', error);
+    logger.error('Erro ao buscar chamados por setor:', error);
     res.status(500).json({ error: 'Erro ao agrupar chamados por setor' });
   }
 };
@@ -40,7 +41,7 @@ export const getChamadosPorOperador = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosPorOperador();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por operador:', error);
+    logger.error('Erro ao agrupar por operador:', error);
     res.status(500).json({ error: 'Erro ao agrupar por operador' });
   }
 };
@@ -51,7 +52,7 @@ export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosPorPrioridade();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por prioridade:', error);
+    logger.error('Erro ao agrupar por prioridade:', error);
     res.status(500).json({ error: 'Erro ao agrupar por prioridade' });
   }
 };
@@ -62,7 +63,7 @@ export const getChamadosPorSLA = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosPorSLA();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por SLA:', error);
+    logger.error('Erro ao agrupar por SLA:', error);
     res.status(500).json({ error: 'Erro ao agrupar por SLA' });
   }
 };
@@ -73,7 +74,7 @@ export const getChamadosPorLocal = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosPorLocal();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por local:', error);
+    logger.error('Erro ao agrupar por local:', error);
     res.status(500).json({ error: 'Erro ao agrupar por local' });
   }
 };
@@ -84,7 +85,7 @@ export const getChamadosReabertos = async (req: Request, res: Response) => {
     const dados = await chamadosService.contarChamadosReabertos();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao contar reabertos:', error);
+    logger.error('Erro ao contar reabertos:', error);
     res.status(500).json({ error: 'Erro ao contar reabertos' });
   }
 };
@@ -143,7 +144,7 @@ export const criarChamado = async (req: Request, res: Response) => {
     }
     res.status(201).json(rows[0])
   } catch (error) {
-    console.error('Erro ao criar chamado:', error)
+    logger.error('Erro ao criar chamado:', error)
     res.status(500).json({ error: 'Erro ao criar chamado', details: error })
   }
   
@@ -171,7 +172,7 @@ export const editarChamado = async (req: Request, res: Response) => {
     }
     res.json(rows[0])
   } catch (error) {
-    console.error('Erro ao editar chamado:', error)
+    logger.error('Erro ao editar chamado:', error)
     res.status(500).json({ error: 'Erro ao editar chamado', details: error })
   }
 }
@@ -194,7 +195,7 @@ export const excluirChamado = async (req: Request, res: Response) => {
       }
       res.json({ message: `Chamado ${CODIGO} excluído`, deleted: rows[0] })
     } catch (error) {
-      console.error('Erro ao excluir chamado:', error)
+      logger.error('Erro ao excluir chamado:', error)
       res.status(500).json({ error: 'Erro ao excluir chamado', details: error })
     }
   }

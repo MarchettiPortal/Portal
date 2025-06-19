@@ -70,6 +70,6 @@ export function pararAgendador() {
    if (intervalId) {
     clearTimeout(intervalId)
     intervalId = null
-    //console.log('🛑 Agendador parado.')
+    //logger.log('🛑 Agendador parado.')
   }
 }

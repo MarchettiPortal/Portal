@@ -1,4 +1,5 @@
 import { pool } from '../../config/Global/db.config';
+import { logger } from '../../utils/logger';
 
 export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tamanho, clp }: {
   usuario: string;
@@ -17,7 +18,7 @@ export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tama
   try {
     await pool.query(query, values);
   } catch (err) {
-    console.error('[DB][FTP_LOG] Erro ao salvar log de upload:', err);
+    logger.error('[DB][FTP_LOG] Erro ao salvar log de upload:', err);
     throw err;
   }
 }
