@@ -4,6 +4,7 @@ import { getAppTokenGraph } from './Graph.Token.service';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ADGrupo, ADUser, GraphGroup, GraphResponse, GraphUser } from '../../types/o365';
+import { logger } from '../../utils/logger';
 
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MAX_CONCURRENT_MEMBERS = 20;
@@ -16,6 +17,9 @@ const logDir = path.resolve(process.cwd(), 'logs');
 
 
 // --- Função principal
+/**
+ * Sincroniza grupos e usuários do Microsoft Teams no banco de dados.
+ */
 export async function syncAllTeamsGroupsAndMembers() {
   const token = await getAppTokenGraph();
   const headers = { Authorization: `Bearer ${token}` };
@@ -54,7 +58,7 @@ export async function syncAllTeamsGroupsAndMembers() {
         }
       }
     } catch (err) {
-      console.warn(`Erro ao obter membros do grupo ${grupo.displayName}:`, err);
+      logger.warn(`Erro ao obter membros do grupo ${grupo.displayName}: ${String(err)}`);
     }
   }
 
@@ -96,7 +100,7 @@ export async function syncAllTeamsGroupsAndMembers() {
           .filter((sku) => sku && sku !== 'FLOW_FREE')
           .map((sku) => SkuNomeMap[sku] || sku);
       } catch (err) {
-        console.warn(`Erro ao buscar detalhes de ${usuarioBase.displayName}:`, (err as any)?.message || err);
+        logger.warn(`Erro ao buscar detalhes de ${usuarioBase.displayName}: ${(err as any)?.message || err}`);
       }
 
       const jaExiste = userMap.has(usuarioBase.id);
@@ -126,8 +130,8 @@ export async function syncAllTeamsGroupsAndMembers() {
       syncQueue.push(syncUserAndGroups(usuarioFinal));
     }));
   }
-
-  console.log('✅ Sincronização concluída');
+  await Promise.all(syncQueue);
+  logger.info('✅ Sincronização concluída');
 }
 
 // --- Paginação de /users

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
-import pool from '../../config/Global/db.config'
-import { ClpOpcaoPayload } from '../../types/clp'
+import { ClpOpcaoPayload } from '../../types/clp.ftp'
 import * as clpRepo from '../../repositories/clp.repository';
 
 // Listar CLP

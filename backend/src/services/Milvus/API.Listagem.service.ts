@@ -16,7 +16,7 @@ export async function buscarUltimosChamados(qtd: number = 200) {
           'prioridade':"",
           'tecnico':""
         },
-        total_registros: 50,
+        total_registros: qtd,
         order_by: 'data_criacao',
         is_descending: true,
         pagina: 1

@@ -8,7 +8,7 @@ import { pt } from 'date-fns/locale'
 import { upsertTicket } from './csvSLA.DB.service.js';
 import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config.js'
 import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData.js';
-import { ParsedRow } from '../../types/csvSLA'
+import { ParsedRow } from '../../types/milvus'
 
 
 // Função que chama a manipulação dos dados do CSV e depois chama a inserção dos dados no Banco

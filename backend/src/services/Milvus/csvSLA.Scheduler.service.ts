@@ -22,6 +22,7 @@ export async function getAgendadorStatus(): Promise<boolean> {
 
 // Atualiza o status do agendador (valor booleano)
 export async function setAgendadorStatus(ativo: boolean): Promise<void> {
+  console.log('agendador Iniciado')
   await pool.query(
     `UPDATE configuracoes_agendador
         SET valor = $1
@@ -40,7 +41,7 @@ async function executarRefreshSeHorarioPermitido() {
 
   try {
     await axios.get(`${config.URL_API_MILVUS}/SLArefreshAutomatico`)
-    //console.log(`[${new Date().toISOString()}] Atualização realizada.`)
+    console.log(`[${new Date().toISOString()}] Atualização realizada.`)
   } catch (err) {
     console.error(
       '[erro ao atualizar]',
