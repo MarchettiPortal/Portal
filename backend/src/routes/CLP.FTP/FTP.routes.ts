@@ -5,6 +5,8 @@ import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.se
 import multer from 'multer';
 import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
+import { validate } from '../../middleware/validate';
+import { renameFileSchema, fileParamSchema } from '../../validators/ftp';
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -78,13 +80,8 @@ router.get('/arquivo', async (req, res) => {
 });
 
 //  Rota para Renomear arquivo no acesso FTP
-router.patch('/arquivo/renomear', async (req, res) => {
+router.patch('/arquivo/renomear', validate(renameFileSchema), async (req, res) => {
   const { antigoNome, novoNome, clp } = req.body;
-  if (!antigoNome || !novoNome) {
-    res.status(400).json({ error: 'Nomes inválidos' });
-    return;
-  }
-
   try {
     await renomearArquivoFtp(antigoNome, novoNome);
 
@@ -100,13 +97,10 @@ router.patch('/arquivo/renomear', async (req, res) => {
 });
 
 //  Rota para excluir arquivo no acesso FTP
-router.delete('/arquivo/:nomeArquivo', async (req, res) => {
+router.delete('/arquivo/:nomeArquivo', validate(fileParamSchema, 'params'), async (req, res) => {
   const nomeArquivo = req.params.nomeArquivo;
-  const clp = req.query.clp as string  // ou inclua no body se preferir
-  if (!nomeArquivo) {
-    res.status(400).json({ error: 'Nome do arquivo não fornecido' });
-    return;
-  }
+  const clp = req.query.clp as string 
+
   try {
     await excluirArquivoFtp(nomeArquivo);
     // Emite para todos os usuários no front que o arquivo foi Excluido

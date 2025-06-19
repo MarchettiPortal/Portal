@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import path from 'path';
 import { Worker } from 'worker_threads';
+import { logger } from '../../utils/logger';
 
 
 export async function getRefreshAuto(req: Request, res: Response) {
@@ -11,19 +12,19 @@ export async function getRefreshAuto(req: Request, res: Response) {
     
     worker.on('message', (msg) => {
       if (msg.status === 'success') {
-        console.log('✅ Worker finalizou com sucesso.');
+        logger.info('✅ Worker finalizou com sucesso.');
       } else {
-        console.error('❌ Erro no worker:', msg.error);
+        logger.error(`❌ Erro no worker: ${msg.error}`);
       }
     });
 
     worker.on('error', (err) => {
-      console.error('🧨 Erro no worker:', err);
+      logger.error(`🧨 Erro no worker: ${String(err)}`);
     });
 
     res.status(202).json({ message: 'Atualização de SLA iniciada em segundo plano.' });
   } catch (err) {
-    console.error('Erro ao iniciar worker:', err);
+    logger.error(`Erro ao iniciar worker: ${String(err)}`);
     res.status(500).json({ error: 'Falha ao iniciar atualização SLA.' });
   }
 }

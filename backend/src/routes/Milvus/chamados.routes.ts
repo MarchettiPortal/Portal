@@ -3,10 +3,11 @@ import { getRefresh} from "../../controllers/Milvus/Milvus.csvSLA.controller.js"
 import { getRefreshAuto } from "../../controllers/Milvus/Milvus.API.AutoRefresh.controller.js"
 import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendador } from '../../services/Milvus/csvSLA.Scheduler.service.js'
 import * as  chamadosController from '../../controllers/Milvus/DB.Chamados.controller.js';
+import { validate } from '../../middleware/validate';
+import { createChamadoSchema, updateChamadoSchema, codigoParamSchema } from '../../validators/milvus.js';
 
 const router = Router();
 
-// ******** Rotas de CRUD ********
 // Rota para "Refresh" dos dados TOTAIS dos Tickets no Banco de Dados
 router.get("/SLArefreshSemanal", getRefresh); 
 // Rota para "Refresh" dos dados dos tickets em aberto no Banco de Dados
@@ -33,17 +34,11 @@ router.post('/status', async (req, res) => {
 
 
 
-// Rota para Listar TODOS os Chamados
-router.get('/chamados', chamadosController.listarChamados); // Listar todos os chamados
-// Rota para criar um novo chamado
-router.post('/chamados', chamadosController.criarChamado);
-// Rota para atualizar um chamado existente
-router.put('/chamados/:codigo', chamadosController.editarChamado);
-// Rota para excluir um chamado/valor
-router.delete('/chamados/:codigo', chamadosController.excluirChamado);
+router.get('/chamados', chamadosController.listarChamados); // Rota para Listar TODOS os Chamados
+router.post('/chamados', validate(createChamadoSchema), chamadosController.criarChamado); // Rota para criar um novo chamado
+router.put('/chamados/:codigo', validate(codigoParamSchema, 'params'), validate(updateChamadoSchema), chamadosController.editarChamado); // Rota para atualizar um chamado existente
+router.delete('/chamados/:codigo', validate(codigoParamSchema, 'params'), chamadosController.excluirChamado); // Rota para excluir um chamado/valor
 
-
-// ******** Rotas de listagem de chamados para Dashboard ********
 router.get('/chamados/setor', chamadosController.getChamadosPorSetor); // chamados por setor
 router.get('/dashboard/operador', chamadosController.getChamadosPorOperador); // chamados por operador
 router.get('/dashboard/prioridade', chamadosController.getChamadosPorPrioridade); // chamados por prioridade

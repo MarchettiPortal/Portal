@@ -8,7 +8,7 @@ import { pool } from './config/Global/db.config.js';
 import { iniciarAgendador, pararAgendador } from './services/Milvus/csvSLA.Scheduler.service.js';
 import { initSocket } from './socket.js'
 import './workers/O365.UsersGroups.refresh.worker.js'; 
-
+import { logger } from './utils/logger';
 
 // ** Definições do Server **
 dotenv.config() // Inicializa o DOTENV para busca de valores
@@ -20,7 +20,7 @@ initSocket(httpServer) // Inicializa Socket.IO sobre o server Express
 
 // ** Inicialização do Server **
 httpServer.listen(PORT_HTTP, () => {
-  console.log(`Servidor HTTP e Socket.IO rodando em ${IP_SERVER}`) // Start no server em HTTP
+  logger.info(`Servidor HTTP e Socket.IO rodando em ${IP_SERVER}`)
 })
 
 

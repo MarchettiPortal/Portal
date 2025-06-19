@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { getClpStatus, setClpConfig } from '../../controllers/CLP/CLP.Controller'
 import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP,  } from '../../controllers/CLP/CLP.Controller';
 import { validate } from '../../middleware/validate'
-import { setClpConfigSchema } from '../../validators/clp'
+import { setClpConfigSchema, createClpSchema, updateClpSchema } from '../../validators/clp'
+import { idParamSchema } from '../../validators/common'
 
 const router = Router();
 
@@ -21,15 +22,11 @@ router.post('/set', validate(setClpConfigSchema), setClpConfig);
 
 // Chamadas ao Banco de Dados
 router.get('/list', listarClps) // Lista os CLP's no banco de dados
-router.post('/add', adicionarClp) // Adicionar CLP's no banco de dados
-router.delete('/del/:id', removerClp) // Remove CLP's no banco de dados
-router.patch('/edit/:id', async (req, res) => { // Edita CLP's no banco de dados
+router.post('/add', validate(createClpSchema), adicionarClp) // Adicionar CLP
+router.delete('/del/:id', validate(idParamSchema, 'params'), removerClp) // Remove CLP's no banco de dados
+router.patch('/edit/:id', validate(idParamSchema, 'params'), validate(updateClpSchema), async (req, res) => { // Edita CLP's no banco de dados
   const id = parseInt(req.params.id)
   const { nome, ip, ativo, sistema_clp } = req.body
-  if ([nome, ip, ativo, sistema_clp].some(v => v === undefined)) {
-    res.status(400).json({ error: 'Campos obrigatórios: nome, ip, ativo, sistema_clp' });
-    return;
-  }
   try {
     await atualizarOpcaoCLP(id, { nome, ip, ativo, sistema_clp })
     res.status(200).json({ success: true, message: 'CLP atualizado com sucesso' })
