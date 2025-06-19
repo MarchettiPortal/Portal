@@ -9,6 +9,7 @@ import {
   updateRoute,
   removeRoute,
 } from '../../services/Documentacao/apiBD.service';
+import { logger } from '../../utils/logger';
 
 // ** Sections **
 
@@ -24,7 +25,7 @@ export const listSections = async (req: Request, res: Response) => {
     const sections = await getAllSections(); // <- aqui estava o erro
     res.json(sections);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao buscar seções' });
   }
 };
@@ -42,7 +43,7 @@ export const addSections = async (req: Request, res: Response) => {
     const section = await createSection(title, Number(display_order));
     res.status(201).json(section);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao criar seção' });
   }
 };
@@ -62,7 +63,7 @@ export const editSections = async (req: Request, res: Response) => {
     const result = await updateSection(id, title, display_order);
     res.json(result);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao editar seção' });
   }
 };
@@ -80,7 +81,7 @@ export const deleteSections = async (req: Request, res: Response) => {
     await removeSection(id);
     res.status(204).send(); // No content
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao remover seção' });
   }
 };
@@ -120,7 +121,7 @@ export const addRoutesBySection = async (req: Request, res: Response) => {
     );
     res.status(201).json(route);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao criar rota' });
   }
 };
@@ -141,7 +142,7 @@ export const editRouteBySection = async (req: Request, res: Response) => {
     const result = await updateRoute(id, section_id, method, url, description, display_order);
     res.json(result);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao editar rota' });
   }
 };
@@ -159,7 +160,7 @@ export const deleteRouteBySection = async (req: Request, res: Response) => {
     await removeRoute(id);
     res.status(204).send(); // No content
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Erro ao remover rota' });
   }
 };

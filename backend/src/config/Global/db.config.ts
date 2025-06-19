@@ -25,11 +25,11 @@ export const pool = new Pool(dbConfig);
 /** 
 pool.connect()
   .then((client) => {
-    console.log('Conectado ao banco de dados PostgreSQL!')
+    logger.log('Conectado ao banco de dados PostgreSQL!')
     client.release()
   })
   .catch((err) => {
-    console.error('Erro ao conectar ao PostgreSQL:', err)
+    logger.error('Erro ao conectar ao PostgreSQL:', err)
   })
     */
 

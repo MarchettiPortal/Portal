@@ -202,7 +202,7 @@ async function syncUserAndGroups(user: ADUser) {
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error(`Erro ao sincronizar usuário ${user.name}:`, err);
+    logger.error(`Erro ao sincronizar usuário ${user.name}:`, err);
   } finally {
     client.release();
   }

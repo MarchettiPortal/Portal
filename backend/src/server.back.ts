@@ -7,7 +7,7 @@ import { config } from './config/Global/global.config.js'
 import { pool } from './config/Global/db.config.js';
 import { iniciarAgendador, pararAgendador } from './services/Milvus/csvSLA.Scheduler.service.js';
 import { initSocket } from './socket.js'
-import './workers/O365.UsersGroups.refresh.worker.js'; 
+import './workers/O365.UsersGroups.refresh.worker.js'
 import { logger } from './utils/logger';
 
 // ** Definições do Server **
@@ -26,7 +26,7 @@ httpServer.listen(PORT_HTTP, () => {
 
 // Start no server em HTTP
 // https.createServer(httpsConfig, app).listen(config.PORT_HTTPS, () => {
-//   console.log(`Servidor HTTPS rodando na porta ${config.PORT_HTTPS}`)
+//   logger.log(`Servidor HTTPS rodando na porta ${config.PORT_HTTPS}`)
 // })
 
 
@@ -43,7 +43,7 @@ async function shutdown() { // Encerramento
     pararAgendador() // Para o agendador de validação de chamados para atualização do banco de dados
     await pool.end() // Finaliza a conexão com o banco de dados
   } catch (err) {
-    console.error('Erro ao encerrar recursos:', err)
+    logger.error('Erro ao encerrar recursos:', err)
   } finally {
     process.exit()
   }

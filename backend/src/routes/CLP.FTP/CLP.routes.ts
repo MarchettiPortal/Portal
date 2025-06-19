@@ -4,6 +4,7 @@ import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP,  } from '../..
 import { validate } from '../../middleware/validate'
 import { setClpConfigSchema, createClpSchema, updateClpSchema } from '../../validators/clp'
 import { idParamSchema } from '../../validators/common'
+import { logger } from '../../utils/logger'
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.patch('/edit/:id', validate(idParamSchema, 'params'), validate(updateClpS
     await atualizarOpcaoCLP(id, { nome, ip, ativo, sistema_clp })
     res.status(200).json({ success: true, message: 'CLP atualizado com sucesso' })
   } catch (error) {
-    console.error('Erro ao atualizar CLP:', error)
+    logger.error('Erro ao atualizar CLP:', error)
     res.status(500).json({ error: 'Erro interno ao atualizar CLP' })
   }
 })

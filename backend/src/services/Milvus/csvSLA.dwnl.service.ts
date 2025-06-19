@@ -33,7 +33,7 @@ export async function downloadCSV(): Promise<void> {
             res.pipe(fileStream);
 
             fileStream.on('finish', () => {
-                //console.log('Arquivo baixado com sucesso:', outputPath);
+                //logger.log('Arquivo baixado com sucesso:', outputPath);
                 fileStream.close();
                 resolve(); // Resolve a Promise quando o download termina
             });

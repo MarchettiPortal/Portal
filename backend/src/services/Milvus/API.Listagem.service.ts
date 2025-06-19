@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenvConfig from '../../config/Milvus/dotenv.milvus.config';
+import { logger } from '../../utils/logger';
 
 const MILVUS_API_URL = dotenvConfig.URL_LISTAGEM_MILVUS;
 const TOKEN = dotenvConfig.API_MILVUS_LISTAGEM;
@@ -32,7 +33,7 @@ export async function buscarUltimosChamados(qtd: number = 200) {
       return response.data.lista;
 
   }catch (error: any) {
-    console.error('❌ Erro ao buscar chamados:', error.response?.data || error.message);
+    logger.error('❌ Erro ao buscar chamados:', error.response?.data || error.message);
     return[];
   }
 }
