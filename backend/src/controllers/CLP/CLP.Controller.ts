@@ -9,12 +9,11 @@ export const listarClps = async (_req: Request, res: Response) => {
   res.json(clps);
 };
 
+/**
+ * Adiciona um novo CLP ao banco de dados.
+ */
 export const adicionarClp = async (req: Request, res: Response) => {
   const { nome, ip, ativo, sistema_clp } = req.body;
-  if (!nome || !ip || !sistema_clp) {
-    res.status(400).json({ error: 'Nome, IP e Sistema obrigatórios' });
-    return;
-  }
   try {
     await clpRepo.insertClp({ nome, ip, ativo, sistema_clp });
     res.status(201).json({ success: true });
@@ -23,12 +22,18 @@ export const adicionarClp = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Desativa um CLP existente.
+ */
 export const removerClp = async (req: Request, res: Response) => {
   const { id } = req.params;
   await clpRepo.disableClp(Number(id));
   res.json({ success: true });
 };
 
+/**
+ * Atualiza informações de um CLP.
+ */
 export async function atualizarOpcaoCLP(id: number, payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp = 'padrao' } = payload;
   await clpRepo.updateClp(id, { nome, ip, ativo, sistema_clp });

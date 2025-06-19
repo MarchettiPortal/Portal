@@ -11,7 +11,7 @@ const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
 
 // *********** CONSULTAS ***********
 
-// LISTAR TODOS CHAMADOS
+/** Lista todos os chamados. */
 export const listarChamados = async (req: Request, res: Response) => {
   try {
     const chamados = await chamadosService.consultarChamados();
@@ -22,7 +22,7 @@ export const listarChamados = async (req: Request, res: Response) => {
   }
 };
 
-// LISTAR CHAMADOS POR SETOR
+/** Agrupa chamados por setor. */
 export const getChamadosPorSetor = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSetor();
@@ -33,6 +33,7 @@ export const getChamadosPorSetor = async (req: Request, res: Response) => {
   }
 };
 
+/** Agrupa chamados por Operador. */
 
 export const getChamadosPorOperador = async (req: Request, res: Response) => {
   try {
@@ -44,6 +45,7 @@ export const getChamadosPorOperador = async (req: Request, res: Response) => {
   }
 };
 
+/** Agrupa chamados por Prioridade. */
 export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorPrioridade();
@@ -54,6 +56,7 @@ export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
   }
 };
 
+/** Agrupa chamados por SLA. */
 export const getChamadosPorSLA = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSLA();
@@ -64,6 +67,7 @@ export const getChamadosPorSLA = async (req: Request, res: Response) => {
   }
 };
 
+/** Agrupa chamados por Local. */
 export const getChamadosPorLocal = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorLocal();
@@ -74,6 +78,7 @@ export const getChamadosPorLocal = async (req: Request, res: Response) => {
   }
 };
 
+/** Agrupa chamados por Reabertos. */
 export const getChamadosReabertos = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosReabertos();
@@ -84,7 +89,8 @@ export const getChamadosReabertos = async (req: Request, res: Response) => {
   }
 };
 
-// *********** CRIAÇÃO DE CHAMADOS ***********
+
+/** Cria um novo chamado. */
 export const criarChamado = async (req: Request, res: Response) => {
   const {
   CODIGO, CATEGORIA, SUBCATEGORIA, LOCAL, SETOR, MES_CRIACAO, ANO_CRIACAO,
@@ -143,7 +149,7 @@ export const criarChamado = async (req: Request, res: Response) => {
   
 }
 
-// *********** EDIÇÃO DE CHAMADOS ***********
+/** Atualiza campos de um chamado existente. */
 export const editarChamado = async (req: Request, res: Response) => {
   const { CODIGO } = req.params;
   const { PRIORIDADE, NOTA_AVALIACAO } = req.body;
@@ -171,7 +177,7 @@ export const editarChamado = async (req: Request, res: Response) => {
 }
 
 
-// *********** EXCLUSÃO DE VALORES/CHAMADOS ***********
+/** Remove um chamado do banco de dados. */
 export const excluirChamado = async (req: Request, res: Response) => {
 
   const { CODIGO } = req.params;

@@ -15,6 +15,8 @@ import {
   listCamposUsuarios
 } from '../../controllers/O365/front.O365.controller';
 import { syncAllTeamsGroupsAndMembers } from '../../services/O365/SyncGroup.service';
+import { validate } from '../../middleware/validate';
+import { permissaoSchema, grupoPermissaoSchema, idParamSchema, campoParamSchema } from '../../validators/o365';
 
 const router = Router();
 
@@ -36,18 +38,18 @@ router.get('/All-groups', listGrupos); // LISTA todos os GRUPOS no Banco de Dado
 router.get('/users-groups', listUsuariosGrupos); // LISTA todos os GRUPOS e MEMBROS no Banco de Dados
 router.get('/routesDB', listPermissoes); // LISTA todas as ROTAS no Banco de Dados
 router.get('/groups-perms', listGrupoPermissoes); // LISTA todas as ROTAS x GRUPOS e/ou USUÁRIOS no Banco de Dados
-router.get('/users/:campo', listCampoUsuarios); // LISTA todos os valores de uma Coluna de acordo com o Campo enviado pelo Frontend
+router.get('/users/:campo', validate(campoParamSchema, 'params'), listCampoUsuarios); // LISTA todos os valores de uma Coluna de acordo com o Campo enviado pelo Frontend
 router.get('/camposusers', listCamposUsuarios); // LISTA todos os nomes de colunas da tabela USUÁRIOS - USADO PARA DEBUG RÁPIDO
 
 
 // Rotas
-router.post('/routesDB', createPermissao); // ADICIONA uma ROTA no banco de dados
-router.put('/routesDB/:id', updatePermissao); // EDITA uma ROTA no banco de dados
-router.delete('/routesDB/:id', deletePermissao); // REMOVE uma ROTA no banco de dados
+router.post('/routesDB', validate(permissaoSchema), createPermissao); // ADICIONA uma ROTA
+router.put('/routesDB/:id', validate(idParamSchema, 'params'), validate(permissaoSchema), updatePermissao); // EDITA uma ROTA
+router.delete('/routesDB/:id', validate(idParamSchema, 'params'), deletePermissao); // REMOVE uma ROTA
 
 // Associações grupo/permissao/usuario
-router.post('/group-perms', addGrupoPermissao); // ADICIONA uma permissão de acesso de uma ROTA para UM GRUPO ou para um USUÁRIO
-router.put('/group-perms/:id', updateGrupoPermissao); // EDITA uma permissão de acesso de uma ROTA para UM GRUPO ou para um USUÁRIO
-router.delete('/group-perms/:id', deleteGrupoPermissao); // REMOVE uma permissão de acesso de uma ROTA para UM GRUPO ou para um USUÁRIO
+router.post('/group-perms', validate(grupoPermissaoSchema), addGrupoPermissao); // ADICIONA permissão
+router.put('/group-perms/:id', validate(idParamSchema, 'params'), validate(grupoPermissaoSchema), updateGrupoPermissao); // EDITA permissão
+router.delete('/group-perms/:id', validate(idParamSchema, 'params'), deleteGrupoPermissao); // REMOVE permissão
 
 export default router;

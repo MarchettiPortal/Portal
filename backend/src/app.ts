@@ -11,6 +11,8 @@ import { config } from './config/Global/global.config.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import adRouter from './routes/AD/AD.Routes'
+import { errorHandler } from './middleware/errorHandler'
+
 //import officeRouter from './routes/office365.routes'
 
 const app = express(); // Aplicando na variável APP todo o Framework do Express
@@ -24,6 +26,8 @@ app.use( // Middleware para permitir cookies cross-origin (CORS)
 )
 app.use(express.json()); // Middleware para rotas JSON 
 app.use(cookieParser()); // Middleware para ler cookies
+app.use(errorHandler); // Middleware global de tratamento de erros
+
 
 // ** Rotas **
 app.use('/auth', authRouter);// Rota de Autenticação e Sessão Ativa
