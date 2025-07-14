@@ -34,7 +34,12 @@ export const listGrupoPermissoes = async (_req: Request, res: Response) => {
   res.json(dados);
 };
 
-// Lista os dados da tabela Usuários de acordo com o Campo solicitado no Frontend
+/**
+ * Lista os dados da tabela Usuários de acordo com o Campo solicitado no Frontend
+ *
+ * @param req Requisição Express contendo o nome da coluna dentro de `params.campo`
+ * @param res Resposta Express com os valores retornados da Query
+ */
 export async function listCampoUsuarios(req: Request, res: Response) {
   const { campo } = req.params;
 

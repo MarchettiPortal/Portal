@@ -3,7 +3,13 @@ import path from 'path';
 import { Worker } from 'worker_threads';
 import { logger } from '../../utils/logger';
 
-
+/**
+ * Triggers the SLA refresh worker asynchronously.
+ *
+ * @param _req Express request object (unused).
+ * @param res Express response returning the acceptance of the job.
+ * @returns Promise resolving when the worker has been spawned.
+ */
 export async function getRefreshAuto(req: Request, res: Response) {
   try {
 

@@ -10,11 +10,19 @@ const TIMEOUT = 120_000;
 /**
  * Recupera o status atual do CLP configurado.
  */
+
 export async function fetchClpStatus() {
   const { data } = await axios.get(`${config.BASE_URL_NGINX}/clp/status`);
   return data;
 }
 
+/**
+ * Envia uma nova configuração para o CLP e notifica os clientes.
+ *
+ * @param ip IP do CLP que será configurado.
+ * @param userID Identificador de qual usuário está editando.
+ * @returns Dados de reposta do serviço remoto.
+ */
 export async function updateClpConfig(ip: string, userID: string) {
   setReiniciando(true, userID);
   try {

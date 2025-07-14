@@ -1,6 +1,11 @@
 import { pool } from '../../config/Global/db.config';
 import { logger } from '../../utils/logger';
 
+/**
+ * Salva os LOG's no banco de dados.
+ *
+ * @param param0 Informações do upload realizado.
+ */
 export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tamanho, clp }: {
   usuario: string;
   nomeArquivo: string;
@@ -23,6 +28,9 @@ export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tama
   }
 }
 
+/**
+ * Lista os Uploads de CLP ordenados por data
+ */
 export async function listarLogsFtp() {
   const result = await pool.query(`SELECT * FROM ftp_upload_logs ORDER BY data_envio DESC`);
   return result.rows;
