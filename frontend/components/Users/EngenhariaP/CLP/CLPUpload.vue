@@ -111,7 +111,6 @@ const isUploading = ref(false)
 const isSuccess = ref(false)
 const arquivoArrastado = ref<File | null>(null)
 
-
 // Helpers gerais
 const showError = (msg: string) => {
   errorToast.value = msg

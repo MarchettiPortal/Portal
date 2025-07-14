@@ -1,18 +1,21 @@
 <template>
   <div class="p-6 space-y-6">
     <UsersHeader
-      :tipoSelecionado="tipoSelecionado"
-      @trocarTipo="tipoSelecionado = $event"
-      @buscar="onBuscar"
-      @filtro="abrirFiltro"
-      @adicionar="onAdicionarUsuario"
-    />
+  :tipoSelecionado="tipoSelecionado"
+  :totalUsuarios="usuariosFiltrados.length"
+  :totalUsuariosServico="usuariosServicoFiltrados.length"
+  @trocarTipo="tipoSelecionado = $event"
+  @buscar="onBuscar"
+  @filtro="abrirFiltro"
+  @adicionar="onAdicionarUsuario"
+/>
 
-    <UsersTable
-      :usuarios="usuariosFiltrados"
-      @ver="abrirModalVisualizacao"
-      @editar="abrirModalEdicao"
-    />
+<UsersTable
+  :usuarios="usuariosFiltrados"
+  @ver="abrirModalVisualizacao"
+  @editar="abrirModalEdicao"
+/>
+
 
     <!-- Modal de visualização -->
     <UserModal
@@ -32,7 +35,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useUsuariosStore } from '~/stores/Users/usuarios'
+import { storeToRefs } from 'pinia'
 
 // Componentes reutilizados
 import UsersHeader from '@/components/Admin/UsersEdit/usersHeader.vue'
@@ -46,31 +51,47 @@ const filtroBusca = ref('')
 const modalVisualizacaoVisivel = ref(false)
 const modalEdicaoVisivel = ref(false)
 
-const usuarios = ref([
-  {
-    nome: 'Eduardo Nitsche',
-    email: 'eduardo.nitsche@molasmarchetti.com.br',
-    setor: 'TI-Infra',
-    licenca: 'Standard',
-    status: 'Ativo'
-  },
-  {
-    nome: 'Maria Souza',
-    email: 'maria@email.com',
-    setor: 'RH',
-    licenca: 'Office 365',
-    status: 'Inativo'
-  }
-])
+const usuariosStore = useUsuariosStore()
+const { usuarios } = storeToRefs(usuariosStore)
+const { fetchUsuarios } = usuariosStore
 
-const usuarioSelecionado = ref(usuarios.value[0])
+onMounted(fetchUsuarios)
 
-// Computed para filtro
+interface User {
+  id: number
+  nome: string
+  email: string
+  setor: string
+  licenca: string
+  status: string
+  grupos: string[]
+  permissoes: string[]
+}
+
+const usuarioSelecionado = ref<User>({
+  id:        0,           // ou null/undefined se você marcar como opcional
+  nome:      '',
+  email:     '',
+  setor:     '',
+  licenca:   '',
+  status:    '',
+  grupos:    [],          // inicializa vazio
+  permissoes: []          // inicializa vazio
+})
+
+// usuarios.value: User[]
+
 const usuariosFiltrados = computed(() =>
+  // aqui seu filtro de busca, que já tem predicate
   usuarios.value.filter(u =>
     u.nome.toLowerCase().includes(filtroBusca.value.toLowerCase()) ||
     u.email.toLowerCase().includes(filtroBusca.value.toLowerCase())
   )
+)
+
+const usuariosServicoFiltrados = computed(() =>
+  // condição de “usuário de serviço” — substitua pela sua real
+  usuarios.value.filter(u => u.tipo === 'servico')
 )
 
 // Ações
@@ -96,11 +117,11 @@ function abrirModalEdicao(usuario: any) {
   modalEdicaoVisivel.value = true
 }
 
-function onSalvarEdicao(usuarioEditado: any) {
-  const index = usuarios.value.findIndex(u => u.email === usuarioEditado.email)
-  if (index !== -1) {
-    usuarios.value[index] = usuarioEditado
-  }
-  modalEdicaoVisivel.value = false
-}
+function onSalvarEdicao(editedUser: any) {
+    // TODO: actually update your store or send API request:
+    // e.g. usuariosStore.updateUsuario(editedUser)
+    console.log('Salvando edição de usuário', editedUser)
+    modalEdicaoVisivel.value = false
+ }
+
 </script>

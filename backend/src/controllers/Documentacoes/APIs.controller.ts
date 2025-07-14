@@ -27,6 +27,7 @@ export const listSections = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao buscar seções' });
   }
 };
+ 
 
 /**
  * Adiciona uma nova Section ao banco de dados.

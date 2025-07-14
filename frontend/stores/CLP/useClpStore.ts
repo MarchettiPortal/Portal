@@ -28,7 +28,7 @@ export const useClpStore = defineStore('clpStore', () => {
   // 2) Busca lista de arquivos no CLP via FTP
   async function fetchArquivosEmExecucao() {
     try {
-      const { data } = await axios.get(`${config.API_BACKEND}/clp/arquivo`, {
+      const { data } = await axios.get(`${config.API_BACKEND}/ftp/arquivo`, {
         params: { clp: clpText.value }
       })
       arquivosEmExecucao.value = data.dados || []
