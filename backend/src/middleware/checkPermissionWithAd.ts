@@ -4,7 +4,11 @@ import { usuarioTemPermissao } from '../repositories/permission.repository';
 import { logger } from '../utils/logger';
 
 /**
- * Middleware que verifica se o usuário possui acesso a uma rota.
+ * Middleware que valida se o usuário autenticado tem permissão para acessar a rota solicitada.
+ *
+ * @param req Requisição contendo os dados do usuário.
+ * @param res Resposta utilizada em caso de bloqueio.
+ * @param next Próxima função de middleware quando autorizado.
  */
 export async function checkPermissionWithAD(req: Request, res: Response, next: NextFunction) {
   try {

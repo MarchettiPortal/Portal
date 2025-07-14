@@ -8,12 +8,12 @@ import { createChamadoSchema, updateChamadoSchema, codigoParamSchema } from '../
 
 const router = Router();
 
-// Rota para "Refresh" dos dados TOTAIS dos Tickets no Banco de Dados
+/** Dispara a atualização semanal completa do SLA. */
 router.get("/SLArefreshSemanal", getRefresh); 
-// Rota para "Refresh" dos dados dos tickets em aberto no Banco de Dados
+/** Atualiza os tickets em aberto automaticamente. */
 router.get("/SLArefreshAutomatico", getRefreshAuto); 
  
-// Rotas para Refresh Automático
+// Rotas para controle do agendador de refresh
 router.get('/status', async (req, res) => {
   const status = await getAgendadorStatus()
   res.json({ ativo: status })
@@ -33,17 +33,25 @@ router.post('/status', async (req, res) => {
 })
 
 
-
-router.get('/chamados', chamadosController.listarChamados); // Rota para Listar TODOS os Chamados
-router.post('/chamados', validate(createChamadoSchema), chamadosController.criarChamado); // Rota para criar um novo chamado
-router.put('/chamados/:codigo', validate(codigoParamSchema, 'params'), validate(updateChamadoSchema), chamadosController.editarChamado); // Rota para atualizar um chamado existente
-router.delete('/chamados/:codigo', validate(codigoParamSchema, 'params'), chamadosController.excluirChamado); // Rota para excluir um chamado/valor
-
-router.get('/chamados/setor', chamadosController.getChamadosPorSetor); // chamados por setor
-router.get('/chamados/operador', chamadosController.getChamadosPorOperador); // chamados por operador
+/** Lista todos os chamados */
+router.get('/chamados', chamadosController.listarChamados); 
+/** Cria um novo chamado*/
+router.post('/chamados', validate(createChamadoSchema), chamadosController.criarChamado);
+/** Atualiza chamado existente */
+router.put('/chamados/:codigo', validate(codigoParamSchema, 'params'), validate(updateChamadoSchema), chamadosController.editarChamado); 
+/** Exclui um chamado/valor */
+router.delete('/chamados/:codigo', validate(codigoParamSchema, 'params'), chamadosController.excluirChamado);
+/** Lista chamados por setor */
+router.get('/chamados/setor', chamadosController.getChamadosPorSetor);
+/** Lista chamados por operador */
+router.get('/chamados/operador', chamadosController.getChamadosPorOperador);
+/** Lista chamados por operador */
 router.get('/chamados/prioridade', chamadosController.getChamadosPorPrioridade); // chamados por prioridade
-router.get('/chamados/sla', chamadosController.getChamadosPorSLA); // chamados SLA
-router.get('/chamados/local', chamadosController.getChamadosPorLocal); // chamados por Local
+/** Lista chamados por SLA */
+router.get('/chamados/sla', chamadosController.getChamadosPorSLA);
+/** Lista chamados por local */
+router.get('/chamados/local', chamadosController.getChamadosPorLocal); 
+/** Lista chamados reabertos */
 router.get('/chamados/reabertos', chamadosController.getChamadosReabertos); // chamados reabertos
 
 /*
@@ -53,7 +61,5 @@ router.get('/chamados/reabertos', chamadosController.getChamadosReabertos); // c
 * Implementar isso aqui, ou então tipo, uma rota retorna ao frontend todas as tabelas da coluna Chamados, e o frontend seleciona quais que quer, com filtros e tal
 * Depois envia pra uma rota aqui no back que interpreta e retorna, sem precisar ter uma rota pra cada coisa
 */
-
-
 
 export default router;

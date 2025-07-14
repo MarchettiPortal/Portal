@@ -11,24 +11,33 @@ export const listUsuarios = async (_req: Request, res: Response) => {
 };
 
 
-// Lista todos os grupos cadastrados na tabela `ad_grupos`.
+/**
+ * Lista todos os grupos cadastrados na tabela `ad_grupos`.
+ */
 export const listGrupos = async (_req: Request, res: Response) => {
   const grupos = await o365Repo.listGrupos();
   res.json(grupos);
 };
 
-// Lista todas as associações entre usuários e grupos.
+/**
+ * Lista todas as associações entre usuários e grupos.
+ */
 export const listUsuariosGrupos = async (_req: Request, res: Response) => {
   const dados = await o365Repo.listUsuariosGrupos();
   res.json(dados);
 }
 
-// Lista todas as permissões (rotas).
+/**
+ * Lista todas as permissões cadastradas.
+ */
 export const listPermissoes = async (_req: Request, res: Response) => {
   const permissoes = await o365Repo.listPermissoes();
   res.json(permissoes);
 };
-// Lista todas as associações entre grupo, permissão e usuário.
+
+/**
+ * Lista todas as associações entre grupo, permissão e usuário.
+ */
 export const listGrupoPermissoes = async (_req: Request, res: Response) => {
   const dados = await o365Repo.listGrupoPermissoes();
   res.json(dados);
@@ -65,6 +74,9 @@ export async function listCampoUsuarios(req: Request, res: Response) {
   }
 }
 
+/**
+ * Lista todos os nomes de colunas disponíveis na tabela de usuários.
+ */
 export async function listCamposUsuarios(req: Request, res: Response) {
   try {
     const colunas = await o365Repo.listarCamposUsuarios();

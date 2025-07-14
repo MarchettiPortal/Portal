@@ -1,4 +1,3 @@
-// src/routes/auth.routes.ts
 import { Router, Request, Response } from 'express';
 import { cca } from '../../config/Auth/msalUser.config';
 import { config } from '../../config/Global/global.config'
@@ -10,12 +9,21 @@ import { logger } from '../../utils/logger';
 
 dotenv.config();
 
-const imageCache = new NodeCache({ stdTTL: 3600 }); // Cache por 1 hora
+/**
+ * Cache das fotos de perfil em base64 por até uma hora.
+ */
+const imageCache = new NodeCache({ stdTTL: 3600 });
+
 const router = Router();
 const redirectUri = dotenvConfig.REDIRECT_URI;
 
 
-// 1. Início do login: redireciona para a Microsoft
+/**
+ * Inicia o fluxo de autenticação redirecionando o usuário para a Microsoft.
+ *
+ * @param req Requisição Express.
+ * @param res Resposta Express utilizada para redirecionar.
+ */
 router.get('/login', async (req: Request, res: Response) => {
   const authCodeUrlParameters = {
     scopes: ['user.read', 'openid', 'profile', 'email', 'GroupMember.Read.All'],
@@ -32,7 +40,12 @@ router.get('/login', async (req: Request, res: Response) => {
 });
 
 
-// 2. Callback após autenticação na Microsoft
+/**
+ * Callback da autenticação da Microsoft. Gera cookie de sessão e redireciona o usuário.
+ *
+ * @param req Requisição contendo o código de autorização.
+ * @param res Resposta usada para criar o cookie e redirecionar.
+ */
 router.get('/redirect', async (req: Request, res: Response) => {
   const tokenRequest = {
     code: req.query.code as string,
@@ -41,11 +54,10 @@ router.get('/redirect', async (req: Request, res: Response) => {
   };
 
   try {
-    // ************** CONEXÃO E TROCA DE TOKEN DO MSAL **************
+    // Conecta ao MSAL e troca o código de autorização por tokens
     const response = await cca.acquireTokenByCode(tokenRequest); 
 
-
-    // ************** EXTRAÇÃO E VALIDAÇÃO **************
+    // Extrai e valida as claims do token obtido
     const claims = response?.idTokenClaims as {
       name?: string;
       preferred_username?: string;
@@ -58,7 +70,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
     }
     const userOid = claims.oid as string;
 
-    // ************** BUSCAR DADOS DO GRUPO **************
+    // Recupera os grupos do usuário autenticado
     const groupsRes = await axios.get<{ value: Array<{ id: string; displayName: string; resourceProvisioningOptions: string[] }> }>(
       `https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName,resourceProvisioningOptions`,
       {
@@ -75,7 +87,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       .map((g: any) => ({nome: g.displayName }));
 
     
-    // ************** BUSCA DADOS DO USUARIO **************
+    // Consulta dados básicos do usuário
     const userProfileResponse = await axios.get<{ displayName: string; mail: string }>(
           'https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
           { headers: { Authorization: `Bearer ${response.accessToken}` } }
@@ -84,7 +96,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
     const userName = userProfileResponse.data.displayName || '';
     
 
-    // ************** IMAGEM PERFIL **************
+    // Faz o download da imagem de perfil
     try {
       const photoResponse = await axios.get('https://graph.microsoft.com/v1.0/me/photo/$value', {
         headers: { Authorization: `Bearer ${response.accessToken}` },
@@ -104,7 +116,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       }
     }
 
-    // ************** APLICAÇÃO DOS VALORES NAS VARIÁVEIS DO COOKIE **************
+    // Grava cookie de sessão para autenticação posterior
     const user = {
       name: userName,
       email: userEmail,
@@ -115,14 +127,14 @@ router.get('/redirect', async (req: Request, res: Response) => {
     //logger.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
 
     
-    // ************** CRIAÇÃO DO COOKIE **************
+    // Grava cookie de sessão para autenticação posterior
     res.cookie('session', JSON.stringify(user), {
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 1 * 60 * 60 * 1000,
     });
 
-    // ************** REDIRECIONAMENTO PARA O FRONTEND **************
+    // Redireciona usuário autenticado para o frontend
     res.redirect(`${config.BASE_URL_FRONTEND}/login/login-success`);
   } catch (error) {
     logger.error('Erro ao processar callback:', error);
@@ -130,14 +142,25 @@ router.get('/redirect', async (req: Request, res: Response) => {
   }
 });
 
-// ************** 3. Logout: limpa o cookie de sessão **************
+/**
+ * Finaliza a sessão removendo o cookie armazenado no navegador.
+ *
+ * @param req Requisição Express.
+ * @param res Resposta confirmando a operação.
+ */
 router.post('/logout', (req: Request, res: Response) => {
   res.clearCookie('session');
   res.sendStatus(200);
 });
 
 
-// ************** 4. Middleware: verifica se o usuário está logado **************
+/**
+ * Middleware que valida a existência de um cookie de sessão.
+ *
+ * @param req Requisição Express com possível cookie de sessão.
+ * @param res Resposta utilizada em caso de falha.
+ * @param next Próxima função de middleware.
+ */
 export function sessionGuard(req: Request, res: Response, next: Function) {
     const session = req.cookies?.session;
     if (!session){
@@ -152,7 +175,9 @@ export function sessionGuard(req: Request, res: Response, next: Function) {
     }
   }
   
-  // 5. Rota protegida: retorna dados da sessão (usada pelo frontend)
+/**
+ * Rota protegida que retorna os dados da sessão do usuário autenticado.
+ */
   router.get('/me', sessionGuard, (req: Request, res: Response) => {
 
     res.json(req.user);
@@ -160,7 +185,9 @@ export function sessionGuard(req: Request, res: Response, next: Function) {
 
 
 
-  // 6. ************** IMAGEM CACHE **************
+/**
+ * Recupera a foto de perfil armazenada em cache para o usuário autenticado.
+ */
   router.get('/user/photo', sessionGuard, (req: Request, res: Response) => {
     const session = req.cookies?.session;
 

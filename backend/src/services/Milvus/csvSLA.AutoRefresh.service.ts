@@ -1,4 +1,3 @@
-// src/services/slaRefresh.service.ts
 import { pool } from '../../config/Global/db.config'
 import { refreshCSVData } from '../../controllers/Milvus/Milvus.csvSLA.controller'
 import { buscarUltimosChamados } from './API.Listagem.service'

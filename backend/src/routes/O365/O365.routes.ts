@@ -21,7 +21,9 @@ import { logger } from '../../utils/logger'
 
 const router = Router();
 
-// Rotas relacionadas ao Backend
+/**
+ * Sincroniza usuários e grupos do Teams com o banco de dados.
+ */
 router.get('/back/sync-users-groups', async (req, res) => {
   try {
     await syncAllTeamsGroupsAndMembers();
@@ -32,25 +34,35 @@ router.get('/back/sync-users-groups', async (req, res) => {
   }
 });
 
-// Rotas relacionadas ao Frontend
-// Listagens
-router.get('/All-users', listUsuarios); // LISTA todos os USUÁRIOS no Banco de Dados
-router.get('/All-groups', listGrupos); // LISTA todos os GRUPOS no Banco de Dados
-router.get('/users-groups', listUsuariosGrupos); // LISTA todos os GRUPOS e MEMBROS no Banco de Dados
-router.get('/routesDB', listPermissoes); // LISTA todas as ROTAS no Banco de Dados
-router.get('/groups-perms', listGrupoPermissoes); // LISTA todas as ROTAS x GRUPOS e/ou USUÁRIOS no Banco de Dados
-router.get('/users/:campo', validate(campoParamSchema, 'params'), listCampoUsuarios); // LISTA todos os valores de uma Coluna de acordo com o Campo enviado pelo Frontend
-router.get('/camposusers', listCamposUsuarios); // LISTA todos os nomes de colunas da tabela USUÁRIOS - USADO PARA DEBUG RÁPIDO
+/** Lista todos os usuários. */
+router.get('/All-users', listUsuarios); 
+/** Lista todos os grupos. */
+router.get('/All-groups', listGrupos);
+/** Lista todos os grupos e membros. */
+router.get('/users-groups', listUsuariosGrupos);
+/** Lista todas as rotas. */
+router.get('/routesDB', listPermissoes);
+/** Lista todas as Rotas x Grupos/Usuários. */
+router.get('/groups-perms', listGrupoPermissoes);
+/** Lista todos os valores de uma coluna solicitada pelo frontend. */
+router.get('/users/:campo', validate(campoParamSchema, 'params'), listCampoUsuarios);
+/** Lista todos os nomes de colunas da tabela Usuários. */
+router.get('/camposusers', listCamposUsuarios);
 
 
-// Rotas
-router.post('/routesDB', validate(permissaoSchema), createPermissao); // ADICIONA uma ROTA
-router.put('/routesDB/:id', validate(idParamSchema, 'params'), validate(permissaoSchema), updatePermissao); // EDITA uma ROTA
-router.delete('/routesDB/:id', validate(idParamSchema, 'params'), deletePermissao); // REMOVE uma ROTA
+/** Cadastra uma nova rota de permissão. */
+router.post('/routesDB', validate(permissaoSchema), createPermissao);
+/** Atualiza os dados de uma rota de permissão. */
+router.put('/routesDB/:id', validate(idParamSchema, 'params'), validate(permissaoSchema), updatePermissao);
+/** Exclui uma rota do banco de dados. */
+router.delete('/routesDB/:id', validate(idParamSchema, 'params'), deletePermissao);
 
-// Associações grupo/permissao/usuario
-router.post('/group-perms', validate(grupoPermissaoSchema), addGrupoPermissao); // ADICIONA permissão
-router.put('/group-perms/:id', validate(idParamSchema, 'params'), validate(grupoPermissaoSchema), updateGrupoPermissao); // EDITA permissão
-router.delete('/group-perms/:id', validate(idParamSchema, 'params'), deleteGrupoPermissao); // REMOVE permissão
+
+/** Adiciona uma permissão ao grupo . */
+router.post('/group-perms', validate(grupoPermissaoSchema), addGrupoPermissao); 
+/** Edita uma permissão do grupo . */
+router.put('/group-perms/:id', validate(idParamSchema, 'params'), validate(grupoPermissaoSchema), updateGrupoPermissao);
+/** Remove uma permissão do grupo . */
+router.delete('/group-perms/:id', validate(idParamSchema, 'params'), deleteGrupoPermissao);
 
 export default router;
