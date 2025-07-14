@@ -1,6 +1,7 @@
 import { sessionGuard } from '../Auth/auth.routes';
-import { pool } from '../../config/Global/db.config';
 import { Router, Request, Response } from 'express';
+import { listPermissoes, listPermissoesPorGrupos } from '../../repositories/o365.repository';
+import { logger } from '../../utils/logger';
 
 const router = Router();
 
@@ -19,29 +20,17 @@ router.get('/permissoes', sessionGuard, async (req: Request, res: Response) => {
     // 1) Se for Admin (TI - Infraestrutura),
     //    devolve todas as permissões
     if (nomesDosGrupos.includes('TI - Infraestrutura')) {
-      const all = await pool.query(
-        'SELECT rota, nome_visivel, grupo_pai FROM permissoes ORDER BY grupo_pai, nome_visivel'
-      );
-      res.json(all.rows);
+      const all = await listPermissoes();
+      res.json(all);
       return
     }
 
     // 2) Senão, devolve só as permissões desse(s) grupo(s)
-    const rows = await pool.query(
-      `
-      SELECT DISTINCT p.rota, p.nome_visivel, p.grupo_pai
-      FROM grupo_permissoes gp
-      JOIN permissoes p ON p.id = gp.permissao_id
-      JOIN ad_grupos g ON g.id = gp.grupo_id
-      WHERE g.nome = ANY($1)
-      ORDER BY p.grupo_pai, p.nome_visivel
-      `,
-      [nomesDosGrupos]
-    );
-    res.json(rows.rows);
+    const rows = await listPermissoesPorGrupos(nomesDosGrupos);
+    res.json(rows);
     return
   } catch (err) {
-    console.error('Erro em /api/routes/auth/permissoes:', err);
+    logger.error(`Erro em /api/routes/auth/permissoes: ${String(err)}`);
     res.status(500).send('Erro interno');
   }
 });

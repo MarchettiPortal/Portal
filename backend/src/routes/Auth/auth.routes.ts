@@ -6,6 +6,7 @@ import dotenvConfig from '../../config/Auth/dotenv.auth.config';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import NodeCache from 'node-cache';
+import { logger } from '../../utils/logger';
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ router.get('/login', async (req: Request, res: Response) => {
     const authUrl = await cca.getAuthCodeUrl(authCodeUrlParameters);
     res.redirect(authUrl);
   } catch (error) {
-    console.error('Erro ao gerar URL de login:', error);
+    logger.error('Erro ao gerar URL de login:', error);
     res.status(500).send('Erro ao redirecionar para login Microsoft');
   }
 });
@@ -94,12 +95,12 @@ router.get('/redirect', async (req: Request, res: Response) => {
       const photoBase64 = photoBuffer.toString('base64');
 
       imageCache.set(claims.oid, photoBase64);
-      //console.log('foto salva no cache')
+      //logger.log('foto salva no cache')
     } catch (photoError) {
       if (axios.isAxiosError(photoError)) {
-        console.warn('Erro ao buscar imagem de perfil:', photoError.response?.status || photoError.message);
+        logger.warn(`Erro ao buscar imagem de perfil: ${photoError.response?.status || photoError.message}`);
       } else {
-        console.warn('Erro inesperado ao buscar imagem de perfil:', (photoError as Error).message);
+        logger.warn(`Erro inesperado ao buscar imagem de perfil: ${(photoError as Error).message}`);
       }
     }
 
@@ -111,7 +112,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
       grupos,
     };
 
-    //console.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
+    //logger.log('Usuário autenticado:', user.name, user.id, user.grupos, user.email);
 
     
     // ************** CRIAÇÃO DO COOKIE **************
@@ -124,7 +125,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
     // ************** REDIRECIONAMENTO PARA O FRONTEND **************
     res.redirect(`${config.BASE_URL_FRONTEND}/login/login-success`);
   } catch (error) {
-    console.error('Erro ao processar callback:', error);
+    logger.error('Erro ao processar callback:', error);
     res.status(500).send('Erro ao completar login');
   }
 });

@@ -1,68 +1,86 @@
 import pool from "../../config/Global/db.config";
+import * as docApiRepo from '../../repositories/docApi.repository';
 
-// ** Sections **
-// Lista todas as Sections cadastradas no banco
-export const getAllSections = async () => {
-  const { rows } = await pool.query('SELECT * FROM doc_api_sections ORDER BY display_order');
-  return rows;
-};
+/**
+ * Recupera todas as seções cadastradas na base de dados.
+ *
+ * @returns Lista de seções ordenada por display_order.
+ */
+export const getAllSections = async () => docApiRepo.findAllSections();
 
-// Adiciona Sections ao banco de dados
-export const createSection = async (title: string, displayOrder: number) => {
-  const { rows } = await pool.query(
-    'INSERT INTO doc_api_sections (title, display_order, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *',
-    [title, displayOrder]
-  );
-  return rows[0];
-};
 
-// Edita Sections ao banco de dados
-export const updateSection = async (id: number, title: string, displayOrder: number) => {
-  const { rows } = await pool.query(
-    `UPDATE doc_api_sections 
-     SET title = $1, display_order = $2, updated_at = NOW() 
-     WHERE id = $3 RETURNING *`,
-    [title, displayOrder, id]
-  );
-  return rows[0];
-};
+/**
+ * Insere uma nova seção na documentação das APIs.
+ *
+ * @param title Título da seção.
+ * @param displayOrder Ordem de exibição desejada.
+ * @returns A seção criada.
+ */
+export const createSection = async (title: string, displayOrder: number) => docApiRepo.insertSection(title, displayOrder);
 
-// Remove Sections ao banco de dados
-export const removeSection = async (id: number) => {
-  await pool.query('DELETE FROM doc_api_sections WHERE id = $1', [id]);
-};
+
+/**
+ * Atualiza uma seção existente.
+ *
+ * @param id Identificador da seção.
+ * @param title Novo título.
+ * @param displayOrder Nova ordem de exibição.
+ * @returns A seção atualizada.
+ */
+export const updateSection = async (id: number, title: string, displayOrder: number) =>
+  docApiRepo.updateSection(id, title, displayOrder);
+
+/**
+ * Remove uma seção da documentação.
+ *
+ * @param id Identificador da seção.
+ * @returns Void quando a exclusão é concluída.
+ */
+export const removeSection = async (id: number) => docApiRepo.removeSection(id);
+
 
 
 // ** Routes x Sections **
 
-// Lista todas as Routes x Sections cadastradas no banco
-export const getRoutesBySection = async (sectionId: number) => {
-  const { rows } = await pool.query(
-    'SELECT * FROM doc_api_routes WHERE section_id = $1 ORDER BY display_order',
-    [sectionId]
-  );
-  return rows;
-};
+/**
+ * Lista rotas vinculadas a uma seção específica.
+ *
+ * @param sectionId ID da seção desejada.
+ * @returns Rotas encontradas para a seção.
+ */
+export const getRoutesBySection = async (sectionId: number) => docApiRepo.findRoutesBySection(sectionId);
 
-// Adiciona Routes x Sections no banco
+
+/**
+ * Cria uma nova rota associada a determinada seção.
+ *
+ * @param sectionId ID da seção.
+ * @param method Método HTTP da rota.
+ * @param url Caminho da rota.
+ * @param description Descrição opcional.
+ * @param displayOrder Ordem de exibição na seção.
+ * @returns A rota criada.
+ */
 export const createRoute = async (
   sectionId: number,
   method: string,
   url: string,
   description: string,
   displayOrder: number
-) => {
-  const { rows } = await pool.query(
-    `INSERT INTO doc_api_routes 
-    (section_id, method, url, description, display_order, created_at, updated_at) 
-    VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) 
-    RETURNING *`,
-    [sectionId, method, url, description, displayOrder]
-  );
-  return rows[0];
-};
+) => docApiRepo.insertRoute(sectionId, method, url, description, displayOrder);
 
-// Edita Routes x Sections no banco
+
+/**
+ * Atualiza os dados de uma rota existente.
+ *
+ * @param id Identificador da rota.
+ * @param sectionId Seção relacionada.
+ * @param method Método HTTP.
+ * @param url Caminho da rota.
+ * @param description Descrição da rota.
+ * @param displayOrder Nova ordem de exibição.
+ * @returns A rota atualizada.
+ */
 export const updateRoute = async (
   id: number,
   sectionId: number,
@@ -70,18 +88,12 @@ export const updateRoute = async (
   url: string,
   description: string,
   displayOrder: number
-) => {
-  const { rows } = await pool.query(
-    `UPDATE doc_api_routes 
-     SET section_id = $1, method = $2, url = $3, description = $4, 
-         display_order = $5, updated_at = NOW()
-     WHERE id = $6 RETURNING *`,
-    [sectionId, method, url, description, displayOrder, id]
-  );
-  return rows[0];
-};
+) => docApiRepo.updateRoute(id, sectionId, method, url, description, displayOrder);
 
-// Remove Routes x Sections no banco
-export const removeRoute = async (id: number) => {
-  await pool.query('DELETE FROM doc_api_routes WHERE id = $1', [id]);
-};
+/**
+ * Exclui uma rota da documentação.
+ *
+ * @param id Identificador da rota.
+ */
+export const removeRoute = async (id: number) => docApiRepo.removeRoute(id);
+

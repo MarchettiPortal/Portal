@@ -1,7 +1,14 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 
-export const httpsConfig  = {
-    key: fs.readFileSync('src\\cert\\key.key'),
-    cert:fs.readFileSync('src\\cert\\cert.crt'),
-    ca:fs.readFileSync('src\\cert\\ca.crt')
-};
+/**
+ * Carrega os certificados utilizados pelo servidor HTTPS.
+ *
+ * @returns Objeto contendo chave, certificado e cadeia de certificação
+ */
+export async function getHttpsConfig() {
+  return {
+    key: await fs.readFile('src/cert/key.key'),
+    cert: await fs.readFile('src/cert/cert.crt'),
+    ca: await fs.readFile('src/cert/ca.crt'),
+  };
+}

@@ -1,9 +1,16 @@
-import "dotenv/config";
+import 'dotenv/config';
+import { getEnvVar } from '../../utils/env';
 
+/**
+ * Valores padrão de FTP
+ * 
+ * Export dos valores
+ */
 const dotenvConfig = {
-    host:process.env.FTP_HOST,
-    user:process.env.FTP_USER,
-    password:process.env.FTP_PASS,
+    host: getEnvVar('FTP_HOST'),
+    user: getEnvVar('FTP_USER'),
+    password: getEnvVar('FTP_PASS'),
+    port: parseInt(getEnvVar('FTP_PORT'), 10)
 };
 
 export default dotenvConfig;

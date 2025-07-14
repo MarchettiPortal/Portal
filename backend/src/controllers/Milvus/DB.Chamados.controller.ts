@@ -1,8 +1,17 @@
 import { Request, Response } from 'express';
 import { pool } from '../../config/Global/db.config';
-import * as chamadosService from '../../services/Milvus/Milvus.CRUD.Chamados.service.js';
+import * as chamadosService from '../../services/Milvus/CRUD.Chamados.service.js';
+import { logger } from '../../utils/logger';
 
-// Função para calcular SLA total (Data de Solução - Data de Criação)
+
+/**
+ * Calcula o SLA em dias entre a criação e a solução de um chamado.
+ *
+ * @param dataCriacao Data de criação do chamado.
+ * @param dataSolucao Data de solução do chamado.
+ * @returns Quantidade de dias decorridos.
+ */
+
 const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
   const diffMs = dataSolucao.getTime() - dataCriacao.getTime();
   return diffMs / (1000 * 60 * 60 * 24); // Converter para dias
@@ -11,80 +20,128 @@ const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
 
 // *********** CONSULTAS ***********
 
-// LISTAR TODOS CHAMADOS
+ /**
+ * Lista todos os chamados armazenados no banco.
+ * @param _req Requisição Express (não utilizada).
+ * @param res Resposta HTTP contendo array de chamados.
+ * @returns Promessa resolvida quando a resposta é enviada.
+ */
 export const listarChamados = async (req: Request, res: Response) => {
   try {
     const chamados = await chamadosService.consultarChamados();
     res.status(200).json(chamados);
   } catch (error) {
-    console.error('Erro ao listar chamados:', error);
+    logger.error('Erro ao listar chamados:', error);
     res.status(500).json({ error: 'Erro ao listar chamados' });
   }
 };
 
-// LISTAR CHAMADOS POR SETOR
+/**
+ * Agrupa os chamados por setor de atendimento.
+ * @param _req Requisição Express (não utilizada).
+ * @param res Resposta HTTP com dados agregados.
+ */
 export const getChamadosPorSetor = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSetor();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao buscar chamados por setor:', error);
+    logger.error('Erro ao buscar chamados por setor:', error);
     res.status(500).json({ error: 'Erro ao agrupar chamados por setor' });
   }
 };
 
+/**
+ * Agrupa a quantidade de chamados resolvidos por cada operador.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta com dados agrupados por operador.
+ */
 
 export const getChamadosPorOperador = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorOperador();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por operador:', error);
+    logger.error('Erro ao agrupar por operador:', error);
     res.status(500).json({ error: 'Erro ao agrupar por operador' });
   }
 };
 
+/**
+ * Retorna estatísticas de chamados agrupadas por prioridade.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo o agrupamento por prioridade.
+ */
 export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorPrioridade();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por prioridade:', error);
+    logger.error('Erro ao agrupar por prioridade:', error);
     res.status(500).json({ error: 'Erro ao agrupar por prioridade' });
   }
 };
+
+
+/**
+ * Agrupa chamados de acordo com o cumprimento do SLA.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta com dados agrupados por SLA.
+ */
 
 export const getChamadosPorSLA = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSLA();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por SLA:', error);
+    logger.error('Erro ao agrupar por SLA:', error);
     res.status(500).json({ error: 'Erro ao agrupar por SLA' });
   }
 };
 
+/**
+ * Obtém a contagem de chamados por localidade.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo o agrupamento por local.
+ */
 export const getChamadosPorLocal = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorLocal();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao agrupar por local:', error);
+    logger.error('Erro ao agrupar por local:', error);
     res.status(500).json({ error: 'Erro ao agrupar por local' });
   }
 };
 
+/**
+ * Conta quantos chamados foram reabertos.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo a contagem de reaberturas.
+ */
 export const getChamadosReabertos = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosReabertos();
     res.json(dados);
   } catch (error) {
-    console.error('Erro ao contar reabertos:', error);
+    logger.error('Erro ao contar reabertos:', error);
     res.status(500).json({ error: 'Erro ao contar reabertos' });
   }
 };
 
-// *********** CRIAÇÃO DE CHAMADOS ***********
+
+/**
+ * Insere um novo chamado na base de dados.
+ *
+ * @param req Corpo da requisição contendo os campos do chamado.
+ * @param res Resposta com o chamado criado ou mensagem de erro.
+ */
+
 export const criarChamado = async (req: Request, res: Response) => {
   const {
   CODIGO, CATEGORIA, SUBCATEGORIA, LOCAL, SETOR, MES_CRIACAO, ANO_CRIACAO,
@@ -137,13 +194,18 @@ export const criarChamado = async (req: Request, res: Response) => {
     }
     res.status(201).json(rows[0])
   } catch (error) {
-    console.error('Erro ao criar chamado:', error)
+    logger.error('Erro ao criar chamado:', error)
     res.status(500).json({ error: 'Erro ao criar chamado', details: error })
   }
   
 }
 
-// *********** EDIÇÃO DE CHAMADOS ***********
+/**
+ * Atualiza campos específicos de um chamado.
+ *
+ * @param req Contém o código do chamado em params e dados no body.
+ * @param res Resposta com registro atualizado ou erro.
+ */
 export const editarChamado = async (req: Request, res: Response) => {
   const { CODIGO } = req.params;
   const { PRIORIDADE, NOTA_AVALIACAO } = req.body;
@@ -165,13 +227,18 @@ export const editarChamado = async (req: Request, res: Response) => {
     }
     res.json(rows[0])
   } catch (error) {
-    console.error('Erro ao editar chamado:', error)
+    logger.error('Erro ao editar chamado:', error)
     res.status(500).json({ error: 'Erro ao editar chamado', details: error })
   }
 }
 
 
-// *********** EXCLUSÃO DE VALORES/CHAMADOS ***********
+/**
+ * Remove um chamado do banco de dados.
+ *
+ * @param req Contém o código do chamado a ser removido.
+ * @param res Resposta com confirmação ou erro de remoção.
+ */
 export const excluirChamado = async (req: Request, res: Response) => {
 
   const { CODIGO } = req.params;
@@ -188,7 +255,7 @@ export const excluirChamado = async (req: Request, res: Response) => {
       }
       res.json({ message: `Chamado ${CODIGO} excluído`, deleted: rows[0] })
     } catch (error) {
-      console.error('Erro ao excluir chamado:', error)
+      logger.error('Erro ao excluir chamado:', error)
       res.status(500).json({ error: 'Erro ao excluir chamado', details: error })
     }
   }

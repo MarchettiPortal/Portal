@@ -24,7 +24,6 @@
       :arquivos="arquivosEmExecucao"
       :editando-arquivo="editandoArquivo"
       v-model:nome-editado="nomeEditado"
-      @baixar="baixarArquivo"
       @ativar-edicao="ativarEdicao"
       @confirmar-renomear-inline="confirmarRenomearInline"
       @abrir-modal-excluir="abrirModalExcluir"
@@ -111,29 +110,6 @@ const modalExcluir = ref(false)
 const isUploading = ref(false)
 const isSuccess = ref(false)
 const arquivoArrastado = ref<File | null>(null)
-
-// Baixar o arquivo
-const baixarArquivo = async (arquivo: Arquivo) => {
-  try {
-    const response = await axios.get(`${config.API_BACKEND}/ftp/arquivo/download`, {
-      params: {
-        nome: arquivo.nomeArquivo,
-        clp: clpStore.clpText
-      },
-      responseType: 'blob'
-    })
-    const url = URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', arquivo.nomeArquivo)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  } catch {
-    showError('Erro ao baixar arquivo.')
-  }
-}
 
 // Helpers gerais
 const showError = (msg: string) => {

@@ -1,4 +1,3 @@
-// stores/agendador.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { config } from '../../config/global.config'

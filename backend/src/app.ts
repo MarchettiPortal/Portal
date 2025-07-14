@@ -2,18 +2,24 @@ import express from 'express';
 import authRouter from './routes/Auth/auth.routes';
 import milvusRouter from './routes/Milvus/chamados.routes';
 import graphRouter from './routes/O365/O365.routes';
-import clpRouter from './routes/CLP.FTP/CLP.routes'
+import clpRouter from './routes/clp-ftp/CLP.routes'
 import permRouter from './routes/Auth/permissoes.routes'
-import ftpRouter from './routes/CLP.FTP/FTP.routes'
+import ftpRouter from './routes/clp-ftp/FTP.routes'
 import statusRouter from './routes/status/status.routes'
 import docRouter from './routes/Documentacao/APIs.routes'
 import { config } from './config/Global/global.config.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import adRouter from './routes/AD/AD.Routes'
+import { errorHandler } from './middleware/errorHandler'
+
 //import officeRouter from './routes/office365.routes'
 
-const app = express(); // Aplicando na variável APP todo o Framework do Express
+/**
+ * Instância principal do aplicativo Express contendo todas as rotas e
+ * middlewares configurados para a API.
+ */
+const app = express(); 
 
 // ** Middlewares **
 app.use( // Middleware para permitir cookies cross-origin (CORS)
@@ -24,6 +30,8 @@ app.use( // Middleware para permitir cookies cross-origin (CORS)
 )
 app.use(express.json()); // Middleware para rotas JSON 
 app.use(cookieParser()); // Middleware para ler cookies
+app.use(errorHandler); // Middleware global de tratamento de erros
+
 
 // ** Rotas **
 app.use('/auth', authRouter);// Rota de Autenticação e Sessão Ativa

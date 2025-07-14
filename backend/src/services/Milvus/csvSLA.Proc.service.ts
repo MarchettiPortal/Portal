@@ -1,23 +1,28 @@
-import fs from 'fs';
+import { promises as fs, createReadStream } from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser'
 import pool from '../../config/Global/db.config'
 import { pipeline } from 'stream/promises'
 import { parse, format, getYear, differenceInMilliseconds } from 'date-fns'
 import { pt } from 'date-fns/locale'
-import { upsertTicket } from './Milvus.csvSLA.DB.service.js';
+import { upsertTicket } from './csvSLA.DB.service.js';
 import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config.js'
 import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData.js';
-import { ParsedRow } from '../../types/csvSLA'
+import { ParsedRow } from '../../types/milvus'
+import { logger } from '../../utils/logger'
 
 
-// Função que chama a manipulação dos dados do CSV e depois chama a inserção dos dados no Banco
+
+/**
+ * Processa o CSV e depois insere no Banco de Dados.
+ * Each row is normalized and persisted using {@link upsertTicket}.
+ */
 export async function processCSV(): Promise<void> {
   const csvPath = path.resolve(__dirname, dotenvConfig.PATH_CSV_SLA)
 
   try {
     await pipeline(
-      fs.createReadStream(csvPath, { encoding: 'utf-8' }),
+      createReadStream(csvPath, { encoding: 'utf-8' }),
       csvParser({ separator: ';' }),
       async function* (source) {
         for await (const rawRow of source) {
@@ -25,22 +30,25 @@ export async function processCSV(): Promise<void> {
             const row = manipulateData(rawRow)
             await upsertTicket(row)
           } catch (err) {
-            console.error('Erro ao processar linha:', rawRow, err)
+            logger.error('Erro ao processar linha:', rawRow, err)
           }
         }
       }
     )
-    //console.log('Processamento do CSV concluído!')
+    //logger.log('Processamento do CSV concluído!')
   } catch (err) {
-    console.error('Falha no pipeline de CSV:', err)
+    logger.error('Falha no pipeline de CSV:', err)
     throw err
   }finally {
-    await pool.end()
-    //console.log('Pool encerrado.')
   }
 }
 
-// Função que manipula os dados do CSV
+/**
+ * Aplica as regras de normatização para as linhas do CSV antes da insersão no banco.
+ * 
+ * @param row Linha bruta obtida do CSV.
+ * @returns Linha normalizada pronta para o banco de dados.
+ */
 export function manipulateData(row: any) {
 
     // --- 1. Substituir valores antigos na coluna "CATEGORIA" pelos valores novos utilizados atualmente
@@ -154,7 +162,7 @@ export function manipulateData(row: any) {
         )
         row.SLA = (diffMs / 3_600_000).toFixed(2)
     } catch (err) {
-        console.error('Erro ao processar datas/SLA:', err)
+        logger.error('Erro ao processar datas/SLA:', err)
     }
         
 

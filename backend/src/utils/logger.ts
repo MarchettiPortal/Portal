@@ -1,13 +1,16 @@
 import winston from 'winston';
 import path from 'path';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 
-// Garante que a pasta de logs existe
+/**
+ * Garante que a pasta de Logs existe
+ */
 const logDir = path.resolve('logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+fs.mkdir(logDir, { recursive: true }).catch(() => { /* ignore */ });
 
+/**
+ * Instância configurada do Winston para gravação de logs da aplicação.
+ */
 export const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
@@ -32,7 +35,9 @@ export const logger = winston.createLogger({
   ]
 });
 
-// Só loga no console se não for produção
+/**
+ * Só loga se não for produção
+ */
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({

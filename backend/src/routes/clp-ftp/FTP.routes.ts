@@ -1,17 +1,26 @@
 import { Router } from 'express';
 import { getSocket } from '../../socket';
-import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp } from '../../services/FTP/FTP.Client.service'
+import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp  } from '../../services/FTP/FTP.Client.service'
 import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.service'
 import multer from 'multer';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
+import { validate } from '../../middleware/validate';
+import { renameFileSchema, fileParamSchema } from '../../validators/ftp';
+import { logger } from '../../utils/logger';
+
 
 const upload = multer({ dest: 'uploads/' });
 const router = Router();
 
 
 // *** FTP ***
-//  Rota para enviar os arquivos no acesso FTP
+/**
+ * Upload de arquivos para o servidor FTP.
+ *
+ * Utiliza Multer para receber o arquivo e envia feedback de progresso via
+ * Socket.IO.
+ */
 router.post('/upload', upload.single('arquivo'), async (req, res) => {
   const socketId = req.headers['x-socket-id'] as string  // header customizado
   const file = (req as any).file;
@@ -51,17 +60,19 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
       .to(`clp:${clp}`)
       .emit('ftp-upload-completo', { usuario, clp })
 
-    fs.unlinkSync(localPath); // Remove arquivo local temporário
+    await fs.unlink(localPath); // Remove arquivo local temporário
     res.json({ sucesso: true }); // ✅ ÚNICO ponto que envia resposta
   } catch (error: any) {
-    console.error('[ERRO UPLOAD]', error);
+    logger.error('[ERRO UPLOAD]', error);
     res.status(500).json({ error: 'Falha', detalhes: error.message });
   } finally{
     setEnviandoArquivo(false, null);
   }
 });
 
-//  Rota para listar os arquivos no acesso FTP
+/**
+ * Lista os arquivos disponíveis no diretório raiz do FTP.
+ */
 router.get('/arquivo', async (req, res) => {
     try {
         const info = await listarArquivoFtp('/');
@@ -76,14 +87,11 @@ router.get('/arquivo', async (req, res) => {
     }
 });
 
-//  Rota para Renomear arquivo no acesso FTP
-router.patch('/arquivo/renomear', async (req, res) => {
+/**
+ * Renomeia um arquivo existente no servidor FTP.
+ */
+router.patch('/arquivo/renomear', validate(renameFileSchema), async (req, res) => {
   const { antigoNome, novoNome, clp } = req.body;
-  if (!antigoNome || !novoNome) {
-    res.status(400).json({ error: 'Nomes inválidos' });
-    return;
-  }
-
   try {
     await renomearArquivoFtp(antigoNome, novoNome);
 
@@ -98,14 +106,13 @@ router.patch('/arquivo/renomear', async (req, res) => {
   }
 });
 
-//  Rota para excluir arquivo no acesso FTP
-router.delete('/arquivo/:nomeArquivo', async (req, res) => {
+/**
+ * Remove um arquivo do servidor FTP.
+ */
+router.delete('/arquivo/:nomeArquivo', validate(fileParamSchema, 'params'), async (req, res) => {
   const nomeArquivo = req.params.nomeArquivo;
-  const clp = req.query.clp as string  // ou inclua no body se preferir
-  if (!nomeArquivo) {
-    res.status(400).json({ error: 'Nome do arquivo não fornecido' });
-    return;
-  }
+  const clp = req.query.clp as string 
+
   try {
     await excluirArquivoFtp(nomeArquivo);
     // Emite para todos os usuários no front que o arquivo foi Excluido
@@ -119,7 +126,9 @@ router.delete('/arquivo/:nomeArquivo', async (req, res) => {
   }
 });
 
-// Rota para validar se alguém está reiniciando o WPS ou Enviando um FTP para bloquear novas tentativas até finalizar
+/**
+ * Consulta o estado global de reinicialização e envio de arquivos.
+ */
 router.get('/status-global', async (req, res) => {
   res.json({
     clp: {
@@ -133,7 +142,9 @@ router.get('/status-global', async (req, res) => {
   });
 });
 
-// Lista os Logs do FTP no banco de dados para o frontend
+/**
+ * Retorna o histórico de uploads realizados via FTP.
+ */
 router.get('/logs', async (req, res) => {
   try {
     const logs = await listarLogsFtp();
@@ -142,6 +153,8 @@ router.get('/logs', async (req, res) => {
     res.status(500).json({ error: 'Erro ao listar logs' });
   }
 });
+
+
 
 
 export default router;
