@@ -8,7 +8,7 @@ import { logger } from '../../utils/logger'
 
 const router = Router();
 
-// Chamadas ao serviço Remoto
+// Chamadas ao serviço remoto
 /**
  * Obtém o status atual do CLP.
  * @route GET /api/clp/status
@@ -21,11 +21,15 @@ router.get('/status', getClpStatus);
  */
 router.post('/set', validate(setClpConfigSchema), setClpConfig);
 
-// Chamadas ao Banco de Dados
-router.get('/list', listarClps) // Lista os CLP's no banco de dados
-router.post('/add', validate(createClpSchema), adicionarClp) // Adicionar CLP
-router.delete('/del/:id', validate(idParamSchema, 'params'), removerClp) // Remove CLP's no banco de dados
-router.patch('/edit/:id', validate(idParamSchema, 'params'), validate(updateClpSchema), async (req, res) => { // Edita CLP's no banco de dados
+/** Lista CLPs cadastrados. */
+router.get('/list', listarClps)
+/** Adiciona CLP. */
+router.post('/add', validate(createClpSchema), adicionarClp)
+/** Remove CLPs cadastrados. */
+router.delete('/del/:id', validate(idParamSchema, 'params'), removerClp)
+
+/** Edita CLPs cadastrados. */
+router.patch('/edit/:id', validate(idParamSchema, 'params'), validate(updateClpSchema), async (req, res) => { 
   const id = parseInt(req.params.id)
   const { nome, ip, ativo, sistema_clp } = req.body
   try {

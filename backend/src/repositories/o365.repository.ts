@@ -2,6 +2,8 @@ import { pool } from '../config/Global/db.config';
 
 /**
  * Retorna todos os usuários cadastrados.
+ *
+ * @returns Lista completa de usuários.
  */
 export async function listUsuarios() {
   const result = await pool.query('SELECT * FROM usuarios');
@@ -10,6 +12,8 @@ export async function listUsuarios() {
 
 /**
  * Retorna todos os grupos do AD.
+ *
+ * @returns Array de grupos cadastrados.
  */
 export async function listGrupos() {
   const result = await pool.query('SELECT * FROM ad_grupos');
@@ -18,6 +22,8 @@ export async function listGrupos() {
 
 /**
  * Lista as relações entre usuários e grupos.
+ *
+ * @returns Relações usuário x grupo existentes.
  */
 export async function listUsuariosGrupos() {
   const result = await pool.query('SELECT * FROM usuario_ad_grupo');
@@ -26,6 +32,8 @@ export async function listUsuariosGrupos() {
 
 /**
  * Obtém todas as permissões cadastradas.
+ *
+ * @returns Permissões registradas no sistema.
  */
 export async function listPermissoes() {
   const result = await pool.query('SELECT * FROM permissoes');
@@ -34,6 +42,8 @@ export async function listPermissoes() {
 
 /**
  * Recupera as associações entre grupos e permissões.
+ *
+ * @returns Lista de vínculos entre grupos e permissões.
  */
 export async function listGrupoPermissoes() {
   const result = await pool.query('SELECT * FROM grupo_permissoes');
@@ -42,6 +52,9 @@ export async function listGrupoPermissoes() {
 
 /**
  * Lista permissões visíveis para determinados grupos.
+ *
+ * @param nomes Lista de nomes de grupos filtrados.
+ * @returns Permissões correspondentes.
  */
 export async function listPermissoesPorGrupos(nomes: string[]) {
   const { rows } = await pool.query(
@@ -58,6 +71,9 @@ export async function listPermissoesPorGrupos(nomes: string[]) {
 
 /**
  * Seleciona apenas o campo informado para todos os usuários.
+ *
+ * @param campo Nome da coluna desejada.
+ * @returns Valores da coluna solicitada.
  */
 export async function selectCampoUsuarios(campo: string) {
   const query = `SELECT id, ${campo} FROM usuarios ORDER BY id`;
@@ -67,6 +83,8 @@ export async function selectCampoUsuarios(campo: string) {
 
 /**
  * Lista os nomes das colunas da tabela de usuários.
+ *
+ * @returns Array de nomes de coluna.
  */
 export async function listarCamposUsuarios() {
   const result = await pool.query(
@@ -77,6 +95,11 @@ export async function listarCamposUsuarios() {
 
 /**
  * Insere uma nova permissão.
+ *
+ * @param rota Caminho da rota.
+ * @param nomeVisivel Nome exibido no frontend.
+ * @param grupoPai Grupo pai vinculado.
+ * @returns Registro criado.
  */
 export async function insertPermissao(rota: string, nomeVisivel: string, grupoPai: string) {
   const result = await pool.query(
@@ -90,6 +113,12 @@ export async function insertPermissao(rota: string, nomeVisivel: string, grupoPa
 
 /**
  * Atualiza uma permissão existente.
+ *
+ * @param id Identificador da permissão.
+ * @param rota Caminho da rota.
+ * @param nomeVisivel Nome a ser exibido.
+ * @param grupoPai Grupo pai vinculado.
+ * @returns Registro atualizado.
  */
 export async function updatePermissao(id: string, rota: string, nomeVisivel: string, grupoPai: string) {
   const result = await pool.query(
@@ -104,6 +133,8 @@ export async function updatePermissao(id: string, rota: string, nomeVisivel: str
 
 /**
  * Remove uma permissão pelo ID.
+ *
+ * @param id Identificador da permissão.
  */
 export async function deletePermissao(id: string) {
   await pool.query('DELETE FROM permissoes WHERE id = $1', [id]);
@@ -111,6 +142,11 @@ export async function deletePermissao(id: string) {
 
 /**
  * Cria vínculo entre grupo, permissão e usuário.
+ *
+ * @param grupoId ID do grupo no AD.
+ * @param permissaoId ID da permissão cadastrada.
+ * @param userId ID do usuário.
+ * @returns Registro criado no banco.
  */
 export async function insertGrupoPermissao(grupoId: string, permissaoId: string, userId: string) {
   const result = await pool.query(
@@ -124,6 +160,12 @@ export async function insertGrupoPermissao(grupoId: string, permissaoId: string,
 
 /**
  * Atualiza vínculo entre grupo, permissão e usuário.
+ *
+ * @param id Identificador do registro de vínculo.
+ * @param grupoId ID do grupo no AD.
+ * @param permissaoId ID da permissão.
+ * @param userId ID do usuário.
+ * @returns Registro atualizado.
  */
 export async function updateGrupoPermissao(id: string, grupoId: string, permissaoId: string, userId: string) {
   const result = await pool.query(
@@ -138,6 +180,8 @@ export async function updateGrupoPermissao(id: string, grupoId: string, permissa
 
 /**
  * Remove o vínculo de grupo/permissão pelo ID.
+ *
+ * @param id Identificador do vínculo.
  */
 export async function deleteGrupoPermissao(id: string) {
   await pool.query('DELETE FROM grupo_permissoes WHERE id = $1', [id]);

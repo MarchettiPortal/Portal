@@ -134,7 +134,12 @@ export async function syncAllTeamsGroupsAndMembers() {
   logger.info('✅ Sincronização concluída');
 }
 
-// --- Paginação de /users
+/**
+ * Recupera todos os usuários do Microsoft Graph usando paginação.
+ *
+ * @param headers Cabeçalhos de autorização para a API Graph.
+ * @returns Array de usuários obtidos.
+ */
 async function getAllUsers(headers: Record<string, string>): Promise<GraphUser[]> {
   let url = `${GRAPH_BASE}/users?$select=id,displayName,mail,userPrincipalName`;
   const allUsers: GraphUser[] = [];
@@ -148,7 +153,11 @@ async function getAllUsers(headers: Record<string, string>): Promise<GraphUser[]
   return allUsers;
 }
 
-// --- Sincroniza dados no banco
+/**
+ * Sincroniza os dados de um usuário e seus grupos no banco de dados.
+ *
+ * @param user Objeto contendo dados completos do usuário.
+ */
 async function syncUserAndGroups(user: ADUser) {
   const client = await pool.connect();
   try {
@@ -209,6 +218,12 @@ async function syncUserAndGroups(user: ADUser) {
 }
 
 // --- Identifica conta de serviço
+/**
+ * Obtém os IDs de usuários pertencentes ao grupo de contas de serviço.
+ *
+ * @param headers Cabeçalhos para autenticação na API Graph.
+ * @returns Conjunto de IDs de usuários de serviço.
+ */
 async function getServicoUserIds(headers: Record<string, string>): Promise<Set<string>> {
   const ids = new Set<string>();
   let url = `${GRAPH_BASE}/groups/${GRUPO_SERVICO_ID}/members?$select=id`;
@@ -224,7 +239,12 @@ async function getServicoUserIds(headers: Record<string, string>): Promise<Set<s
   return ids;
 }
 
-
+/**
+ * Obtém os IDs de usuários classificados como recursos (salas, equipamentos).
+ *
+ * @param headers Cabeçalhos para autenticação na API Graph.
+ * @returns Conjunto de IDs identificados como recursos.
+ */
 async function getRecursosUserIds(headers: Record<string, string>): Promise<Set<string>> {
   const ids = new Set<string>();
   let url = `${GRAPH_BASE}/groups/${GRUPO_RECURSO_ID}/members?$select=id`;

@@ -2,12 +2,13 @@ import { Request, Response } from 'express';
 import { getADGroups, createADUser, getADServiceStatus } from '../../services/AD/AD.UserSync.service';
 
 /**
- * Handles the request to list all Active Directory groups.
+ * Lista todos os grupos existentes no Active Directory.
  *
- * @param _req Express request object (unused).
- * @param res Express response used to return the list of groups.
- * @returns Promise resolving with the HTTP response.
- * @throws Returns HTTP 500 if the service call fails.
+ * @param _req Objeto `Request` do Express (não utilizado).
+ * @param res Objeto `Response` utilizado para retornar os grupos encontrados.
+ * @returns Promessa que resolve com a resposta HTTP contendo os grupos.
+ * @throws Retorna HTTP 500 em caso de falha na chamada de serviço.
+
  */
 export const listGroups = async (req: Request, res: Response) => {
   try {
@@ -19,12 +20,12 @@ export const listGroups = async (req: Request, res: Response) => {
 };
 
 /**
- * Creates a new user in Active Directory using the body of the request.
+ * Cria um novo usuário no Active Directory a partir dos dados enviados.
  *
- * @param req Express request containing the user data.
- * @param res Express response used to return the created user.
- * @returns Promise resolving with the HTTP response.
- * @throws Returns HTTP 500 if the service call fails.
+ * @param req Requisição contendo as informações do usuário.
+ * @param res Resposta utilizada para retornar o usuário criado.
+ * @returns Promessa resolvida com a resposta HTTP de criação.
+ * @throws Retorna HTTP 500 caso a operação falhe.
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
@@ -36,12 +37,12 @@ export const addUser = async (req: Request, res: Response) => {
 };
 
 /**
- * Returns the status of the AD synchronization service.
+ * Consulta o status do serviço de sincronização com o Active Directory.
  *
- * @param _req Express request object (unused).
- * @param res Express response used to return the status information.
- * @returns Promise resolving with the HTTP response.
- * @throws Returns HTTP 500 if the service call fails.
+ * @param _req Objeto `Request` do Express (não utilizado).
+ * @param res Resposta utilizada para retornar as informações de status.
+ * @returns Promessa resolvida com a resposta HTTP.
+ * @throws Retorna HTTP 500 caso a consulta falhe.
  */
 export const checkStatus = async (req: Request, res: Response) => {
   try {

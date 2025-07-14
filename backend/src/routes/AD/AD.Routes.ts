@@ -5,13 +5,13 @@ import { createUserSchema } from '../../validators/ad';
 
 const router = Router();
 
-// Rota para listar grupos
+/** Lista os grupos disponíveis no AD. */
 router.get('/groups', listGroups);
 
-// Rota para criar usuário
+/** Cria um novo usuário no AD. */
 router.post('/users', validate(createUserSchema), addUser);
 
-// Rota para verificar status
+/** Verifica o status do serviço de AD. */
 router.get('/status', checkStatus);
 
 export default router;
