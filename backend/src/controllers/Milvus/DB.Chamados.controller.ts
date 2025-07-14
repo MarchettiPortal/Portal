@@ -3,7 +3,15 @@ import { pool } from '../../config/Global/db.config';
 import * as chamadosService from '../../services/Milvus/CRUD.Chamados.service.js';
 import { logger } from '../../utils/logger';
 
-// Função para calcular SLA total (Data de Solução - Data de Criação)
+
+/**
+ * Calcula o SLA em dias entre a criação e a solução de um chamado.
+ *
+ * @param dataCriacao Data de criação do chamado.
+ * @param dataSolucao Data de solução do chamado.
+ * @returns Quantidade de dias decorridos.
+ */
+
 const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
   const diffMs = dataSolucao.getTime() - dataCriacao.getTime();
   return diffMs / (1000 * 60 * 60 * 24); // Converter para dias
@@ -12,10 +20,11 @@ const calcularSLA = (dataCriacao: Date, dataSolucao: Date): number => {
 
 // *********** CONSULTAS ***********
 
-/**
- * Lista os Chamados.
- * @route GET /api/milvus/chamados.
- * @returns Lista os CHAMADOS cadastrados no banco de dados.
+ /**
+ * Lista todos os chamados armazenados no banco.
+ * @param _req Requisição Express (não utilizada).
+ * @param res Resposta HTTP contendo array de chamados.
+ * @returns Promessa resolvida quando a resposta é enviada.
  */
 export const listarChamados = async (req: Request, res: Response) => {
   try {
@@ -28,9 +37,9 @@ export const listarChamados = async (req: Request, res: Response) => {
 };
 
 /**
- * Lista os Chamados.
- * @route GET /api/milvus/chamados/setor.
- * @returns Lista os CHAMADOS por SETOR cadastrados no banco de dados.
+ * Agrupa os chamados por setor de atendimento.
+ * @param _req Requisição Express (não utilizada).
+ * @param res Resposta HTTP com dados agregados.
  */
 export const getChamadosPorSetor = async (req: Request, res: Response) => {
   try {
@@ -42,7 +51,12 @@ export const getChamadosPorSetor = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por Operador. */
+/**
+ * Agrupa a quantidade de chamados resolvidos por cada operador.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta com dados agrupados por operador.
+ */
 
 export const getChamadosPorOperador = async (req: Request, res: Response) => {
   try {
@@ -54,7 +68,12 @@ export const getChamadosPorOperador = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por Prioridade. */
+/**
+ * Retorna estatísticas de chamados agrupadas por prioridade.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo o agrupamento por prioridade.
+ */
 export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorPrioridade();
@@ -65,7 +84,14 @@ export const getChamadosPorPrioridade = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por SLA. */
+
+/**
+ * Agrupa chamados de acordo com o cumprimento do SLA.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta com dados agrupados por SLA.
+ */
+
 export const getChamadosPorSLA = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorSLA();
@@ -76,7 +102,12 @@ export const getChamadosPorSLA = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por Local. */
+/**
+ * Obtém a contagem de chamados por localidade.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo o agrupamento por local.
+ */
 export const getChamadosPorLocal = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosPorLocal();
@@ -87,7 +118,12 @@ export const getChamadosPorLocal = async (req: Request, res: Response) => {
   }
 };
 
-/** Agrupa chamados por Reabertos. */
+/**
+ * Conta quantos chamados foram reabertos.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta contendo a contagem de reaberturas.
+ */
 export const getChamadosReabertos = async (req: Request, res: Response) => {
   try {
     const dados = await chamadosService.contarChamadosReabertos();
@@ -99,7 +135,13 @@ export const getChamadosReabertos = async (req: Request, res: Response) => {
 };
 
 
-/** Cria um novo chamado. */
+/**
+ * Insere um novo chamado na base de dados.
+ *
+ * @param req Corpo da requisição contendo os campos do chamado.
+ * @param res Resposta com o chamado criado ou mensagem de erro.
+ */
+
 export const criarChamado = async (req: Request, res: Response) => {
   const {
   CODIGO, CATEGORIA, SUBCATEGORIA, LOCAL, SETOR, MES_CRIACAO, ANO_CRIACAO,
@@ -158,7 +200,12 @@ export const criarChamado = async (req: Request, res: Response) => {
   
 }
 
-/** Atualiza campos de um chamado existente. */
+/**
+ * Atualiza campos específicos de um chamado.
+ *
+ * @param req Contém o código do chamado em params e dados no body.
+ * @param res Resposta com registro atualizado ou erro.
+ */
 export const editarChamado = async (req: Request, res: Response) => {
   const { CODIGO } = req.params;
   const { PRIORIDADE, NOTA_AVALIACAO } = req.body;
@@ -186,7 +233,12 @@ export const editarChamado = async (req: Request, res: Response) => {
 }
 
 
-/** Remove um chamado do banco de dados. */
+/**
+ * Remove um chamado do banco de dados.
+ *
+ * @param req Contém o código do chamado a ser removido.
+ * @param res Resposta com confirmação ou erro de remoção.
+ */
 export const excluirChamado = async (req: Request, res: Response) => {
 
   const { CODIGO } = req.params;

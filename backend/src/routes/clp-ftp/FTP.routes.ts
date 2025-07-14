@@ -15,7 +15,12 @@ const router = Router();
 
 
 // *** FTP ***
-//  Rota para enviar os arquivos no acesso FTP
+/**
+ * Upload de arquivos para o servidor FTP.
+ *
+ * Utiliza Multer para receber o arquivo e envia feedback de progresso via
+ * Socket.IO.
+ */
 router.post('/upload', upload.single('arquivo'), async (req, res) => {
   const socketId = req.headers['x-socket-id'] as string  // header customizado
   const file = (req as any).file;
@@ -65,7 +70,9 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
   }
 });
 
-//  Rota para listar os arquivos no acesso FTP
+/**
+ * Lista os arquivos disponíveis no diretório raiz do FTP.
+ */
 router.get('/arquivo', async (req, res) => {
     try {
         const info = await listarArquivoFtp('/');
@@ -80,7 +87,9 @@ router.get('/arquivo', async (req, res) => {
     }
 });
 
-//  Rota para Renomear arquivo no acesso FTP
+/**
+ * Renomeia um arquivo existente no servidor FTP.
+ */
 router.patch('/arquivo/renomear', validate(renameFileSchema), async (req, res) => {
   const { antigoNome, novoNome, clp } = req.body;
   try {
@@ -97,7 +106,9 @@ router.patch('/arquivo/renomear', validate(renameFileSchema), async (req, res) =
   }
 });
 
-//  Rota para excluir arquivo no acesso FTP
+/**
+ * Remove um arquivo do servidor FTP.
+ */
 router.delete('/arquivo/:nomeArquivo', validate(fileParamSchema, 'params'), async (req, res) => {
   const nomeArquivo = req.params.nomeArquivo;
   const clp = req.query.clp as string 
@@ -115,7 +126,9 @@ router.delete('/arquivo/:nomeArquivo', validate(fileParamSchema, 'params'), asyn
   }
 });
 
-// Rota para validar se alguém está reiniciando o WPS ou Enviando um FTP para bloquear novas tentativas até finalizar
+/**
+ * Consulta o estado global de reinicialização e envio de arquivos.
+ */
 router.get('/status-global', async (req, res) => {
   res.json({
     clp: {
@@ -129,7 +142,9 @@ router.get('/status-global', async (req, res) => {
   });
 });
 
-// Lista os Logs do FTP no banco de dados para o frontend
+/**
+ * Retorna o histórico de uploads realizados via FTP.
+ */
 router.get('/logs', async (req, res) => {
   try {
     const logs = await listarLogsFtp();

@@ -4,9 +4,11 @@ import * as clpRepo from '../../repositories/clp.repository';
 import * as clpService from '../../services/CLP/CLP.Att.service';
 
 /**
- * Lista os CLP's.
- * @route GET /api/clp/list.
- * @returns Lista de CLP's cadastrados no banco de dados.
+ * Lista todos os CLPs da base de dados.
+ *
+ * @param _req Requisição Express.
+ * @param res Resposta Express retornando a lista dos CLPs.
+ * @returns Rotorno de Promise com a lista dos CLPs.
  */
 export const listarClps = async (_req: Request, res: Response) => {
   const clps = await clpRepo.findActiveClps();
@@ -14,7 +16,11 @@ export const listarClps = async (_req: Request, res: Response) => {
 };
 
 /**
- * Adiciona um novo CLP ao banco de dados.
+ * Insere um novo CLP na base de dados
+ *
+ * @param req Requisição Express contendo os dados do CLP.
+ * @param res Resposta Express com sucesso ou falha.
+ * @returns Retorno da Promise com a resposta HTTP.
  */
 export const adicionarClp = async (req: Request, res: Response) => {
   const { nome, ip, ativo, sistema_clp } = req.body;
@@ -27,7 +33,11 @@ export const adicionarClp = async (req: Request, res: Response) => {
 };
 
 /**
- * Desativa um CLP existente.
+ * Remove um CLP da base pelo seu ID.
+ *
+ * @param req Requisição Express com o parâmetro do ID do CLP.
+ * @param res Reposta Express com a confirmação da operação.
+ * @returns Retorno da Promise com a resposta HTTP.
  */
 export const removerClp = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -36,8 +46,13 @@ export const removerClp = async (req: Request, res: Response) => {
 };
 
 /**
- * Atualiza informações de um CLP.
+ * Atualiza os dados do CLP na base de dados.
+ *
+ * @param id Identificação do CLP pelo ID enviado.
+ * @param payload Novos dados do CLP.
+ * @returns Promise resolved when the update finishes.
  */
+
 export async function atualizarOpcaoCLP(id: number, payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp = 'padrao' } = payload;
   await clpRepo.updateClp(id, { nome, ip, ativo, sistema_clp });
@@ -45,9 +60,12 @@ export async function atualizarOpcaoCLP(id: number, payload: ClpOpcaoPayload) {
 
 
 /**
- * Obtém status atual do CLP configurado.
- * @route GET /api/clp/status
- * @returns Status do CLP
+ * Busca o status atual do CLP selecionado.
+ *
+ * @param _req Express request object (unused).
+ * @param res Express response to return the status.
+ * @param next Next middleware function for error handling.
+ * @returns Promise resolving with the HTTP response.
  */
 export const getClpStatus = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -59,10 +77,12 @@ export const getClpStatus = async (_req: Request, res: Response, next: NextFunct
 };
 
 /**
- * Atualiza configuração do CLP.
- * @route POST /api/clp/set
- * @param req.body.ip string
- * @param req.body.userID string
+ * Updates the CLP configuration and triggers the remote service.
+ *
+ * @param req Express request containing `ip` and `userID` fields.
+ * @param res Express response returning the result from the remote service.
+ * @param next Next middleware function for error propagation.
+ * @returns Promise resolving with the HTTP response.
  */
 export const setClpConfig = async (req: Request, res: Response, next: NextFunction) => {
   const { ip, userID } = req.body;

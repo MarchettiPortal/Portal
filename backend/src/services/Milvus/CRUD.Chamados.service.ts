@@ -1,7 +1,6 @@
-// src/services/Milvus.CRUD.Chamados.service.ts
 import { pool } from '../../config/Global/db.config.js'
 
-// 1. Todos os chamados
+/** Retorna todos os chamados não finalizados. */
 export const consultarChamados = async () => {
   const { rows } = await pool.query(`
     SELECT codigo, assunto, descricao, usuario_chamado, status, prioridade, mesa_trabalho, data_criacao, setor, nome_operador, local, categoria, tipo_atendimento 
@@ -12,7 +11,7 @@ export const consultarChamados = async () => {
   return rows
 }
 
-// 2. Chamados por setor
+/** Agrupa quantidade de chamados por setor. */
 export const contarChamadosPorSetor = async () => {
   const { rows } = await pool.query(`
     SELECT setor,
@@ -24,7 +23,7 @@ export const contarChamadosPorSetor = async () => {
   return rows
 }
 
-// 3. Chamados por operador
+/** Agrupa quantidade de chamados por operador. */
 export const contarChamadosPorOperador = async () => {
   const { rows } = await pool.query(`
     SELECT nome_operador AS operador,
@@ -36,7 +35,7 @@ export const contarChamadosPorOperador = async () => {
   return rows
 }
 
-// 4. Chamados por prioridade
+/** Agrupa quantidade de chamados por prioridade. */
 export const contarChamadosPorPrioridade = async () => {
   const { rows } = await pool.query(`
     SELECT prioridade,
@@ -48,7 +47,7 @@ export const contarChamadosPorPrioridade = async () => {
   return rows
 }
 
-// 5. Chamados dentro/fora do SLA (15 dias de SLA)
+/** Contagem de chamados dentro ou fora do SLA. */
 export const contarChamadosPorSLA = async () => {
   const { rows } = await pool.query(`
     SELECT CASE
@@ -63,7 +62,7 @@ export const contarChamadosPorSLA = async () => {
   return rows
 }
 
-// 6. Chamados por local
+/** Agrupa quantidade de chamados por local. */
 export const contarChamadosPorLocal = async () => {
   const { rows } = await pool.query(`
     SELECT local,
@@ -75,7 +74,7 @@ export const contarChamadosPorLocal = async () => {
   return rows
 }
 
-// 7. Chamados reabertos
+/** Contagem de chamados reabertos. */
 export const contarChamadosReabertos = async () => {
   const { rows } = await pool.query(`
     SELECT tickets_reabertos::TEXT AS status,

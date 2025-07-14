@@ -6,7 +6,12 @@ import pool from '../../config/Global/db.config';
 
 
 
-// Ping no servidor do Banco de Dados
+/**
+ * Realiza um ping no servidor SQL configurado.
+ *
+ * @param _req Requisição HTTP.
+ * @param res Resposta indicando se o host está acessível.
+ */
 export async function checkServerSQL(req: Request, res: Response) {
   const host = `${config.BASE_URL_SERVER_DATABASE}`; // IP do servidor SQL
 
@@ -26,7 +31,12 @@ export async function checkServerSQL(req: Request, res: Response) {
   }
 }
 
-// Ping no servidor do Banco de Dados
+/**
+ * Verifica a conectividade com o PostgreSQL executando uma consulta simples.
+ *
+ * @param _req Requisição HTTP.
+ * @param res Resposta com status do banco.
+ */
 export async function checkPostgreSQL(req: Request, res: Response) {
   try {
     const result = await pool.query('SELECT 1;');

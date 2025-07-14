@@ -6,13 +6,21 @@ import { logger } from "../../utils/logger"
 
 // ** Funções **
 
-// Função que Baixa e Processa o CSV de SLA do Milvus, e insere os valores no banco de dados
-// Internal version without HTTP dependencies
+/**
+ * Baixa e processa o CSV do milvus, armazenando os dados no Banco de Dados
+ * This version does not depend on HTTP context and can be reused by workers.
+ */
 export async function refreshCSVData() {
     await downloadCSV();
     await processCSV();
 }
-// HTTP handler version
+
+/**
+ * HTTP handler to manually trigger CSV refresh.
+ *
+ * @param _req Express request object (unused).
+ * @param res Express response confirming the refresh execution.
+ */
 export async function getRefresh(req: Request, res: Response) {
     try {
         await refreshCSVData();

@@ -5,6 +5,12 @@ import { logger } from '../../utils/logger';
 const MILVUS_API_URL = dotenvConfig.URL_LISTAGEM_MILVUS;
 const TOKEN = dotenvConfig.API_MILVUS_LISTAGEM;
 
+/**
+ * Consulta a API do Milvus e retorna os últimos chamados.
+ *
+ * @param qtd Quantidade máxima de registros a serem buscados.
+ * @returns Lista de chamados obtidos da API ou array vazio em caso de erro.
+ */
 export async function buscarUltimosChamados(qtd: number = 200) {
   try {
     const response = await axios.post(

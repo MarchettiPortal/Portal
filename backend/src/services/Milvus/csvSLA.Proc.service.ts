@@ -12,7 +12,11 @@ import { ParsedRow } from '../../types/milvus'
 import { logger } from '../../utils/logger'
 
 
-// Função que chama a manipulação dos dados do CSV e depois chama a inserção dos dados no Banco
+
+/**
+ * Processa o CSV e depois insere no Banco de Dados.
+ * Each row is normalized and persisted using {@link upsertTicket}.
+ */
 export async function processCSV(): Promise<void> {
   const csvPath = path.resolve(__dirname, dotenvConfig.PATH_CSV_SLA)
 
@@ -39,7 +43,12 @@ export async function processCSV(): Promise<void> {
   }
 }
 
-// Função que manipula os dados do CSV
+/**
+ * Aplica as regras de normatização para as linhas do CSV antes da insersão no banco.
+ * 
+ * @param row Linha bruta obtida do CSV.
+ * @returns Linha normalizada pronta para o banco de dados.
+ */
 export function manipulateData(row: any) {
 
     // --- 1. Substituir valores antigos na coluna "CATEGORIA" pelos valores novos utilizados atualmente

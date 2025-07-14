@@ -6,7 +6,12 @@ import ping from 'ping';
 import net from 'net';
 
 
-// Verifica se o Serviço remoto do WPS/WEG está ativo
+/**
+ * Verifica se o serviço remoto responsável pelo WPS está ativo.
+ *
+ * @param _req Requisição HTTP.
+ * @param res Resposta contendo o status do serviço.
+ */
 export async function checkServiceHealth(req: Request, res: Response) {
   try {
     const { data } = await axios.get(`${config.BASE_URL_NGINX}/status`, {
@@ -25,7 +30,12 @@ export async function checkServiceHealth(req: Request, res: Response) {
   }
 }
 
-// Ping no servidor  do WPS
+/**
+ * Executa um ping para verificar a disponibilidade do servidor WPS.
+ *
+ * @param _req Requisição HTTP.
+ * @param res Resultado do teste de conectividade.
+ */
 export async function checkServerWPS(req: Request, res: Response) {
   const host = `${config.BASE_URL_SERVER_WPS}`; // IP do servidor WPS
 
@@ -46,7 +56,12 @@ export async function checkServerWPS(req: Request, res: Response) {
 }
 
 
-// Requisição na porta 2221 para ver se o WPS está ativo
+/**
+ * Testa a porta do aplicativo WPS para confirmar se está em execução.
+ *
+ * @param _req Requisição HTTP.
+ * @param res Resposta indicando sucesso ou falha.
+ */
 export async function checkAppWps(req: Request, res: Response){
 const WPS_SERVER_HOST = config.BASE_URL_SERVER_WPS
 const WPS_SERVER_PORT = 2221;

@@ -2,9 +2,9 @@ import express from 'express';
 import authRouter from './routes/Auth/auth.routes';
 import milvusRouter from './routes/Milvus/chamados.routes';
 import graphRouter from './routes/O365/O365.routes';
-import clpRouter from './routes/CLP.FTP/CLP.routes'
+import clpRouter from './routes/clp-ftp/CLP.routes'
 import permRouter from './routes/Auth/permissoes.routes'
-import ftpRouter from './routes/CLP.FTP/FTP.routes'
+import ftpRouter from './routes/clp-ftp/FTP.routes'
 import statusRouter from './routes/status/status.routes'
 import docRouter from './routes/Documentacao/APIs.routes'
 import { config } from './config/Global/global.config.js'

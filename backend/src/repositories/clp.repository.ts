@@ -1,11 +1,19 @@
 import { pool } from '../config/Global/db.config';
 import { ClpOpcaoPayload } from '../types/clp.ftp';
 
+/**
+ * Busca todos os CLP's ativos pelo nome
+ */
 export async function findActiveClps() {
   const { rows } = await pool.query('SELECT * FROM clps WHERE ativo = TRUE ORDER BY nome');
   return rows;
 }
 
+/**
+ * Insere um novo CLP no banco
+ *
+ * @param payload Dados do novo CLP.
+ */
 export async function insertClp(payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp } = payload;
   await pool.query(
@@ -14,10 +22,21 @@ export async function insertClp(payload: ClpOpcaoPayload) {
   );
 }
 
+/**
+ * Marca um CLP como Inativo.
+ *
+ * @param id Identificador do CLP.
+ */
 export async function disableClp(id: number) {
   await pool.query('UPDATE clps SET ativo = FALSE WHERE id = $1', [id]);
 }
 
+/**
+ * Atualiza um CLP existente.
+ *
+ * @param id Identificador do CLP.
+ * @param payload Novos dados para o CLP.
+ */
 export async function updateClp(id: number, payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp = 'padrao' } = payload;
   await pool.query(
