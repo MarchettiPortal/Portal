@@ -155,7 +155,7 @@ export const criarChamado = async (req: Request, res: Response) => {
   const slaDias = calcularSLA(new Date(DATA_CRIACAO), new Date(DATA_SOLUCAO))
 
   const sqlText = `
-    INSERT INTO chamados (
+    INSERT INTO log_milvus_chamados (
       codigo, categoria, subcategoria, local, setor,
       mes_criacao, ano_criacao, data_criacao,
       mes_solucao, ano_solucao, data_solucao,
@@ -211,7 +211,7 @@ export const editarChamado = async (req: Request, res: Response) => {
   const { PRIORIDADE, NOTA_AVALIACAO } = req.body;
 
   const sqlText = `
-    UPDATE chamados
+    UPDATE log_milvus_chamados
       SET prioridade = $1,
           nota_avaliacao = $2
     WHERE codigo = $3
@@ -243,7 +243,7 @@ export const excluirChamado = async (req: Request, res: Response) => {
 
   const { CODIGO } = req.params;
   const sqlText = `
-      DELETE FROM chamados
+      DELETE FROM log_milvus_chamados
       WHERE codigo = $1
       RETURNING *
     `
@@ -259,3 +259,23 @@ export const excluirChamado = async (req: Request, res: Response) => {
       res.status(500).json({ error: 'Erro ao excluir chamado', details: error })
     }
   }
+
+  /**
+ * Retorna a contagem de chamados por tipo de atendimento para o ano especificado.
+ */
+export const getChamadosPorTipoAtendimento = async (req: Request, res: Response) => {
+  const ano = Number(req.params.ano)
+
+  if (Number.isNaN(ano)) {
+    res.status(400).json({ error: 'Ano inválido' })
+    return
+  }
+
+  try {
+    const dados = await chamadosService.contarChamadosPorTipoAtendimento(ano)
+    res.json(dados)
+  } catch (error) {
+    logger.error('Erro ao agrupar por tipo de atendimento:', error)
+    res.status(500).json({ error: 'Erro ao agrupar por tipo de atendimento' })
+  }
+}

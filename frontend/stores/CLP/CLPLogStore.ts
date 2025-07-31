@@ -19,7 +19,8 @@ export const useLogStore = defineStore('clpLog', {
   actions: {
     async fetchLogs() {
   try {
-    const response = await fetch(`${config.API_BACKEND}/clp/logs`);
+    const response = await fetch(`${config.API_BACKEND}/ftp/logs`);
+    console.log(config.API_BACKEND)
     if (!response.ok) {
       throw new Error(`HTTP status ${response.status}: ${response.statusText}`);
     }

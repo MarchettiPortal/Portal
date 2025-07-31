@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 import NodeCache from 'node-cache';
 import { logger } from '../../utils/logger';
+import { getFrontendURLFromHost } from '../../utils/env';
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ const imageCache = new NodeCache({ stdTTL: 3600 });
 
 const router = Router();
 const redirectUri = dotenvConfig.REDIRECT_URI;
+
+
 
 
 /**
@@ -110,7 +113,11 @@ router.get('/redirect', async (req: Request, res: Response) => {
       //logger.log('foto salva no cache')
     } catch (photoError) {
       if (axios.isAxiosError(photoError)) {
-        logger.warn(`Erro ao buscar imagem de perfil: ${photoError.response?.status || photoError.message}`);
+        if (photoError.response?.status === 404) {
+          // Ignora erro 404 silenciosamente
+        } else {
+          logger.warn(`Erro ao buscar imagem de perfil: ${photoError.response?.status || photoError.message}`);
+        }
       } else {
         logger.warn(`Erro inesperado ao buscar imagem de perfil: ${(photoError as Error).message}`);
       }
@@ -130,12 +137,15 @@ router.get('/redirect', async (req: Request, res: Response) => {
     // Grava cookie de sessão para autenticação posterior
     res.cookie('session', JSON.stringify(user), {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'none',
+      secure:true,
       maxAge: 1 * 60 * 60 * 1000,
     });
 
     // Redireciona usuário autenticado para o frontend
-    res.redirect(`${config.BASE_URL_FRONTEND}/login/login-success`);
+    const hostHeader = req.headers.host || '';
+    const frontendURL = getFrontendURLFromHost(hostHeader);
+    res.redirect(`${frontendURL}/login/login-success`);
   } catch (error) {
     logger.error('Erro ao processar callback:', error);
     res.status(500).send('Erro ao completar login');

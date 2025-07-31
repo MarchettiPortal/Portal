@@ -164,7 +164,7 @@ async function syncUserAndGroups(user: ADUser) {
     await client.query('BEGIN');
 
     await client.query(
-      `INSERT INTO usuarios (id, email, nome, licenca, ativo, servicos, recursos)
+      `INSERT INTO ms365_users (id, email, nome, licenca, ativo, servicos, recursos)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (id) DO UPDATE
        SET email = EXCLUDED.email,
@@ -179,7 +179,7 @@ async function syncUserAndGroups(user: ADUser) {
     if (user.groups.length > 0) {
       for (const g of user.groups) {
         await client.query(
-          `INSERT INTO ad_grupos (id, nome)
+          `INSERT INTO ms365_groups (id, nome)
            VALUES ($1, $2)
            ON CONFLICT (id) DO UPDATE
            SET nome = EXCLUDED.nome;`,
@@ -187,7 +187,7 @@ async function syncUserAndGroups(user: ADUser) {
         );
 
         await client.query(
-          `INSERT INTO usuario_ad_grupo (usuario_id, grupo_id)
+          `INSERT INTO ms365_user_group (usuario_id, grupo_id)
            VALUES ($1, $2)
            ON CONFLICT (usuario_id, grupo_id) DO NOTHING;`,
           [user.id, g.id]
@@ -196,14 +196,14 @@ async function syncUserAndGroups(user: ADUser) {
 
       const groupIdsAtuais = user.groups.map((g) => g.id);
       await client.query(
-        `DELETE FROM usuario_ad_grupo
+        `DELETE FROM ms365_user_group
          WHERE usuario_id = $1
            AND grupo_id NOT IN (${groupIdsAtuais.map((_, i) => `$${i + 2}`).join(',')});`,
         [user.id, ...groupIdsAtuais]
       );
     } else {
       await client.query(
-        `DELETE FROM usuario_ad_grupo WHERE usuario_id = $1;`,
+        `DELETE FROM ms365_user_group WHERE usuario_id = $1;`,
         [user.id]
       );
     }

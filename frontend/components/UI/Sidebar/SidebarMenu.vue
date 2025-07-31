@@ -11,14 +11,14 @@
       />
     </div>
 
-    <SidebarMenuItem icon="material-symbols:home-rounded" label="Home" to="" :expanded="expanded" />
+    <SidebarMenuItem icon="material-symbols:home-rounded" label="Home" to="/home" :expanded="expanded" />
     
-    <SidebarMenuGroup icon="material-symbols:document-scanner-rounded" label="Procedimentos" :expanded="expanded">
+    <SidebarMenuGroup v-if="isTI" icon="material-symbols:document-scanner-rounded" label="Procedimentos" :expanded="expanded">
       <SidebarSubItem icon="material-symbols:settings-system-daydream-outline" label="Sistemas" to="/Admin/Procedimentos/procedimentosSistemas" :expanded="expanded"/>
       <SidebarSubItem icon="material-symbols:devices-outline-rounded" label="Dispositivos" to="" :expanded="expanded"/>
     </SidebarMenuGroup>
     
-    <SidebarMenuGroup icon="material-symbols:space-dashboard-rounded" label="Dashboards" :expanded="expanded">
+    <SidebarMenuGroup v-if="isTI" icon="material-symbols:space-dashboard-rounded" label="Dashboards" :expanded="expanded">
       <SidebarSubItem label="SLA - Chamados" to="" icon="material-symbols:speed" :expanded="expanded" />
       <SidebarSubItem label="Kaspersky" to="" icon="material-symbols:security" :expanded="expanded" />
       <SidebarSubItem label="Disp. do Ambiente" to="" icon="material-symbols:source-environment-rounded" :expanded="expanded" />

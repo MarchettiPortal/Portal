@@ -40,7 +40,7 @@ export async function upsertTicket(raw: Record<string, any>) {
   }
 
   const sql = `
-    INSERT INTO chamados (
+    INSERT INTO log_milvus_chamados (
       codigo, data_criacao, hora_solucao, hora_criacao,
       mes_criacao, ano_criacao, mes_solucao, ano_solucao,
       data_solucao, prioridade, setor, categoria, subcategoria,

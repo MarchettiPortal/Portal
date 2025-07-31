@@ -7,8 +7,8 @@ import { getEnvVar } from '../../utils/env';
  * Export dos valores
  */
 const PORT_HTTP = parseInt(getEnvVar('PORT_HTTP'), 10);
-const PORT_HTTPS = parseInt(getEnvVar('PORT_HTTP'), 10);
-const BASE_URL_BACKEND = `${getEnvVar('BASE_URL_BACKEND')}:${PORT_HTTP}`;
+const PORT_HTTPS = parseInt(getEnvVar('PORT_HTTPS'), 10);
+const BASE_URL_BACKEND = getEnvVar('BASE_URL_BACKEND');
 const BASE_URL_FRONTEND = getEnvVar('BASE_URL_FRONTEND');
 const BASE_URL_NGINX = getEnvVar('BASE_URL_NGINX');
 const BASE_URL_SERVER_WPS = getEnvVar('BASE_URL_SERVER_WPS');
@@ -25,9 +25,8 @@ export const config = {
   BASE_URL_SERVER_NGINX,
   URL_API_MILVUS: `${BASE_URL_BACKEND}/api/milvus`,
   REMOTE_WPS_SERVICE: `${BASE_URL_BACKEND}/status`,
-  HOMEPAGE_URL_FRONTEND_ADMIN: `${BASE_URL_FRONTEND}/admin/home`,
+  HOMEPAGE_URL_FRONTEND_ADMIN: `${BASE_URL_FRONTEND}/home`,
   LOGIN_URL_FRONTEND: `${BASE_URL_FRONTEND}/login`,
-  HOMEPAGE_URL_FRONTEND_HOME: `${BASE_URL_FRONTEND}/home`,
   PORT_HTTPS,
   PORT_HTTP,
 };

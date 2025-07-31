@@ -44,7 +44,7 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
   const { rows: rawDb } = await pool.query<ChamadoBanco>(
     `
     SELECT codigo, prioridade, status, mesa_trabalho, nome_operador AS tecnico
-      FROM chamados
+      FROM log_milvus_chamados
      WHERE mesa_trabalho = ANY($1)
     `,
     [MESAS_PERMITIDAS]
@@ -70,40 +70,33 @@ export async function slaRefreshAutomatico(): Promise<{ refreshed: boolean; reas
     // Novo chamado?
     if (!dbCh) {
       const reason = `Chamado ${codigo} não existia no DB`
-      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason: `Chamado ${codigo} não existia no DB.` }
     }
     // Compare campo a campo
     if (apiCh.prioridade !== dbCh.prioridade) {
       const reason = `prioridade diferente no ${codigo}`
-      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.status !== dbCh.status) {
       const reason = `status diferente no ${codigo}`
-      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.mesa_trabalho !== dbCh.mesa_trabalho) {
       const reason = `mesa_trabalho diferente no ${codigo}`
-      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
       return { refreshed: true, reason }
     }
     if (apiCh.tecnico !== dbCh.tecnico) {
       const reason = `tecnico diferente no ${codigo}`
-      //logger.log('🔁 Refresh executado. Motivo:', reason)
       await refreshCSVData()
             return { refreshed: true, reason }
 }
 
-    
   }
 
   // 4) Se chegou aqui, não achou diferença
-  //logger.log('✅ Nenhuma mudança detectada no SLA.')
   return { refreshed: false }
 }

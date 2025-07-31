@@ -263,14 +263,30 @@ const confirmarDescricao = async () => {
     await buscarArquivoEmExecucao()
     isSuccess.value = true
     setTimeout(() => (isSuccess.value = false), 1500)
-  } catch (error: any) {
-    if (error.response?.status === 423) {
-      showUploadEmAndamento.value = true
-      setTimeout(() => (showUploadEmAndamento.value = false), 3000)
+  }catch (error: any) {
+    console.error('Erro ao enviar arquivo:', error)
+
+    if (error.response) {
+      const { status, data } = error.response
+      console.warn('Status:', status)
+      console.warn('Resposta:', data)
+
+      if (status === 423) {
+        showUploadEmAndamento.value = true
+        setTimeout(() => (showUploadEmAndamento.value = false), 3000)
+      } else {
+        showError(`Erro ${status}: ${data?.message || 'Falha no upload.'}`)
+      }
+    } else if (error.request) {
+      console.warn('Nenhuma resposta do servidor. Erro na requisição:')
+      console.warn(error.request)
+      showError('Servidor não respondeu.')
     } else {
-      showError('Erro ao enviar arquivo.')
+      console.warn('Erro ao preparar a requisição:')
+      console.warn(error.message)
+      showError('Erro inesperado ao enviar arquivo.')
     }
-  } finally {
+  }finally {
     isUploading.value = false
     arquivoSelecionado.value = null
   }

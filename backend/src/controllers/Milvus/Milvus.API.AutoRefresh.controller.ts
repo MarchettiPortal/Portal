@@ -18,7 +18,7 @@ export async function getRefreshAuto(req: Request, res: Response) {
     
     worker.on('message', (msg) => {
       if (msg.status === 'success') {
-        logger.info('✅ Worker finalizou com sucesso.');
+        //logger.info('✅ Worker finalizou com sucesso.');
       } else {
         logger.error(`❌ Erro no worker: ${msg.error}`);
       }

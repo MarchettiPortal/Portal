@@ -47,6 +47,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
 
   try {
     await enviarArquivoFtp(localPath, remotePath, socketId);
+    
     await salvarLogFtpUpload({
       usuario,
       nomeArquivo: file.originalname,
@@ -54,7 +55,6 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
       tamanho: file.size,
       clp
     });
-
     // Emite para todos os usuários no front que o arquivo foi Enviado
     getSocket()
       .to(`clp:${clp}`)

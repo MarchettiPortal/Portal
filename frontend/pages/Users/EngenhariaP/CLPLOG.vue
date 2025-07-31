@@ -3,7 +3,6 @@
     <!-- Cabeçalho -->
     <div class="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-        <Icon name="solar:archive-bold-duotone" class="w-6 h-6 text-red-500" />
         Logs de Envio
       </h2>
 
@@ -95,7 +94,7 @@ definePageMeta({
 // Fetch logs
 const { data: logsRaw, pending } = await useAsyncData<LogFtp[]>(
   'ftp-logs',
-  () => $fetch(`${config.API_BACKEND}/clp/logs`),
+  () => $fetch(`${config.API_BACKEND}/ftp/logs`),
   { server: false, lazy: false }
 )
 

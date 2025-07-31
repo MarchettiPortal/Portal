@@ -5,7 +5,6 @@ import { config } from '../../config/Global/global.config.js'
 import { logger } from '../../utils/logger'
 
 
-
 let intervalId: NodeJS.Timeout | null = null
 
 /**
@@ -16,7 +15,7 @@ let intervalId: NodeJS.Timeout | null = null
 export async function getAgendadorStatus(): Promise<boolean> {
   const { rows } = await pool.query<{ valor: boolean }>(
     `SELECT valor
-       FROM configuracoes_agendador
+       FROM scheduler_refresh_status
       WHERE chave = $1`,
     ['SLArefreshAutomatico']
   )
@@ -31,15 +30,19 @@ export async function getAgendadorStatus(): Promise<boolean> {
  * @param ativo Novo estado desejado.
  */
 export async function setAgendadorStatus(ativo: boolean): Promise<void> {
-  logger.info('agendador Iniciado')
+  if (ativo != false) {
+    logger.info("Agendador Iniciado")
+  } else{
+    logger.info("Agendador Parado")
+  }
+  
   await pool.query(
-    `UPDATE configuracoes_agendador
+    `UPDATE scheduler_refresh_status
         SET valor = $1
       WHERE chave = $2`,
     [ativo, 'SLArefreshAutomatico']
   )
 }
-
 
 /**
  * Executa o refresh se estiver em horário de expediente
@@ -53,19 +56,16 @@ async function executarRefreshSeHorarioPermitido() {
 
   try {
     await axios.get(`${config.URL_API_MILVUS}/SLArefreshAutomatico`)
-    logger.info(`[${new Date().toISOString()}] Atualização realizada.`)
   } catch (err) {
     logger.error(
-      `[erro ao atualizar] ${err instanceof Error ? err.message : String(err)}`
+      `[erro ao atualizar Chamados] ${err instanceof Error ? err.message : String(err)}`
 
     )
   }
-
   // 2 min dentro do expediente, 2 h fora
   const proximo = expediente ? 2 * 60 * 1000 : 2 * 60 * 60 * 1000
   iniciarAgendador(proximo)
 }
-
 
 /**
  * Inicia o agendador com um atraso opcional.
@@ -79,14 +79,12 @@ export async function iniciarAgendador(delay = 0) {
   intervalId = setTimeout(executarRefreshSeHorarioPermitido, delay)
 }
 
-
 /**
  * Interrompe o agendador limpando o temporizador ativo.
  */
 export function pararAgendador() {
    if (intervalId) {
-    clearTimeout(intervalId)
-    intervalId = null
-    //logger.log('🛑 Agendador parado.')
+    clearTimeout(intervalId) 
+    intervalId = null 
   }
 }

@@ -5,9 +5,9 @@
       <!-- Barra superior fixa -->
 
       <div class="flex justify-between mb-4">
-        <ChamadoTabela :search="search" :mode="tipoChamado" :is-auto-on="autoRefresh === 'online'" :is-loading="false"
+        <ChamadoTabela :search="search" :mode="tipoChamado" :is-auto-on="statusBotaoAgendador === 'online'" :is-loading="false"
           @update:search="search = $event" @update:mode="tipoChamado = $event"
-          @toggleAuto="autoRefresh = autoRefresh === 'online' ? 'offline' : 'online'" @refresh="fetchChamados" />
+            @toggleAuto="toggleAgendadorStatus" @refresh="fetchChamados" />
       </div>
 
       <!-- Tabela sem scrollbar -->
@@ -67,10 +67,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useChamadosStore } from '~/stores/Milvus/chamados'
 import { storeToRefs } from 'pinia'
 import ChamadoTabela from './ChamadoTabela.vue'
+import { useAgendadorStore } from '~/stores/Milvus/agendador'
+import { io } from 'socket.io-client'
+import { config } from '~/config/global.config'
+
 // Tipos
 type ChamadoType = 'normal' | 'compra'
 type AutoRefreshStatus = 'online' | 'offline'
@@ -79,20 +83,40 @@ type AutoRefreshStatus = 'online' | 'offline'
 const tipoChamado = ref<ChamadoType>('normal')
 const search = ref('')
 const currentPage = ref(1)
-const autoRefresh = ref<AutoRefreshStatus>('offline')
+const statusBotaoAgendador = ref<'online' | 'offline'>('offline')
 const itemsPerPage = 14
-
+const agendadorStore = useAgendadorStore()
 const chamadosStore = useChamadosStore()
-const { chamados } = storeToRefs(chamadosStore)
-const { fetchChamados } = chamadosStore
+const { chamados} = storeToRefs(chamadosStore)
+const { fetchChamados, selecionarChamado } = chamadosStore
+// Ouvir o evento do backend sobre alteração do status
+const socket = io(config.URL_BACKEND, {
+  transports: ['websocket'],
+  withCredentials: true
+})
+// Intervalo de refresh dos dados no frontend
+let interval: ReturnType<typeof setInterval> | null = null
+// Auto refresh da atualização dos chamados do Milvus para o Banco de Dados
+const toggleAgendadorStatus  = async () => {
+  statusBotaoAgendador.value = statusBotaoAgendador.value === 'online' ? 'offline' : 'online'
+  await agendadorStore.toggleStatus(statusBotaoAgendador.value === 'online')
+}
 
 
 // Fetch
 onMounted(async () => {
   await fetchChamados()
-})
+  await agendadorStore.fetchStatus()
+  statusBotaoAgendador.value = agendadorStore.ativo ? 'online' : 'offline'
+  socket.on('agendador:status', ({ ativo }) => {
+    statusBotaoAgendador.value = ativo ? 'online' : 'offline'
+    agendadorStore.ativo = ativo
+  })
+  interval = setInterval(() => {
+    fetchChamados()
+  }, 120000)
 
-const { selecionarChamado } = useChamadosStore()
+})
 
 // Computed
 const mesaTrabalho = computed(() =>
@@ -101,13 +125,15 @@ const mesaTrabalho = computed(() =>
     : 'Mesa Infraestrutura'
 )
 
+// Computed
 const chamadosFiltradosPorTipo = computed(() => {
   return chamados.value.filter(c =>
     c.mesa_trabalho?.trim().toLowerCase() === mesaTrabalho.value.trim().toLowerCase() &&
-    !['FINALIZADO', 'FECHADO'].includes(c.STATUS?.trim().toUpperCase())
+    !['FINALIZADO', 'FECHADO'].includes(c.status?.trim().toUpperCase())
   )
 })
 
+// Computed
 const chamadosFiltrados = computed(() =>
   chamadosFiltradosPorTipo.value.filter(c =>
     Object.values(c).some(val =>
@@ -139,7 +165,10 @@ const prioridadeClasse = (prioridade: string) => {
   return classes[prioridade] || classes.default
 }
 
-
+onUnmounted(() => {
+  socket.off('agendador:status')
+  if (interval) clearInterval(interval)
+})
 
 
 </script>

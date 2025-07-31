@@ -12,7 +12,7 @@ onMounted(async () => {
   // Redireciona com base na role futuramente, aqui apenas verifica se logado
  
   if (auth.user) {
-    router.push('/admin/home'); // Depois fazer a lógica de admin/user/outro grupo
+    router.push('/home'); // Depois fazer a lógica de admin/user/outro grupo
   } else {
     router.push('/login');
   }

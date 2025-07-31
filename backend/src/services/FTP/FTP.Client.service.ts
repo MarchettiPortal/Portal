@@ -30,17 +30,17 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
     await client.access(FTP_CONFIG);
     const arquivos = await client.list(caminho);
     const arquivosVisiveis = arquivos.filter(a => !a.name.startsWith('.'));
-    const arquivosComTamanho = await Promise.all(
-      arquivosVisiveis.map(async (a) => {
-        let tamanho = 0;
-        try {
-          tamanho = await client.size(`${a.name}`);
-        } catch (e) {
-          logger.warn(`Erro ao buscar tamanho de ${a.name}: ${String(e)}`);
-        }
-        return { nome: a.name, tamanho } as ArquivoFtp;
-      })
-    );
+
+    const arquivosComTamanho: ArquivoFtp[] = [];
+    for (const a of arquivosVisiveis) {
+      let tamanho = 0;
+      try {
+        tamanho = await client.size(`${a.name}`);
+      } catch (e) {
+        logger.warn(`Erro ao buscar tamanho de ${a.name}: ${String(e)}`);
+      }
+      arquivosComTamanho.push({ nome: a.name, tamanho });
+    }
 
     return arquivosComTamanho;
   } catch (error) {
@@ -49,6 +49,7 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
     client.close();
   }
 }
+
 
 
 // 🔧 Função para enviar o arquivo
@@ -85,7 +86,6 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
     // Envia 100% apenas após finalizar o upload
     if (socketId) io.to(socketId).emit('ftp-progress', 100);
     if (socketId) io.to(socketId).emit('ftp-finished'); // opcional: evento explícito de fim
-
   } catch (err) {
     logger.error(`[ERRO UPLOAD FTP] ${String(err)}`);
     throw err;

@@ -9,9 +9,9 @@ import { pool } from '../config/Global/db.config';
 export async function usuarioTemPermissao(grupos: string[], rota: string): Promise<boolean> {
   const { rowCount } = await pool.query(
     `SELECT 1
-       FROM grupo_permissoes gp
-       JOIN ad_grupos g ON g.id = gp.grupo_id
-       JOIN permissoes p ON p.id = gp.permissao_id
+       FROM auth_permissions_group gp
+       JOIN ad_local_groups g ON g.id = gp.grupo_id
+       JOIN auth_permissions p ON p.id = gp.permissao_id
       WHERE g.nome = ANY($1)
         AND p.rota = $2
       LIMIT 1`,

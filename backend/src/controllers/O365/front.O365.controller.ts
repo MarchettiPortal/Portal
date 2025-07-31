@@ -12,7 +12,7 @@ export const listUsuarios = async (_req: Request, res: Response) => {
 
 
 /**
- * Lista todos os grupos cadastrados na tabela `ad_grupos`.
+ * Lista todos os grupos cadastrados na tabela `ad_local_groups`.
  */
 export const listGrupos = async (_req: Request, res: Response) => {
   const grupos = await o365Repo.listGrupos();

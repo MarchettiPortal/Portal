@@ -12,7 +12,7 @@ export const useUsuariosStore = defineStore('usuarios', () => {
     loading.value = true
     error.value = ''
     try {
-      const res = await axios.get(`${config.API_BACKEND}/graph/users`)
+      const res = await axios.get(`${config.API_BACKEND}/graph/All-users`)
       usuarios.value = res.data
     } catch (err: any) {
       error.value = 'Erro ao buscar usuários.'
