@@ -11,11 +11,22 @@ export default defineNuxtConfig({
   plugins: ['~/plugins/socket.client.ts'],
 
   components: true,
-
+  devServer: {
+      host: '0.0.0.0',
+      port: 3000
+    },
+    
   vite: {
     plugins: [
       tailwindcss(),
     ],
+    server: {
+      hmr: {
+        protocol: 'wss',
+        host: config.BACKEND_HOST,
+        clientPort: 443,
+      }
+    },
   },
 
   ssr: false,
@@ -26,9 +37,7 @@ export default defineNuxtConfig({
     }
   },
  
-  devServer:{
-    host: config.URL_FRONTEND, // Define o host
-  },
+
  
     app: {
     head: {

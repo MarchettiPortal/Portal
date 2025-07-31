@@ -8,8 +8,8 @@
         <div class="flex items-center gap-4">
           <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-gray-300">
             <img
-              v-if="hasValidPhoto"
-              :src="auth.user?.photo"
+              v-if="auth.user && auth.user.photo"
+              :src="auth.user.photo"
               class="w-full h-full object-cover rounded-full"
               @error="handleImageError"
             />
@@ -21,7 +21,7 @@
           </div>
           <div class="flex flex-col">
             <p class="text-xl font-semibold text-gray-800">{{ auth.user?.name || 'Erro Busca Usuário' }}</p>
-            <p class="text-sm text-gray-500">{{ groupNames|| 'Erro Busca Setor' }}</p>
+            <p class="text-sm text-gray-500">{{ groupNames || 'Erro Busca Setor' }}</p>
             <p class="text-sm text-gray-400">{{ auth.user?.email || 'Erro Busca do E-mail' }}</p>
           </div>
         </div>
@@ -36,7 +36,7 @@
 
       <!-- Conteúdo -->
       <div class="mt-6 text-gray-700 text-center text-lg">
-        teste
+        VERSÃO EM DESENVOLVIMENTO
       </div>
 
       <!-- Botão Logout -->
@@ -54,29 +54,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/User/auth';
+import axios from 'axios';
 
 const auth = useAuthStore();
-const hasValidPhoto = ref(false);
 
 const handleImageError = () => {
-  console.error('Erro ao carregar a imagem');
-  hasValidPhoto.value = false;
+  if (auth.user) {
+    auth.user.photo = '';
+  }
 };
 
 const groupNames = computed(() => {
-  if (!auth.user?.grupos?.length) return ''
-  return auth.user.grupos
-    .map((g: any) => g.nome)   // `<any>` aqui impede o conflito
-    .join(' | ')
-})
-
-
+  if (!auth.user?.grupos?.length) return '';
+  return auth.user.grupos.map((g: any) => g.nome).join(' | ');
+});
 
 onMounted(async () => {
   await auth.fetchUser();
-  hasValidPhoto.value = !!auth.user?.photo && auth.user.photo !== '';
 });
 
 const LogoutButton = () => {

@@ -61,16 +61,7 @@
           <li><strong>Usuário:</strong> {{ arquivo.usuario }}</li>
         </ul>
         <div class="flex gap-2 mt-3">
-          <button
-            @click="$emit('baixar', arquivo)"
-            class="text-red-600 hover:text-red-800 cursor-pointer text-xs flex items-center gap-1"
-          >
-            <Icon
-              icon="material-symbols:download"
-              class="w-4 h-4"
-            />
-            Baixar
-          </button>
+          
           <button
             @click="$emit('abrir-modal-excluir', arquivo)"
             class="text-red-600 hover:text-red-800 cursor-pointer text-xs flex items-center gap-1"

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { config } from '../../config/global.config';
 import type { User } from '~/types/auth';
 import axios from 'axios';
+import { getBackendURLFromHost } from '~/utils/env';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -45,7 +46,11 @@ export const useAuthStore = defineStore('auth', {
         });
         this.user.photo = URL.createObjectURL(res.data);
       } catch (err) {
-        console.warn('Erro ao buscar imagem de perfil:', err);
+        if (axios.isAxiosError(err) && err.response?.status === 404) { 
+          // Foto não encontrada — usa placeholder
+        } else {
+          console.warn('Erro ao buscar imagem de perfil:', err);
+        }
         // placeholder local caso não tenha foto
         this.user.photo = '/images/default-avatar.png';
       }

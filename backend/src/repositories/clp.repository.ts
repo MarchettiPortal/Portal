@@ -5,7 +5,7 @@ import { ClpOpcaoPayload } from '../types/clp.ftp';
  * Busca todos os CLP's ativos pelo nome
  */
 export async function findActiveClps() {
-  const { rows } = await pool.query('SELECT * FROM clps WHERE ativo = TRUE ORDER BY nome');
+  const { rows } = await pool.query('SELECT * FROM plc_devices WHERE ativo = TRUE ORDER BY nome');
   return rows;
 }
 
@@ -17,7 +17,7 @@ export async function findActiveClps() {
 export async function insertClp(payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp } = payload;
   await pool.query(
-    'INSERT INTO clps (nome, ip, ativo, sistema_clp) VALUES ($1, $2, $3, $4)',
+    'INSERT INTO plc_devices (nome, ip, ativo, sistema_clp) VALUES ($1, $2, $3, $4)',
     [nome, ip, ativo, sistema_clp]
   );
 }
@@ -28,7 +28,7 @@ export async function insertClp(payload: ClpOpcaoPayload) {
  * @param id Identificador do CLP.
  */
 export async function disableClp(id: number) {
-  await pool.query('UPDATE clps SET ativo = FALSE WHERE id = $1', [id]);
+  await pool.query('UPDATE plc_devices SET ativo = FALSE WHERE id = $1', [id]);
 }
 
 /**
@@ -40,7 +40,7 @@ export async function disableClp(id: number) {
 export async function updateClp(id: number, payload: ClpOpcaoPayload) {
   const { nome, ip, ativo, sistema_clp = 'padrao' } = payload;
   await pool.query(
-    'UPDATE clps SET nome = $1, ip = $2, ativo = $3, sistema_clp = $4 WHERE id = $5',
+    'UPDATE plc_devices SET nome = $1, ip = $2, ativo = $3, sistema_clp = $4 WHERE id = $5',
     [nome, ip, ativo, sistema_clp, id]
   );
 }

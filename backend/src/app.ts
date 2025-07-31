@@ -13,7 +13,12 @@ import cookieParser from 'cookie-parser';
 import adRouter from './routes/AD/AD.Routes'
 import { errorHandler } from './middleware/errorHandler'
 
-//import officeRouter from './routes/office365.routes'
+
+const whitelist = [
+  'https://portalti.molasmarchetti.com.br',
+  'https://devportalti.molasmarchetti.com.br',
+  'https://devportalti2.molasmarchetti.com.br'
+];
 
 /**
  * Instância principal do aplicativo Express contendo todas as rotas e
@@ -24,8 +29,14 @@ const app = express();
 // ** Middlewares **
 app.use( // Middleware para permitir cookies cross-origin (CORS)
     cors({ 
-        origin: config.BASE_URL_FRONTEND, // Endereço do Frontend
-        credentials: true, // Permite envio de cookies com Credenciais
+        origin: function (origin, callback) {
+            if (!origin || whitelist.includes(origin)) {
+            callback(null, true);
+            } else {
+            callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true
     })
 )
 app.use(express.json()); // Middleware para rotas JSON 

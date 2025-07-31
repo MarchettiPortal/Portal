@@ -7,10 +7,10 @@ import { logger } from '../utils/logger';
  */
 logger.info('⏱️ Worker de sincronização inicializado');
 cron.schedule('0 * * * *', async () => {
-  logger.info(`[${new Date().toISOString()}] Iniciando sincronização...`);
+  //logger.info(`[${new Date().toISOString()}] Iniciando sincronização...`);
   try {
     await syncAllTeamsGroupsAndMembers();
-    logger.info(`[${new Date().toISOString()}] ✅ Sincronização concluída.`);
+    //logger.info(`[${new Date().toISOString()}] ✅ Sincronização concluída.`);
   } catch (e) {
     logger.error(`[${new Date().toISOString()}] ❌ Erro ao sincronizar: ${String(e)}`);
   }

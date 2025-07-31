@@ -5,6 +5,7 @@ import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendado
 import * as  chamadosController from '../../controllers/Milvus/DB.Chamados.controller.js';
 import { validate } from '../../middleware/validate';
 import { createChamadoSchema, updateChamadoSchema, codigoParamSchema } from '../../validators/milvus.js';
+import { getSocket } from '../../socket.js';
 
 const router = Router();
 
@@ -28,7 +29,9 @@ router.post('/status', async (req, res) => {
   } else {
     pararAgendador()
   }
-
+  // Emitir para todos os clientes conectados sobre a alteração do status
+  const io = getSocket()
+  io.emit('agendador:status', { ativo })
   res.json({ sucesso: true })
 })
 
@@ -50,10 +53,11 @@ router.get('/chamados/prioridade', chamadosController.getChamadosPorPrioridade);
 /** Lista chamados por SLA */
 router.get('/chamados/sla', chamadosController.getChamadosPorSLA);
 /** Lista chamados por local */
-router.get('/chamados/local', chamadosController.getChamadosPorLocal); 
+router.get('/chamados/local', chamadosController.getChamadosPorLocal);
 /** Lista chamados reabertos */
 router.get('/chamados/reabertos', chamadosController.getChamadosReabertos); // chamados reabertos
-
+/** Lista contagem por tipo de atendimento em determinado ano */
+router.get('/chamados/tipo-atendimento/:ano', chamadosController.getChamadosPorTipoAtendimento);
 /*
 * Eu fiz uma lógica: 
 * router.get('/users/:campo', validate(campoParamSchema, 'params'), listCampoUsuarios); 

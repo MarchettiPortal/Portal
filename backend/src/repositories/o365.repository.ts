@@ -6,7 +6,7 @@ import { pool } from '../config/Global/db.config';
  * @returns Lista completa de usuários.
  */
 export async function listUsuarios() {
-  const result = await pool.query('SELECT * FROM usuarios');
+  const result = await pool.query('SELECT * FROM ms365_users');
   return result.rows;
 }
 
@@ -16,7 +16,7 @@ export async function listUsuarios() {
  * @returns Array de grupos cadastrados.
  */
 export async function listGrupos() {
-  const result = await pool.query('SELECT * FROM ad_grupos');
+  const result = await pool.query('SELECT * FROM ad_local_groups');
   return result.rows;
 }
 
@@ -26,7 +26,7 @@ export async function listGrupos() {
  * @returns Relações usuário x grupo existentes.
  */
 export async function listUsuariosGrupos() {
-  const result = await pool.query('SELECT * FROM usuario_ad_grupo');
+  const result = await pool.query('SELECT * FROM ad_local_user_group');
   return result.rows;
 }
 
@@ -36,7 +36,7 @@ export async function listUsuariosGrupos() {
  * @returns Permissões registradas no sistema.
  */
 export async function listPermissoes() {
-  const result = await pool.query('SELECT * FROM permissoes');
+  const result = await pool.query('SELECT * FROM auth_permissions');
   return result.rows;
 }
 
@@ -46,7 +46,7 @@ export async function listPermissoes() {
  * @returns Lista de vínculos entre grupos e permissões.
  */
 export async function listGrupoPermissoes() {
-  const result = await pool.query('SELECT * FROM grupo_permissoes');
+  const result = await pool.query('SELECT * FROM auth_permissions_group');
   return result.rows;
 }
 
@@ -59,14 +59,22 @@ export async function listGrupoPermissoes() {
 export async function listPermissoesPorGrupos(nomes: string[]) {
   const { rows } = await pool.query(
     `SELECT DISTINCT p.rota, p.nome_visivel, p.grupo_pai
-       FROM grupo_permissoes gp
-       JOIN permissoes p ON p.id = gp.permissao_id
-       JOIN ad_grupos g ON g.id = gp.grupo_id
-      WHERE g.nome = ANY($1)
+       FROM auth_permissions_group gp
+       JOIN auth_permissions p ON p.id = gp.permissao_id
+       JOIN ad_local_groups g ON g.id = gp.grupo_id
+      WHERE g.nome = ANY($1::text[])
       ORDER BY p.grupo_pai, p.nome_visivel`,
     [nomes]
   );
   return rows;
+}
+
+export async function getGrupoIdsByNomes(nomes: string[]): Promise<string[]> {
+  const { rows } = await pool.query(
+    `SELECT id FROM ms365_groups WHERE nome = ANY($1::text[])`,
+    [nomes]
+  );
+  return rows.map(r => r.id);
 }
 
 /**
@@ -76,7 +84,7 @@ export async function listPermissoesPorGrupos(nomes: string[]) {
  * @returns Valores da coluna solicitada.
  */
 export async function selectCampoUsuarios(campo: string) {
-  const query = `SELECT id, ${campo} FROM usuarios ORDER BY id`;
+  const query = `SELECT id, ${campo} FROM ms365_users ORDER BY id`;
   const { rows } = await pool.query(query);
   return rows;
 }
@@ -88,7 +96,7 @@ export async function selectCampoUsuarios(campo: string) {
  */
 export async function listarCamposUsuarios() {
   const result = await pool.query(
-    `SELECT column_name FROM information_schema.columns WHERE table_name = 'usuarios' ORDER BY ordinal_position;`
+    `SELECT column_name FROM information_schema.columns WHERE table_name = 'ms365_users' ORDER BY ordinal_position;`
   );
   return result.rows.map(r => r.column_name);
 }
@@ -103,7 +111,7 @@ export async function listarCamposUsuarios() {
  */
 export async function insertPermissao(rota: string, nomeVisivel: string, grupoPai: string) {
   const result = await pool.query(
-    `INSERT INTO permissoes (id, rota, nome_visivel, grupo_pai)
+    `INSERT INTO auth_permissions (id, rota, nome_visivel, grupo_pai)
      VALUES (gen_random_uuid()::text, $1, $2, $3)
      RETURNING *`,
     [rota, nomeVisivel, grupoPai]
@@ -122,7 +130,7 @@ export async function insertPermissao(rota: string, nomeVisivel: string, grupoPa
  */
 export async function updatePermissao(id: string, rota: string, nomeVisivel: string, grupoPai: string) {
   const result = await pool.query(
-    `UPDATE permissoes
+    `UPDATE auth_permissions
      SET rota = $1, nome_visivel = $2, grupo_pai = $3
      WHERE id = $4
      RETURNING *`,
@@ -137,7 +145,7 @@ export async function updatePermissao(id: string, rota: string, nomeVisivel: str
  * @param id Identificador da permissão.
  */
 export async function deletePermissao(id: string) {
-  await pool.query('DELETE FROM permissoes WHERE id = $1', [id]);
+  await pool.query('DELETE FROM auth_permissions WHERE id = $1', [id]);
 }
 
 /**
@@ -150,7 +158,7 @@ export async function deletePermissao(id: string) {
  */
 export async function insertGrupoPermissao(grupoId: string, permissaoId: string, userId: string) {
   const result = await pool.query(
-    `INSERT INTO grupo_permissoes (grupo_id, permissao_id, user_id)
+    `INSERT INTO auth_permissions_group (grupo_id, permissao_id, user_id)
      VALUES ($1, $2, $3)
      RETURNING *`,
     [grupoId, permissaoId, userId]
@@ -169,7 +177,7 @@ export async function insertGrupoPermissao(grupoId: string, permissaoId: string,
  */
 export async function updateGrupoPermissao(id: string, grupoId: string, permissaoId: string, userId: string) {
   const result = await pool.query(
-    `UPDATE grupo_permissoes
+    `UPDATE auth_permissions_group
      SET grupo_id = $1, permissao_id = $2, user_id = $3
      WHERE id = $4
      RETURNING *`,
@@ -184,5 +192,17 @@ export async function updateGrupoPermissao(id: string, grupoId: string, permissa
  * @param id Identificador do vínculo.
  */
 export async function deleteGrupoPermissao(id: string) {
-  await pool.query('DELETE FROM grupo_permissoes WHERE id = $1', [id]);
+  await pool.query('DELETE FROM auth_permissions_group WHERE id = $1', [id]);
+}
+
+export async function listPermissoesPorGrupoIds(ids: string[]) {
+  const { rows } = await pool.query(
+    `SELECT DISTINCT p.rota, p.nome_visivel, p.grupo_pai
+       FROM auth_permissions_group gp
+       JOIN auth_permissions p ON p.id = gp.permissao_id
+      WHERE gp.grupo_id = ANY($1::text[])
+      ORDER BY p.grupo_pai, p.nome_visivel`,
+    [ids]
+  );
+  return rows;
 }

@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getClpStatus, setClpConfig } from '../../controllers/CLP/CLP.Controller'
-import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP,  } from '../../controllers/CLP/CLP.Controller';
+import { listarClps, adicionarClp, removerClp, atualizarOpcaoCLP, getClpStatus, setClpConfig } from '../../controllers/CLP/CLP.Controller';
 import { validate } from '../../middleware/validate'
 import { setClpConfigSchema, createClpSchema, updateClpSchema } from '../../validators/clp'
 import { idParamSchema } from '../../validators/common'
@@ -16,7 +15,7 @@ const router = Router();
 router.get('/status', getClpStatus);
 
 /**
- * Define o IP do CLP e reinicia o serviço remoto.
+ * Define o IP do CLP e reinicia o WPS pelo serviço remoto.
  * @route POST /api/clp/set
  */
 router.post('/set', validate(setClpConfigSchema), setClpConfig);

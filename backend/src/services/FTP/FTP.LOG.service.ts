@@ -14,12 +14,11 @@ export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tama
   clp: string;
 }) {
   const query = `
-    INSERT INTO ftp_upload_logs (usuario, nome_arquivo, descricao, data_envio, tamanho, clp_selecionado)
+    INSERT INTO ftp_log_uploads (usuario, nome_arquivo, descricao, data_envio, tamanho, clp_selecionado)
     VALUES ($1, $2, $3, NOW(), $4, $5)
   `;
   
   const values = [usuario, nomeArquivo, descricao, tamanho, clp];
-
   try {
     await pool.query(query, values);
   } catch (err) {
@@ -32,6 +31,6 @@ export async function salvarLogFtpUpload({ usuario, nomeArquivo, descricao, tama
  * Lista os Uploads de CLP ordenados por data
  */
 export async function listarLogsFtp() {
-  const result = await pool.query(`SELECT * FROM ftp_upload_logs ORDER BY data_envio DESC`);
+  const result = await pool.query(`SELECT * FROM ftp_log_uploads ORDER BY data_envio DESC`);
   return result.rows;
 }

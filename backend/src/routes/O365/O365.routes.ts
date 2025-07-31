@@ -24,7 +24,7 @@ const router = Router();
 /**
  * Sincroniza usuários e grupos do Teams com o banco de dados.
  */
-router.get('/back/sync-users-groups', async (req, res) => {
+router.get('/sync-users-groups', async (req, res) => {
   try {
     await syncAllTeamsGroupsAndMembers();
     res.json({ message: 'Sincronização concluída com sucesso.' });
