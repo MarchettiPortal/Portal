@@ -24,18 +24,28 @@ const FTP_CONFIG = {
  * @returns Lista de arquivos com seus tamanhos.
  * @throws Propaga erros de conexão ou listagem.
  */
-export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
+export async function listarArquivoFtp(caminhoPreferencial: string): Promise<ArquivoFtp[]> {
   const client = new Client();
+  let caminhoUsado = caminhoPreferencial;
+
   try {
     await client.access(FTP_CONFIG);
-    const arquivos = await client.list(caminho);
-    const arquivosVisiveis = arquivos.filter(a => !a.name.startsWith('.'));
+
+    try {
+      await client.cd(caminhoPreferencial); // tenta caminho padrão
+    } catch (erro) {
+      logger.warn(`Falha ao acessar ${caminhoPreferencial}, tentando raiz: ${String(erro)}`);
+      caminhoUsado = '/';
+      await client.cd(caminhoUsado);
+    }
+    const arquivos = await client.list();
+    const arquivosVisiveis = arquivos.filter(a => a.type === 1 && !a.name.startsWith('.'));
 
     const arquivosComTamanho: ArquivoFtp[] = [];
     for (const a of arquivosVisiveis) {
       let tamanho = 0;
       try {
-        tamanho = await client.size(`${a.name}`);
+        tamanho = await client.size(a.name);
       } catch (e) {
         logger.warn(`Erro ao buscar tamanho de ${a.name}: ${String(e)}`);
       }
@@ -49,6 +59,7 @@ export async function listarArquivoFtp(caminho: string): Promise<ArquivoFtp[]> {
     client.close();
   }
 }
+
 
 
 
