@@ -74,17 +74,17 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
  * Lista os arquivos disponíveis no diretório raiz do FTP.
  */
 router.get('/arquivo', async (req, res) => {
-    try {
-        const info = await listarArquivoFtp('/');
-        res.json({
-            dados: info
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            mensagem: 'Falha ao listar arquivos',
-            detalhes: error.message
-        });
-    }
+  const caminho = '/PLC300/0001/Recipes'; // fixo por enquanto
+
+  try {
+    const info = await listarArquivoFtp(caminho);
+    res.json({ dados: info });
+  } catch (error: any) {
+    res.status(500).json({
+      mensagem: 'Falha ao listar arquivos',
+      detalhes: error.message
+    });
+  }
 });
 
 /**
