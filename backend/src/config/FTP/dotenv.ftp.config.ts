@@ -10,7 +10,8 @@ const dotenvConfig = {
     host: getEnvVar('FTP_HOST'),
     user: getEnvVar('FTP_USER'),
     password: getEnvVar('FTP_PASS'),
-    port: parseInt(getEnvVar('FTP_PORT'), 10)
+    port: parseInt(getEnvVar('FTP_PORT'), 10),
+    timeout: parseInt(getEnvVar('FTP_TIMEOUT'), 300000)
 };
 
 export default dotenvConfig;

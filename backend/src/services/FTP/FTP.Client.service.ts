@@ -12,6 +12,7 @@ const FTP_CONFIG = {
   user: ftpConfig.user,
   password: ftpConfig.password,
   port: ftpConfig.port,
+  timeout: ftpConfig.timeout
 };
 
 
@@ -74,35 +75,51 @@ export async function listarArquivoFtp(caminhoPreferencial: string): Promise<Arq
  */
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
   const client = new Client();
-  client.ftp.verbose = true; // debug opcional
+  client.ftp.verbose = true;
+  const ftpAny = client.ftp as any;
   const io = getSocket();
 
   try {
     await client.access({
       ...FTP_CONFIG,
       secure: false,
-    });
-    client.ftp.socket.setTimeout(120000); // 120 segundos
+    } as any);
+
+    // ⚠️ Garante timeout no socket de controle
+    client.ftp.socket.setTimeout(300000);
+
+    // ⚠️ Força timeout no socket de dados 
+    const originalHandleUpload = ftpAny.handleUpload;
+    ftpAny.handleUpload = async function (source: any, remotePath: any) {
+      const result = await originalHandleUpload.call(this, source, remotePath);
+      if (this.dataSocket) {
+        this.dataSocket.setTimeout(300000); // ⏱️ Timeout de 5 minutos no socket de dados
+      }
+      return result;
+    };
 
     const { size: tamanhoTotal } = await fs.stat(localPath);
 
     client.trackProgress(info => {
       const percent = Math.round((info.bytes / tamanhoTotal) * 100);
-      if (socketId) io.to(socketId).emit('ftp-progress', Math.min(percent, 99)); // <= segura o 100%
+      if (socketId) io.to(socketId).emit('ftp-progress', Math.min(percent, 99));
     });
 
     const safeRemote = path.posix.basename(remotePath);
     await client.uploadFrom(localPath, safeRemote);
 
-    // Envia 100% apenas após finalizar o upload
-    if (socketId) io.to(socketId).emit('ftp-progress', 100);
-    if (socketId) io.to(socketId).emit('ftp-finished'); // opcional: evento explícito de fim
+    if (socketId) {
+      io.to(socketId).emit('ftp-progress', 100);
+      io.to(socketId).emit('ftp-finished');
+    }
+
   } catch (err) {
-    logger.error(`[ERRO UPLOAD FTP] ${String(err)}`);
+    logger.error(`[ERRO UPLOAD FTP] ${String(err)}`, { timestamp: new Date().toISOString() });
     throw err;
   } finally {
+    console.log('chegou aqui')
     client.trackProgress(undefined);
-    client.close();
+    //client.close();
   }
 }
 

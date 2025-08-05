@@ -22,6 +22,7 @@ const router = Router();
  * Socket.IO.
  */
 router.post('/upload', upload.single('arquivo'), async (req, res) => {
+  const inicio = Date.now(); // marca início
   const socketId = req.headers['x-socket-id'] as string  // header customizado
   const file = (req as any).file;
   const { descricao, usuario, clp } = req.body;
@@ -61,6 +62,10 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
       .emit('ftp-upload-completo', { usuario, clp })
 
     await fs.unlink(localPath); // Remove arquivo local temporário
+
+    const duracao = Date.now() - inicio;
+    logger.info(`[FTP UPLOAD OK] Arquivo: ${file.originalname} | Usuário: ${usuario} | Tempo: ${duracao}ms`);
+    
     res.json({ sucesso: true }); // ✅ ÚNICO ponto que envia resposta
   } catch (error: any) {
     logger.error('[ERRO UPLOAD]', error);
