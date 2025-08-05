@@ -1,0 +1,32 @@
+import 'dotenv/config';
+import { getEnvVar } from '../../utils/env';
+
+/**
+ * Variáveis globais utilizadas por todo o código
+ * 
+ * Export dos valores
+ */
+const PORT_HTTP = parseInt(getEnvVar('PORT_HTTP'), 10);
+const PORT_HTTPS = parseInt(getEnvVar('PORT_HTTPS'), 10);
+const BASE_URL_BACKEND = getEnvVar('BASE_URL_BACKEND');
+const BASE_URL_FRONTEND = getEnvVar('BASE_URL_FRONTEND');
+const BASE_URL_NGINX = getEnvVar('BASE_URL_NGINX');
+const BASE_URL_SERVER_WPS = getEnvVar('BASE_URL_SERVER_WPS');
+const BASE_URL_SERVER_DATABASE = getEnvVar('BASE_URL_SERVER_DATABASE');
+const BASE_URL_SERVER_NGINX = getEnvVar('BASE_URL_SERVER_NGINX');
+
+
+export const config = {
+  BASE_URL_BACKEND,
+  BASE_URL_FRONTEND,
+  BASE_URL_NGINX,
+  BASE_URL_SERVER_WPS,
+  BASE_URL_SERVER_DATABASE,
+  BASE_URL_SERVER_NGINX,
+  URL_API_MILVUS: `${BASE_URL_BACKEND}/api/milvus`,
+  REMOTE_WPS_SERVICE: `${BASE_URL_BACKEND}/status`,
+  HOMEPAGE_URL_FRONTEND_ADMIN: `${BASE_URL_FRONTEND}/home`,
+  LOGIN_URL_FRONTEND: `${BASE_URL_FRONTEND}/login`,
+  PORT_HTTPS,
+  PORT_HTTP,
+};

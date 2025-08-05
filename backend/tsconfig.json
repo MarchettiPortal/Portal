@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "ES2022",                 // Define o alvo da compilação (suporte a recursos modernos do JS)
+      "module": "NodeNext",                // Usa módulos no formato ECMAScript
+      "moduleResolution": "NodeNext",       // Resolve módulos no padrão Node.js (necessário para imports do Node)
+      "outDir": "./dist",                   // Define onde os arquivos compilados serão salvos
+      "rootDir": "./src",                   // Define onde estão os arquivos TypeScript
+      "strict": true,                        // Habilita verificações estritas do TypeScript
+      "esModuleInterop": true,               // Permite interoperabilidade com CommonJS (importação de pacotes que usam `require`)
+      "forceConsistentCasingInFileNames": true, // Garante consistência nos nomes dos arquivos (importações sensíveis a maiúsculas e minúsculas)
+      "skipLibCheck": true,                  // Ignora verificação de tipos em bibliotecas de terceiros
+      "resolveJsonModule": true,             // Permite importar arquivos JSON diretamente no código
+      "allowSyntheticDefaultImports": true,  // Permite importar módulos sem um `export default`
+      "strictPropertyInitialization": false, // Evita erros com inicialização de propriedades em classes
+      "experimentalDecorators": true,        // Habilita suporte a decorators (caso necessário para autenticação com MSAL)
+      "emitDecoratorMetadata": true,         // Emite metadados para decorators (caso precise usar inversão de controle)
+      "noImplicitAny": false,                 // Permite o uso de `any` sem erro (caso necessário para compatibilidade)
+      "typeRoots": ["./src/types", "./node_modules@types"]
+    },
+    "include": ["src"],                     // Inclui a pasta `src` na compilação
+    "exclude": ["node_modules", "dist"]     // Exclui essas pastas da compilação
+  }
+ 
