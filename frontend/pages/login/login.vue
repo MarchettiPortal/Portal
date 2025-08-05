@@ -16,7 +16,7 @@
     >
       <!-- Logo + Tagline -->
       <img
-        src="/Public/images/MarchettiLogo.png"
+        src="/images/MarchettiLogo.png"
         alt="Logo Marchetti"
         class="w-60 h-auto"
       />
