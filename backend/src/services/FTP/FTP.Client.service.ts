@@ -74,7 +74,8 @@ export async function listarArquivoFtp(caminhoPreferencial: string): Promise<Arq
  */
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
   const client = new Client();
-  client.ftp.verbose = true; // debug opcional
+  client.ftp.verbose = true;
+  (client.ftp as any).timeout = 120000;
   const io = getSocket();
 
   try {
@@ -82,21 +83,22 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
       ...FTP_CONFIG,
       secure: false,
     });
-    client.ftp.socket.setTimeout(120000); // 120 segundos
 
     const { size: tamanhoTotal } = await fs.stat(localPath);
 
     client.trackProgress(info => {
       const percent = Math.round((info.bytes / tamanhoTotal) * 100);
-      if (socketId) io.to(socketId).emit('ftp-progress', Math.min(percent, 99)); // <= segura o 100%
+      if (socketId) io.to(socketId).emit('ftp-progress', Math.min(percent, 99));
     });
 
     const safeRemote = path.posix.basename(remotePath);
     await client.uploadFrom(localPath, safeRemote);
 
-    // Envia 100% apenas após finalizar o upload
-    if (socketId) io.to(socketId).emit('ftp-progress', 100);
-    if (socketId) io.to(socketId).emit('ftp-finished'); // opcional: evento explícito de fim
+    if (socketId) {
+      io.to(socketId).emit('ftp-progress', 100);
+      io.to(socketId).emit('ftp-finished');
+    }
+
   } catch (err) {
     logger.error(`[ERRO UPLOAD FTP] ${String(err)}`);
     throw err;
@@ -105,6 +107,7 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
     client.close();
   }
 }
+
 
 // 🔧 Função para renomear arquivo
 /**
