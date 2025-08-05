@@ -1,26 +1,42 @@
-import { Server as IOServer } from 'socket.io'; // Importa a classe Server do pacote 'socket.io' e renomeia como IOServer para evitar confusão com outros servidores.
+import { Server as IOServer } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import Redis from 'ioredis';
+import { config } from './config/Global/global.config';
 
-let io: IOServer | null = null; // Variável global que irá armazenar a instância do socket.io. Inicialmente está como null e será definida ao iniciar o servidor WebSocket.
+let io: IOServer | null = null;
 
-/**
- * Função para inicializar o servidor Socket.io.
- * @param server - Usa o servidor existente do Express.
- * @returns A instância do servidor Socket.io.
- * A instância é armazenada na variável `io` para poder ser reutilizada em outros pontos do sistema.
- */
-export function initSocket(server: any) {
+export async function initSocket(server: any) {
   io = new IOServer(server, {
-    cors: { origin: '*' } // Permite conexões de qualquer origem (para desenvolvimento, mas depois alterar para os endereços em produção).
+    cors: {
+      origin: config.BASE_URL_PORTAL,
+    },
   });
+
+  // Somente usa Redis Adapter em produção
+  if (process.env.NODE_ENV === 'production') {
+    const pubClient = new Redis({
+      host: '127.0.0.1',
+      port: 6379,
+      maxRetriesPerRequest: null, // evita crash
+    });
+
+    const subClient = pubClient.duplicate();
+
+    // Trata erros para não quebrar app
+    pubClient.on('error', (err) => {
+      console.error('[Redis Pub Error]', err);
+    });
+
+    subClient.on('error', (err) => {
+      console.error('[Redis Sub Error]', err);
+    });
+
+    io.adapter(createAdapter(pubClient, subClient));
+  }
+
   return io;
 }
 
-/**
- * Função para recuperar a instância atual do servidor Socket.io.
- * @returns A instância de Socket.io previamente inicializada.
- * @throws Um erro caso o servidor Socket.io ainda não tenha sido inicializado.
- * Essa função é útil para acessar o Socket.io fora do escopo onde foi inicializado, como em controllers ou services que precisam emitir eventos para os clientes.
- */
 export function getSocket(): IOServer {
   if (!io) throw new Error('Socket.io não inicializado!');
   return io;

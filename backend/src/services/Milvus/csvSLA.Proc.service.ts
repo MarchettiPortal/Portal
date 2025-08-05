@@ -1,13 +1,12 @@
 import { promises as fs, createReadStream } from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser'
-import pool from '../../config/Global/db.config'
 import { pipeline } from 'stream/promises'
 import { parse, format, getYear, differenceInMilliseconds } from 'date-fns'
 import { pt } from 'date-fns/locale'
-import { upsertTicket } from './csvSLA.DB.service.js';
-import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config.js'
-import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData.js';
+import { upsertTicket } from './csvSLA.DB.service';
+import  dotenvConfig  from '../../config/Milvus/dotenv.milvus.config'
+import { normalizePrioridade, normalizeStatus, normalizeString, normalizePossui  } from '../../utils/normalizeData';
 import { ParsedRow } from '../../types/milvus'
 import { logger } from '../../utils/logger'
 

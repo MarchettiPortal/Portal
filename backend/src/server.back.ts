@@ -1,11 +1,11 @@
-import app from './app.js';
+import app from './app';
 import http from 'http';
 import dotenv from 'dotenv';
-import { config } from './config/Global/global.config.js'
-import { pool } from './config/Global/db.config.js';
-import { iniciarAgendador, pararAgendador } from './services/Milvus/csvSLA.Scheduler.service.js';
-import { initSocket } from './socket.js'
-import './workers/O365.UsersGroups.refresh.worker.js'
+import { config } from './config/Global/global.config'
+import { pool } from './config/Global/db.config';
+import { iniciarAgendador, pararAgendador } from './services/Milvus/csvSLA.Scheduler.service';
+import { initSocket } from './socket'
+import './workers/O365.UsersGroups.scheduler.worker'
 import { logger } from './utils/logger';
 
 /**

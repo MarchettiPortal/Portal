@@ -5,7 +5,11 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.back.js",
+<<<<<<< Updated upstream
     "dev": "concurrently -k -n TSC,NODE \"tsc -w\"  \"nodemon --quiet dist/server.back.js\""
+=======
+    "dev": "concurrently -k -n TSC,NODE,SLA,O365 \"tsc -w\" \"nodemon dist/server.back.js\" \"ts-node src/workers/SLA.scheduler.worker.ts\" \"ts-node src/workers/O365.UsersGroups.scheduler.worker.ts\""
+>>>>>>> Stashed changes
   },
   "keywords": [],
   "author": "",
@@ -14,6 +18,7 @@
   "dependencies": {
     "@azure/msal-node": "^3.2.3",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.1",
     "@types/jsonwebtoken": "^9.0.6",
@@ -27,6 +32,7 @@
     "express": "^5.1.0",
     "helmet": "^7.1.0",
     "iconv-lite": "^0.6.3",
+    "ioredis": "^5.7.0",
     "multer": "^2.0.0",
     "node-cache": "^5.1.2",
     "node-cron": "^4.1.0",
@@ -35,6 +41,7 @@
     "pg": "^8.15.0",
     "ping": "^0.4.4",
     "socket.io": "^4.8.1",
+    "socket.io-redis": "^5.2.0",
     "stream-buffers": "^3.0.3",
     "winston": "^3.17.0",
     "zod": "^3.25.67"
@@ -48,5 +55,10 @@
     "nodemon": "^3.1.10",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
+  },
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "types": ["node"]
   }
 }

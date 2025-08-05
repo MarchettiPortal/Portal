@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { getRefresh} from "../../controllers/Milvus/Milvus.csvSLA.controller.js";
-import { getRefreshAuto } from "../../controllers/Milvus/Milvus.API.AutoRefresh.controller.js"
-import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendador } from '../../services/Milvus/csvSLA.Scheduler.service.js'
-import * as  chamadosController from '../../controllers/Milvus/DB.Chamados.controller.js';
+import { getRefresh} from "../../controllers/Milvus/Milvus.csvSLA.controller";
+import { getRefreshAuto } from "../../controllers/Milvus/Milvus.API.AutoRefresh.controller"
+import { getAgendadorStatus, setAgendadorStatus, iniciarAgendador, pararAgendador } from '../../services/Milvus/csvSLA.Scheduler.service'
+import * as  chamadosController from '../../controllers/Milvus/DB.Chamados.controller';
 import { validate } from '../../middleware/validate';
-import { createChamadoSchema, updateChamadoSchema, codigoParamSchema } from '../../validators/milvus.js';
-import { getSocket } from '../../socket.js';
+import { createChamadoSchema, updateChamadoSchema, codigoParamSchema } from '../../validators/milvus';
+import { getSocket } from '../../socket';
 
 const router = Router();
 

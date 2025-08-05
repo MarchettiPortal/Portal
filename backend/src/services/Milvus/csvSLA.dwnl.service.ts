@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import dotenvConfig from '../../config/Milvus/dotenv.milvus.config.js';
+import dotenvConfig from '../../config/Milvus/dotenv.milvus.config';
 
 /**
  * Realiza o download do arquivo CSV de SLA do Milvus.

@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { cca } from '../../config/Auth/msalUser.config';
-import { config } from '../../config/Global/global.config'
 import dotenvConfig from '../../config/Auth/dotenv.auth.config';
 import dotenv from 'dotenv';
 import axios from 'axios';

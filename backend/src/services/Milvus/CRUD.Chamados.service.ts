@@ -1,4 +1,4 @@
-import { pool } from '../../config/Global/db.config.js'
+import { pool } from '../../config/Global/db.config'
 
 /** Retorna todos os chamados não finalizados. */
 export const consultarChamados = async () => {

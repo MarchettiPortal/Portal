@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { pool } from '../../config/Global/db.config';
-import * as chamadosService from '../../services/Milvus/CRUD.Chamados.service.js';
+import * as chamadosService from '../../services/Milvus/CRUD.Chamados.service';
 import { logger } from '../../utils/logger';
 
 

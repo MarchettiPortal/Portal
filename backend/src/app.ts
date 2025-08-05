@@ -7,7 +7,7 @@ import permRouter from './routes/Auth/permissoes.routes'
 import ftpRouter from './routes/clp-ftp/FTP.routes'
 import statusRouter from './routes/status/status.routes'
 import docRouter from './routes/Documentacao/APIs.routes'
-import { config } from './config/Global/global.config.js'
+import { config } from './config/Global/global.config'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import adRouter from './routes/AD/AD.Routes'
