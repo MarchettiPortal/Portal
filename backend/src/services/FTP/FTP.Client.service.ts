@@ -5,14 +5,18 @@ import ftpConfig from '../../config/FTP/dotenv.ftp.config';
 import path from 'path';
 import { logger } from '../../utils/logger';
 import { ArquivoFtp } from '../../types/clp.ftp';
+import { exec } from 'child_process';
 
+const host = ftpConfig.host;
+const user = ftpConfig.user;
+const password = ftpConfig.password;
+const port = ftpConfig.port;
 
 const FTP_CONFIG = {
-  host: ftpConfig.host,
-  user: ftpConfig.user,
-  password: ftpConfig.password,
-  port: ftpConfig.port,
-  timeout: ftpConfig.timeout
+  host,
+  user,
+  password,
+  port,
 };
 
 
@@ -73,54 +77,48 @@ export async function listarArquivoFtp(caminhoPreferencial: string): Promise<Arq
  * @returns Promessa resolvida quando o upload for finalizado.
  * @throws Erros de conexão ou upload.
  */
-export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string) {
-  const client = new Client();
-  client.ftp.verbose = true;
-  const ftpAny = client.ftp as any;
+export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string): Promise<void> {
+  const fullRemote = `ftp://${user}:${password}@${host}:${port}`;
+
   const io = getSocket();
+  const tempLogPath = `/tmp/lftp_${Date.now()}.log`;
 
-  try {
-    await client.access({
-      ...FTP_CONFIG,
-      secure: false,
-    } as any);
+  const command = [
+    `lftp -e "`,
+    `set net:timeout 300;`, // ⏱️ timeout de socket
+    `set net:max-retries 2;`, // 🔁 tenta 2 vezes se falhar
+    `set ftp:passive-mode true;`,
+    `put ${localPath} -o ${remotePath};`, // 🗂️ envia arquivo
+    `bye" `,
+    fullRemote,
+    `> ${tempLogPath} 2>&1`, // log de erro e saída
+  ].join(' ');
 
-    // ⚠️ Garante timeout no socket de controle
-    client.ftp.socket.setTimeout(300000);
+  logger.info(`[LFTP] Executando: ${command}`);
 
-    // ⚠️ Força timeout no socket de dados 
-    const originalHandleUpload = ftpAny.handleUpload;
-    ftpAny.handleUpload = async function (source: any, remotePath: any) {
-      const result = await originalHandleUpload.call(this, source, remotePath);
-      if (this.dataSocket) {
-        this.dataSocket.setTimeout(300000); // ⏱️ Timeout de 5 minutos no socket de dados
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    exec(command, async (error, stdout, stderr) => {
+      const duration = Date.now() - start;
+
+      if (socketId) io.to(socketId).emit('ftp-progress', 100);
+      if (socketId) io.to(socketId).emit('ftp-finished');
+
+      const log = await fs.readFile(tempLogPath, 'utf8').catch(() => '');
+      await fs.unlink(tempLogPath).catch(() => {});
+
+      if (error) {
+        logger.error(`[LFTP ERRO] Tempo: ${duration}ms`);
+        logger.error(`[LFTP LOG]:\n${log}`);
+        return reject(new Error(`Erro ao enviar via LFTP: ${error.message}`));
       }
-      return result;
-    };
 
-    const { size: tamanhoTotal } = await fs.stat(localPath);
-
-    client.trackProgress(info => {
-      const percent = Math.round((info.bytes / tamanhoTotal) * 100);
-      if (socketId) io.to(socketId).emit('ftp-progress', Math.min(percent, 99));
+      logger.info(`[LFTP SUCESSO] Tempo: ${duration}ms`);
+      logger.info(`[LFTP LOG]:\n${log}`);
+      resolve();
     });
-
-    const safeRemote = path.posix.basename(remotePath);
-    await client.uploadFrom(localPath, safeRemote);
-
-    if (socketId) {
-      io.to(socketId).emit('ftp-progress', 100);
-      io.to(socketId).emit('ftp-finished');
-    }
-
-  } catch (err) {
-    logger.error(`[ERRO UPLOAD FTP] ${String(err)}`, { timestamp: new Date().toISOString() });
-    throw err;
-  } finally {
-    console.log('chegou aqui')
-    client.trackProgress(undefined);
-    //client.close();
-  }
+  });
 }
 
 // 🔧 Função para renomear arquivo

@@ -55,6 +55,8 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   }
 }

@@ -53,8 +53,8 @@ async function executarRefreshSeHorarioPermitido() {
 
   try {
     const workerPath = isProd
-      ? path.resolve(__dirname, '../../dist/workers/Milvus.SLA.Refresh.worker.js')
-      : path.resolve(__dirname, '../workers/Milvus.SLA.Refresh.worker.ts');
+      ? path.resolve(__dirname, '../../workers/Milvus.SLA.Refresh.worker.js')
+      : path.resolve(__dirname, '../../../src/workers/Milvus.SLA.Refresh.worker.ts');
 
     const worker = new Worker(workerPath, {
       execArgv: isProd ? [] : ['--require', 'ts-node/register'],

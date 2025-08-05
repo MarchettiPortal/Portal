@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { processCSV } from "../../services/Milvus/csvSLA.Proc.service.js";
-import { downloadCSV} from "../../services/Milvus/csvSLA.dwnl.service.js"
+import { processCSV } from "../../services/Milvus/csvSLA.Proc.service";
+import { downloadCSV} from "../../services/Milvus/csvSLA.dwnl.service"
 import { logger } from "../../utils/logger"
 
 
