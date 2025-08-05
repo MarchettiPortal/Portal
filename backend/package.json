@@ -5,11 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.back.js",
-<<<<<<< Updated upstream
-    "dev": "concurrently -k -n TSC,NODE \"tsc -w\"  \"nodemon --quiet dist/server.back.js\""
-=======
-    "dev": "concurrently -k -n TSC,NODE,SLA,O365 \"tsc -w\" \"nodemon dist/server.back.js\" \"ts-node src/workers/SLA.scheduler.worker.ts\" \"ts-node src/workers/O365.UsersGroups.scheduler.worker.ts\""
->>>>>>> Stashed changes
+    "dev": "concurrently -k -n TSC,NODE,SLA,O365 \"tsc -w\" \"nodemon --quiet dist/server.back.js\" \"ts-node src/workers/SLA.scheduler.worker.ts\" \"ts-node src/workers/O365.UsersGroups.scheduler.worker.ts\""
   },
   "keywords": [],
   "author": "",
