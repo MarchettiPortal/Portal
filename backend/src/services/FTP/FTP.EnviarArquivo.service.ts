@@ -30,7 +30,7 @@ export async function enviarArquivoFtpUniversal(
       headers: {
         ...formData.getHeaders()
       },
-      timeout: 7 * 60 * 1000 // 7 minutos
+      timeout: 10 * 60 * 1000 // 7 minutos
     }
   )
 }
