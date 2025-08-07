@@ -7,14 +7,15 @@ import multer from 'multer';
 import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
 import { enviarArquivoFtp } from '../../services/FTP/FTP.Client.service'
-
+import path from 'path';
 import { validate } from '../../middleware/validate';
 import { renameFileSchema, fileParamSchema } from '../../validators/ftp';
 import { logger } from '../../utils/logger';
 
 
-const upload = multer({ dest: 'uploads/' });
-const router = Router();
+const upload = multer({
+  dest: path.resolve(__dirname, '..', '..', 'uploads'), 
+});const router = Router();
 
 router.post('/upload-proxy', upload.single('arquivo'), async (req, res) => {
   const { remotePath, socketId } = req.body
