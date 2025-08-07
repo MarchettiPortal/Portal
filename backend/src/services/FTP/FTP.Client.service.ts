@@ -108,7 +108,6 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
 
       if (error) {
         logger.error(`[LFTP ERRO] Tempo: ${duration}ms`);
-        logger.error(`[LFTP LOG]:\n${log}`);
         if (socketId) io.to(socketId).emit('ftp-error', { duration, log });
         return reject(new Error(`Erro ao enviar via LFTP: ${error.message}`));
       }

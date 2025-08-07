@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue' // ⬅️ adicionar computed
+import { ref, computed, watch } from 'vue' 
 import axios from 'axios'
 import { config } from '~/config/global.config'
 
@@ -9,6 +9,7 @@ interface Arquivo {
 }
 
 export const useClpStore = defineStore('clpStore', () => {
+  
   const clpText = ref('Desconhecido')
   const clpIpAtual = ref('')
   const arquivosEmExecucao = ref<Arquivo[]>([])
@@ -21,6 +22,14 @@ export const useClpStore = defineStore('clpStore', () => {
     ftpStatus.value = status
   }
 
+  watch(ftpStatus, (novo) => {
+    if (novo !== 'idle') {
+      setTimeout(() => {
+        ftpStatus.value = 'idle'
+      }, 4000)
+    }
+  })
+  
   async function fetchStatus() {
     try {
       const { data } = await axios.get(`${config.API_BACKEND}/clp/status`)

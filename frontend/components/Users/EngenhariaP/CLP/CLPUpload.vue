@@ -67,29 +67,31 @@ import { useClpStore } from '~/stores/CLP/useClpStore'
 import { useLogStore } from '~/stores/CLP/CLPLogStore'
 import { useAuthStore } from '~/stores/User/auth'
 import { useClpFtpStatus } from '~/composables/useClpFtpStatus'
-
 import CLPToast from '~/components/Users/EngenhariaP/CLP/CLPExibicao/CLPToast.vue'
 import CLPHeader from '~/components/Users/EngenhariaP/CLP/CLPExibicao/CLPHeader.vue'
 import CLPExecucao from '~/components/Users/EngenhariaP/CLP/CLPExibicao/CLPExecucao.vue'
 import CLPPendentes from '~/components/Users/EngenhariaP/CLP/CLPExibicao/CLPPendentes.vue'
 import CLPDropArea from '~/components/Users/EngenhariaP/CLP/CLPExibicao/CLPDropArea.vue'
-
 import ModalDelete from '~/components/Models/CLPModals/ModalDelete.vue'
 import ModalDescription from '~/components/Models/CLPModals/ModalDescription.vue'
 import ModalSuccessFile from '~/components/Models/CLPModals/ModalSuccessFile.vue'
 import ModalLoadingFile from '~/components/Models/CLPModals/ModalLoadingFile.vue'
-
 import type { Arquivo } from './types'
 
+// Stores e Status
 const clpStore = useClpStore()
 const logStore = useLogStore()
 const authStore = useAuthStore()
-const { clpText, ftpStatus } = storeToRefs(clpStore)
-const { setFtpStatus } = clpStore
-
+const { clpText } = storeToRefs(clpStore)
 const { status } = useClpFtpStatus()
 const clpReiniciando = computed(() => status.value.clp.reiniciando)
+const { ftpStatus } = storeToRefs(clpStore)
+const { setFtpStatus } = clpStore
 
+// Armazenar o nome do último arquivo enviado
+const lastUploadedArquivo = ref<string | null>(null)
+
+// Reativos
 const arquivosEmExecucao = ref<Arquivo[]>([])
 const arquivosPendentes = ref<Arquivo[]>([])
 const arquivoSelecionado = ref<Arquivo | null>(null)
@@ -104,23 +106,9 @@ const nomeEditado = ref('')
 
 const showModal = ref(false)
 const modalExcluir = ref(false)
-const lastUploadedArquivo = ref<string | null>(null)
 const arquivoArrastado = ref<File | null>(null)
 
-const formatarTamanho = (bytes: number) =>
-  bytes < 1024 ** 2
-    ? `${(bytes / 1024).toFixed(1)} KB`
-    : `${(bytes / 1024 ** 2).toFixed(1)} MB`
-
-const inferirTipo = (nome: string) => {
-  const ext = nome.split('.').pop()?.toLowerCase()
-  return ({ csv: 'CSV', txt: 'Texto', clp: 'CLP' }[ext!] || 'Desconhecido')
-}
-
-const removerArquivoPendente = (nome: string) => {
-  arquivosPendentes.value = arquivosPendentes.value.filter(a => a.nomeArquivo !== nome)
-}
-
+// Helpers gerais
 const showError = (msg: string) => {
   errorToast.value = msg
   setTimeout(() => { errorToast.value = '' }, 3000)
@@ -135,6 +123,29 @@ const fetchUploadStatus = async () => {
   }
 }
 
+// Formatação de arquivos
+const formatarTamanho = (bytes: number) =>
+  bytes < 1024 ** 2
+    ? `${(bytes / 1024).toFixed(1)} KB`
+    : `${(bytes / 1024 ** 2).toFixed(1)} MB`
+
+const inferirTipo = (nome: string) => {
+  const ext = nome.split('.').pop()?.toLowerCase()
+  return ({ csv: 'CSV', txt: 'Texto', clp: 'CLP' }[ext!] || 'Desconhecido')
+}
+
+// remove arquivos pendentes
+const removerArquivoPendente = (nome: string) => {
+  arquivosPendentes.value = arquivosPendentes.value.filter(a => a.nomeArquivo !== nome)
+}
+
+// Drag-Drop
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault()
+  event.dataTransfer!.dropEffect = 'copy'
+}
+
+// Busca inicial de arquivos e marca “novo”
 const buscarArquivoEmExecucao = async () => {
   if (clpReiniciando.value) {
     arquivosEmExecucao.value = []
@@ -143,7 +154,7 @@ const buscarArquivoEmExecucao = async () => {
 
   try {
     const { data } = await axios.get(`${config.API_BACKEND}/ftp/arquivo`, {
-      params: { clp: clpText.value }
+      params: { clp: clpStore.clpText }
     })
 
     arquivosEmExecucao.value = (data?.dados || [])
@@ -161,11 +172,13 @@ const buscarArquivoEmExecucao = async () => {
   }
 }
 
+// ativarEdicao mantém apenas o nome sem extensão
 const ativarEdicao = (arquivo: Arquivo) => {
   editandoArquivo.value = arquivo.nomeArquivo
   nomeEditado.value = arquivo.nomeArquivo.replace(/\.[^.]+$/, '')
 }
 
+// confirmação de renomeação inline (com extensão reaplicada)
 const confirmarRenomearInline = async (arquivo: Arquivo) => {
   const trimmed = nomeEditado.value.trim()
   if (!trimmed) {
@@ -173,9 +186,11 @@ const confirmarRenomearInline = async (arquivo: Arquivo) => {
     return
   }
 
+  // separar base e extensão
   const parts = arquivo.nomeArquivo.split('.')
   const base = parts.slice(0, -1).join('.') || parts[0]
   const ext  = parts.length > 1 ? `.${parts[parts.length - 1]}` : ''
+
   const novoNomeCompleto = `${trimmed}${ext}`
 
   if (novoNomeCompleto === arquivo.nomeArquivo) {
@@ -196,6 +211,7 @@ const confirmarRenomearInline = async (arquivo: Arquivo) => {
   }
 }
 
+// Gerenciamento de arquivos pendentes
 const selecionarParaEnvio = (arq: Arquivo) => {
   if (uploadLocked.value) {
     showUploadEmAndamento.value = true
@@ -207,11 +223,13 @@ const selecionarParaEnvio = (arq: Arquivo) => {
   showModal.value = true
 }
 
+// Abrir modal excluir
 const abrirModalExcluir = (arquivo: Arquivo) => {
   arquivoSelecionado.value = arquivo
   modalExcluir.value = true
 }
 
+// Envio do arquivo
 const confirmarDescricao = async () => {
   if (!descricao.value.trim() || !arquivoSelecionado.value) return
 
@@ -239,7 +257,7 @@ const confirmarDescricao = async () => {
       f => f.nomeArquivo !== arquivoSelecionado.value!.nomeArquivo
     )
     await buscarArquivoEmExecucao()
-  } catch (error: any) {
+  }catch (error: any) {
     console.error('Erro ao enviar arquivo:', error)
 
     if (error.response) {
@@ -254,15 +272,20 @@ const confirmarDescricao = async () => {
         showError(`Erro ${status}: ${data?.message || 'Falha no upload.'}`)
       }
     } else if (error.request) {
+      console.warn('Nenhuma resposta do servidor. Erro na requisição:')
+      console.warn(error.request)
       showError('Servidor não respondeu.')
     } else {
+      console.warn('Erro ao preparar a requisição:')
+      console.warn(error.message)
       showError('Erro inesperado ao enviar arquivo.')
     }
-  } finally {
+  }finally {
     arquivoSelecionado.value = null
   }
 }
 
+// Excluir arquivo
 const confirmarExcluir = async () => {
   if (!arquivoSelecionado.value) return
   try {
@@ -279,11 +302,7 @@ const confirmarExcluir = async () => {
   }
 }
 
-const onDragOver = (event: DragEvent) => {
-  event.preventDefault()
-  event.dataTransfer!.dropEffect = 'copy'
-}
-
+// Drag & Drop
 const handleDrop = () => {
   const file = arquivoArrastado.value
   if (file && !arquivosPendentes.value.some(a => a.nomeArquivo === file.name)) {
@@ -300,29 +319,26 @@ const handleDrop = () => {
 }
 
 onMounted(() => {
-  fetchUploadStatus()
-  setInterval(fetchUploadStatus, 5000)
-
-  eventBus.on('arquivo-arrastado', arquivo => (arquivoArrastado.value = arquivo as File))
-  eventBus.on('limpar-arquivos-clp', () => (arquivosEmExecucao.value = []))
-  eventBus.on('clp-atualizado', buscarArquivoEmExecucao)
-  eventBus.on('ftp-erro', (msg) => showError(msg as string))
-
-  buscarArquivoEmExecucao()
+  fetchUploadStatus();
+  setInterval(fetchUploadStatus, 5000);
+  eventBus.on('arquivo-arrastado', arquivo => (arquivoArrastado.value = arquivo as File));
+  eventBus.on('limpar-arquivos-clp', () => (arquivosEmExecucao.value = []));
+  eventBus.on('clp-atualizado', buscarArquivoEmExecucao);
+  eventBus.on('ftp-erro', (msg) => showError(msg));
+  buscarArquivoEmExecucao();
 })
 
-onBeforeUnmount(() => {
-  eventBus.off('clp-atualizado', buscarArquivoEmExecucao)
-})
-
-// Reset ftpStatus após sucesso ou erro
 watch(() => ftpStatus.value, (status) => {
   if (status === 'concluído') {
-    setTimeout(() => setFtpStatus('idle'), 2000)
+    setTimeout(() => clpStore.setFtpStatus('idle'), 2000)
   } else if (status === 'erro') {
-    setTimeout(() => setFtpStatus('idle'), 5000)
+    setTimeout(() => clpStore.setFtpStatus('idle'), 5000)
   }
 })
+
+onBeforeUnmount(() => eventBus.off('clp-atualizado', buscarArquivoEmExecucao))
+
+watch([clpText, clpReiniciando], buscarArquivoEmExecucao)
 </script>
 
 <style scoped>
