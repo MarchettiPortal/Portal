@@ -65,7 +65,7 @@ router.post('/upload-proxy', upload.single('arquivo'), async (req, res) => {
  */
 router.post('/upload', upload.single('arquivo'), async (req, res) => {
   const inicio = Date.now();
-  const socketId = req.headers['x-socket-id'] as string;
+  const socketId = req.body.socketId as string;
   const file = (req as any).file;
   const { descricao, usuario, clp } = req.body;
 
