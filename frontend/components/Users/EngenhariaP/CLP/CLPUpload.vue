@@ -87,6 +87,7 @@ const { status } = useClpFtpStatus()
 const clpReiniciando = computed(() => status.value.clp.reiniciando)
 const { ftpStatus } = storeToRefs(clpStore)
 const { setFtpStatus } = clpStore
+const { $socket } = useNuxtApp()
 
 // Armazenar o nome do último arquivo enviado
 const lastUploadedArquivo = ref<string | null>(null)
@@ -231,6 +232,8 @@ const abrirModalExcluir = (arquivo: Arquivo) => {
 
 // Envio do arquivo
 const confirmarDescricao = async () => {
+  console.log('[DEBUG] Enviando arquivo com socketId:', $socket.id)
+
   if (!descricao.value.trim() || !arquivoSelecionado.value) return
 
   const fileReal = arquivosPendentes.value.find(
@@ -249,6 +252,7 @@ const confirmarDescricao = async () => {
   formData.append('descricao', descricao.value.trim())
   formData.append('usuario', authStore.user?.name || 'Desconhecido')
   formData.append('clp', clpStore.clpText)
+  formData.append('socketId', $socket.id || '')
 
   try {
     await axios.post(`${config.API_BACKEND}/ftp/upload`, formData)
