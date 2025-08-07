@@ -79,19 +79,20 @@ export async function listarArquivoFtp(caminhoPreferencial: string): Promise<Arq
  */
 export async function enviarArquivoFtp(localPath: string, remotePath: string, socketId?: string): Promise<void> {
   const fullRemote = `ftp://${user}:${password}@${host}:${port}`;
-
   const io = getSocket();
   const tempLogPath = `/tmp/lftp_${Date.now()}.log`;
 
+  if (socketId) io.to(socketId).emit('ftp-started');
+
   const command = [
     `lftp -e "`,
-    `set net:timeout 300;`, // ⏱️ timeout de socket
-    `set net:max-retries 20;`, // 🔁 tenta 2 vezes se falhar
+    `set net:timeout 300;`,
+    `set net:max-retries 20;`,
     `set ftp:passive-mode true;`,
     `put -c "${localPath}" -o "${remotePath}";`,
-    `bye" `,
+    `bye"`,
     fullRemote,
-    `> ${tempLogPath} 2>&1`, // log de erro e saída
+    `> ${tempLogPath} 2>&1`,
   ].join(' ');
 
   logger.info(`[LFTP] Executando: ${command}`);
@@ -99,11 +100,8 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
   return new Promise((resolve, reject) => {
     const start = Date.now();
 
-    exec(command, async (error, stdout, stderr) => {
+    exec(command, async (error) => {
       const duration = Date.now() - start;
-
-      if (socketId) io.to(socketId).emit('ftp-progress', 100);
-      if (socketId) io.to(socketId).emit('ftp-finished');
 
       const log = await fs.readFile(tempLogPath, 'utf8').catch(() => '');
       await fs.unlink(tempLogPath).catch(() => {});
@@ -111,11 +109,13 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
       if (error) {
         logger.error(`[LFTP ERRO] Tempo: ${duration}ms`);
         logger.error(`[LFTP LOG]:\n${log}`);
+        if (socketId) io.to(socketId).emit('ftp-error', { duration, log });
         return reject(new Error(`Erro ao enviar via LFTP: ${error.message}`));
       }
 
       logger.info(`[LFTP SUCESSO] Tempo: ${duration}ms`);
       logger.info(`[LFTP LOG]:\n${log}`);
+      if (socketId) io.to(socketId).emit('ftp-finished', { duration, log });
       resolve();
     });
   });

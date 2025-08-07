@@ -1,6 +1,5 @@
-// stores/useClpStore.ts
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue' // ⬅️ adicionar computed
 import axios from 'axios'
 import { config } from '~/config/global.config'
 
@@ -14,18 +13,24 @@ export const useClpStore = defineStore('clpStore', () => {
   const clpIpAtual = ref('')
   const arquivosEmExecucao = ref<Arquivo[]>([])
 
-  // 1) Busca status do CLP atual
-  async function fetchStatus() {
-      try {
-        const { data } = await axios.get(`${config.API_BACKEND}/clp/status`)
-        clpText.value    = data.label
-        clpIpAtual.value = data.ip
-      } catch {
-        clpText.value = 'Erro ao atualizar status do CLP'
-      }
-    }
+  // ⚡️ novo estado para status do FTP
+  const ftpStatus = ref<'idle' | 'iniciando' | 'concluído' | 'erro'>('idle')
 
-  // 2) Busca lista de arquivos no CLP via FTP
+  // 🔧 função para mudar o status
+  function setFtpStatus(status: typeof ftpStatus.value) {
+    ftpStatus.value = status
+  }
+
+  async function fetchStatus() {
+    try {
+      const { data } = await axios.get(`${config.API_BACKEND}/clp/status`)
+      clpText.value = data.label
+      clpIpAtual.value = data.ip
+    } catch {
+      clpText.value = 'Erro ao atualizar status do CLP'
+    }
+  }
+
   async function fetchArquivosEmExecucao() {
     try {
       const { data } = await axios.get(`${config.API_BACKEND}/ftp/arquivo`, {
@@ -37,11 +42,11 @@ export const useClpStore = defineStore('clpStore', () => {
     }
   }
 
-  // método único que faz ambas as buscas
   async function atualizarCLPAtual() {
     await fetchStatus()
     await fetchArquivosEmExecucao()
   }
+
   const isUnknown = computed(() => clpIpAtual.value === '')
 
   return {
@@ -51,6 +56,10 @@ export const useClpStore = defineStore('clpStore', () => {
     isUnknown,
     fetchStatus,
     fetchArquivosEmExecucao,
-    atualizarCLPAtual
+    atualizarCLPAtual,
+    
+    // adicionando FTP
+    ftpStatus,
+    setFtpStatus
   }
 })

@@ -37,6 +37,20 @@ export default defineNuxtPlugin(() => {
     clpStore.clpText = clp
     clpStore.atualizarCLPAtual()
   })
+  // ... eventos CLP existentes
+  socket.on('ftp-started', () => {
+    clpStore.setFtpStatus('iniciando')
+  })
+
+  socket.on('ftp-finished', () => {
+    clpStore.setFtpStatus('concluído')
+  })
+
+  socket.on('ftp-error', (data) => {
+    console.error('Erro no upload FTP:', data.log)
+    clpStore.setFtpStatus('erro')
+  })
+
 
   return {
     provide: {
