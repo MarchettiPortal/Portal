@@ -66,7 +66,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
   setEnviandoArquivo(true, usuario);
 
   const localPath = file.path;
-  const remotePath = `${file.originalname}`;
+  const remotePath = garantirExtensao(file.originalname);
 
   try {
     await enviarArquivoFtpUniversal(localPath, remotePath, socketId);
@@ -182,7 +182,15 @@ router.get('/logs', async (req, res) => {
   }
 });
 
-
+/**
+ * 
+ * @param nome Nome do arquivo
+ * @param extensao Extensão que deve ser .CSV
+ * @returns Nome do arquivo concatenado com .CSV no final caso já não esteja
+ */
+function garantirExtensao(nome: string, extensao = '.csv') {
+  return nome.endsWith(extensao) ? nome : `${nome}${extensao}`;
+}
 
 
 export default router;
