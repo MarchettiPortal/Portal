@@ -19,10 +19,9 @@ export async function enviarArquivoFtpUniversal(
 
   // 🌐 Execução remota via proxy API (aponta para servidor Ubuntu)
   const formData = new FormData()
-  formData.append('localPath', localPath)
+  formData.append('arquivo', fs.createReadStream(localPath))
   formData.append('remotePath', remotePath)
   formData.append('socketId', socketId || '')
-  formData.append('arquivo', fs.createReadStream(localPath))
 
   await axios.post(
     'https://portalti.molasmarchetti.com.br/api/ftp/upload-proxy',
@@ -31,7 +30,7 @@ export async function enviarArquivoFtpUniversal(
       headers: {
         ...formData.getHeaders()
       },
-      timeout: 5 * 60 * 1000 // 5 minutos
+      timeout: 7 * 60 * 1000 // 7 minutos
     }
   )
 }
