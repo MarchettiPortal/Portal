@@ -86,9 +86,9 @@ export async function enviarArquivoFtp(localPath: string, remotePath: string, so
   const command = [
     `lftp -e "`,
     `set net:timeout 300;`, // ⏱️ timeout de socket
-    `set net:max-retries 2;`, // 🔁 tenta 2 vezes se falhar
+    `set net:max-retries 20;`, // 🔁 tenta 2 vezes se falhar
     `set ftp:passive-mode true;`,
-    `put "${localPath}" -o "${remotePath}";`,
+    `put -c "${localPath}" -o "${remotePath}";`,
     `bye" `,
     fullRemote,
     `> ${tempLogPath} 2>&1`, // log de erro e saída
