@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { getSocket } from '../../socket';
-import { enviarArquivoFtp, listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp  } from '../../services/FTP/FTP.Client.service'
+import { listarArquivoFtp, renomearArquivoFtp, excluirArquivoFtp  } from '../../services/FTP/FTP.Client.service'
+import { enviarArquivoFtpUniversal } from '../../services/FTP/FTP.EnviarArquivo.service';
 import { salvarLogFtpUpload, listarLogsFtp } from '../../services/FTP/FTP.LOG.service'
 import multer from 'multer';
 import { promises as fs } from 'fs';
 import { isReiniciando, usuarioReiniciando, isEnviandoArquivo, usuarioEnviando, setEnviandoArquivo } from '../../flags/wpsFTP';
+import { enviarArquivoFtp } from '../../services/FTP/FTP.Client.service'
+
 import { validate } from '../../middleware/validate';
 import { renameFileSchema, fileParamSchema } from '../../validators/ftp';
 import { logger } from '../../utils/logger';
@@ -13,6 +16,24 @@ import { logger } from '../../utils/logger';
 const upload = multer({ dest: 'uploads/' });
 const router = Router();
 
+router.post('/upload-proxy', upload.single('arquivo'), async (req, res) => {
+  const { remotePath, socketId } = req.body
+  const file = (req as any).file
+
+  if (!file){
+    res.status(400).json({ error: 'Arquivo ausente' })
+    return 
+  } 
+
+  try {
+    await enviarArquivoFtp(file.path, remotePath, socketId)
+    await fs.unlink(file.path)
+    res.json({ sucesso: true })
+  } catch (error: any) {
+    logger.error('[ERRO UPLOAD PROXY]', error)
+    res.status(500).json({ error: 'Erro interno no proxy', detalhes: error.message })
+  }
+})
 
 // *** FTP ***
 /**
@@ -47,7 +68,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
   const remotePath = `${file.originalname}`;
 
   try {
-    await enviarArquivoFtp(localPath, remotePath, socketId);
+    await enviarArquivoFtpUniversal(localPath, remotePath, socketId);
     
     await salvarLogFtpUpload({
       usuario,
