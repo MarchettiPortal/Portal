@@ -3,7 +3,6 @@ import { defineStore } from 'pinia';
 import { config } from '~/config/global.config';
 import type { GroupACL, User } from '~/types/auth';
 import axios from 'axios';
-import { getBackendURLFromHost } from '~/utils/env';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -29,7 +28,11 @@ export const useAuthStore = defineStore('auth', {
         // normaliza 'grupos' pra sempre ser string[]
         let grupos: string[] = []
         const raw = (res.data as any).grupos
-        if (Array.isArray(raw)) grupos = raw
+        if (Array.isArray(raw)) {
+          grupos = raw
+            .map((g: any) => typeof g === 'string' ? g : g?.nome)
+            .filter((g: unknown): g is string => typeof g === 'string' && g.trim() !== '')
+        }
         else if (typeof raw === 'string') grupos = raw.split(',').map(s => s.trim()).filter(Boolean)
 
         this.user = { id, name, email, grupos, photo: '' }

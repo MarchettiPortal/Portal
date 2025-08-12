@@ -9,10 +9,14 @@ export type Node = {
 
 export const sidebarTree: Node[] = [
 
-    { id: 'home', label: 'Home', icon: '', to: '/home'},
+    { id: 'home', label: 'Home', icon: 'material-symbols:home-rounded', to: '/home'},
 
     {
-        id: 'tiinfra', label: 'TI-Infraestrutura', icon: '', groups: ['TI - Infraestrutura'],
+        id: 'tiinfra', 
+        label: 'TI-Infraestrutura', 
+        icon: 'mdi:server', 
+        groups: ['TI - Infraestrutura'],
+
         children: [
             { id: 'procedimentos', label: 'Procedimentos', to: '/tiinfraestrutura/procedimentos', },
             { id: 'servicos', label: 'Serviços', to: '/tiinfraestrutura/servicos',  },
@@ -23,7 +27,7 @@ export const sidebarTree: Node[] = [
     },
 
     {
-        id: 'engenhariap', label: 'Engenharia de Produto', icon: '', groups: ['Engenharia de Produtos'],
+        id: 'engenhariap', label: 'Engenharia de Produto', icon: '', groups: ['Engenharia de Produtos', 'TI - Infraestrutura'],
         children: [
             { id: 'clp', label: 'CLP', to: '/engenhariadeproduto/clp', },
             { id: 'clplog', label: 'CLP Log', to: '/engenhariadeproduto/clp',  }
