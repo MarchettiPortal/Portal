@@ -1,3 +1,6 @@
+export type GroupACL = {
+  groups: string[]
+}
 export interface User {
   /** Identificador único (OID do Azure AD) */
   id: string;

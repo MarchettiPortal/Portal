@@ -145,7 +145,7 @@ router.get('/redirect', async (req: Request, res: Response) => {
     // Redireciona usuário autenticado para o frontend
     const hostHeader = req.headers.host || '';
     const frontendURL = getFrontendURLFromHost(hostHeader);
-    res.redirect(`${frontendURL}/login/login-success`);
+    res.redirect(`${frontendURL}/login-success`);
   } catch (error) {
     logger.error('Erro ao processar callback:', error);
     res.status(500).send('Erro ao completar login');

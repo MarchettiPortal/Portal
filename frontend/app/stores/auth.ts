@@ -1,7 +1,7 @@
 // stores/auth.ts
 import { defineStore } from 'pinia';
 import { config } from '~/config/global.config';
-import type { User } from '~/types/auth';
+import type { GroupACL, User } from '~/types/auth';
 import axios from 'axios';
 import { getBackendURLFromHost } from '~/utils/env';
 
@@ -10,29 +10,36 @@ export const useAuthStore = defineStore('auth', {
     user: null as User | null,
     loading: false,
   }),
-
+  getters: {
+    isLogged: (s) => !!s.user,
+    // ⚠️ sempre devolve array (mesmo que vazio)
+    acl: (s): GroupACL | null =>
+      s.user ? { groups: Array.isArray(s.user.grupos) ? s.user.grupos : [] } : null,
+  },
   actions: {
-    /** Busca os dados básicos do usuário e em seguida a foto */
     async fetchUser() {
-      this.loading = true;
+      this.loading = true
       try {
-        // GET /auth/me retorna { id, name, email, grupos: string[] }
         const res = await axios.get<User>('/auth/me', {
           baseURL: config.URL_BACKEND,
           withCredentials: true,
-        });
-        const { id, name, email, grupos } = res.data;
+        })
 
-        // inicializa o objeto user com photo vazia
-        this.user = { id, name, email, grupos, photo: '' };
+        const { id, name, email } = res.data as any
+        // normaliza 'grupos' pra sempre ser string[]
+        let grupos: string[] = []
+        const raw = (res.data as any).grupos
+        if (Array.isArray(raw)) grupos = raw
+        else if (typeof raw === 'string') grupos = raw.split(',').map(s => s.trim()).filter(Boolean)
 
-        // já busca a foto em seguida
-        await this.fetchUserPhoto();
+        this.user = { id, name, email, grupos, photo: '' }
+
+        await this.fetchUserPhoto()
       } catch (err) {
-        console.error('Erro ao buscar usuário:', err);
-        this.user = null;
+        console.error('Erro ao buscar usuário:', err)
+        this.user = null
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 

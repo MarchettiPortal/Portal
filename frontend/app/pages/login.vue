@@ -2,14 +2,16 @@
   <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr] h-screen">
     <!-- Lado da imagem -->
     <div class="relative h-full w-full overflow-hidden">
-  <img src="../assets/images/LoginImage.png" class="h-full w-full object-cover" />
+  <video autoplay muted loop playsinline class="w-full h-full object-cover">
+  <source src="/videos/LoginVideo.mp4" type="video/mp4" />
+</video>
   <div class="absolute inset-0 animated-gradient pointer-events-none mix-blend-screen opacity-30"></div>
 </div>
 
 
     <!-- Lado do login -->
     <div class="login-bg-animated bg-pattern flex flex-col items-center justify-center px-6">
-      <img src="../assets/images/LoginLogo.png" class="w-[250px] md:w-[350px] max-w-full mb-10 relative z-10" />
+      <img src="/images/LoginLogo.png" class="w-[250px] md:w-[350px] max-w-full mb-10 relative z-10" />
 
       <div class="bg-white/20 backdrop-blur-md rounded shadow-xl w-full max-w-sm px-6 py-8 flex flex-col items-center gap-4 relative z-10">
         <span class="text-lg font-semibold text-gray-800">Bem-vindo à plataforma Marchetti</span>
@@ -30,9 +32,14 @@
 <script setup lang="ts">
 import { config } from '~/config/global.config'
 
+
 const login = () => {
   window.location.href = config.AUTH_URL_BACKEND
 }
+
+definePageMeta({
+  layout: false 
+})
 
 </script>
 
@@ -75,16 +82,5 @@ const login = () => {
   }
 }
 
-.animated-gradient {
-  background: linear-gradient(45deg, #2e2b2b, #4e5957, #302e24, #552222);
-  background-size: 400% 400%;
-  animation: gradientFlow 15s ease infinite;
-}
-
-@keyframes gradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 
 </style>
