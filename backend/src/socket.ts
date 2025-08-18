@@ -1,35 +1,45 @@
+// src/socket.ts
 import { Server as IOServer } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import Redis from 'ioredis';
+import { getRedisPub, getRedisSub } from './config/Redis/redis.client';
 import { config } from './config/Global/global.config';
 
 let io: IOServer | null = null;
 
 export async function initSocket(server: any) {
+  if (io) return io; // evita inicializar duas vezes no mesmo processo
+
   io = new IOServer(server, {
     cors: {
-      origin: config.BASE_URL_PORTAL,
+      origin: config.BASE_URL_PORTAL, // pode ser string ou array
+      credentials: true,
     },
   });
 
-  // Somente usa Redis Adapter em produção
   if (process.env.NODE_ENV === 'production') {
-    const pubClient = new Redis({
-      host: '127.0.0.1',
-      port: 6379,
-      maxRetriesPerRequest: null, // evita crash
-    });
+    // Usa os singletons do seu módulo Redis
+    const pubClient = getRedisPub();
+    const subClient = getRedisSub();
 
-    const subClient = pubClient.duplicate();
-
-    // Trata erros para não quebrar app
+    // Tratamento de erros (não derruba o processo)
     pubClient.on('error', (err) => {
       console.error('[Redis Pub Error]', err);
     });
-
     subClient.on('error', (err) => {
       console.error('[Redis Sub Error]', err);
     });
+
+    // Aguarda clientes ficarem prontos antes de plugar o adapter (evita race)
+    await Promise.all([
+      new Promise<void>((resolve) => {
+        if ((pubClient as any).status === 'ready') return resolve();
+        pubClient.once('ready', () => resolve());
+      }),
+      new Promise<void>((resolve) => {
+        if ((subClient as any).status === 'ready') return resolve();
+        subClient.once('ready', () => resolve());
+      }),
+    ]);
 
     io.adapter(createAdapter(pubClient, subClient));
   }

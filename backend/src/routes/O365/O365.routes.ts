@@ -16,7 +16,12 @@ import {
 } from '../../controllers/O365/front.O365.controller';
 import { syncAllTeamsGroupsAndMembers } from '../../services/O365/SyncGroup.service';
 import { validate } from '../../middleware/validate';
-import { permissaoSchema, grupoPermissaoSchema, idParamSchema, campoParamSchema } from '../../validators/o365';
+import { 
+  permissaoSchema,
+  grupoPermissaoSchema,
+  idParamSchema, 
+  campoParamSchema,
+} from '../../validators/o365';
 import { logger } from '../../utils/logger'
 
 const router = Router();
@@ -58,11 +63,12 @@ router.put('/routesDB/:id', validate(idParamSchema, 'params'), validate(permissa
 router.delete('/routesDB/:id', validate(idParamSchema, 'params'), deletePermissao);
 
 
-/** Adiciona uma permissão ao grupo . */
+/** Adiciona uma permissão ao grupo. */
 router.post('/group-perms', validate(grupoPermissaoSchema), addGrupoPermissao); 
-/** Edita uma permissão do grupo . */
+/** Edita uma permissão do grupo. */
 router.put('/group-perms/:id', validate(idParamSchema, 'params'), validate(grupoPermissaoSchema), updateGrupoPermissao);
-/** Remove uma permissão do grupo . */
+/** Remove uma permissão do grupo. */
 router.delete('/group-perms/:id', validate(idParamSchema, 'params'), deleteGrupoPermissao);
+
 
 export default router;

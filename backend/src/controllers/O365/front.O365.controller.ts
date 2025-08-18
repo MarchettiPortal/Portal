@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as o365Repo from '../../repositories/o365.repository';
 import { logger } from '../../utils/logger';
 
+
 /**
  * Lista todos os usuários cadastrados no banco.
  */
@@ -144,3 +145,4 @@ export const deleteGrupoPermissao = async (req: Request, res: Response) => {
   await o365Repo.deleteGrupoPermissao(id);
   res.status(204).send();
 };
+

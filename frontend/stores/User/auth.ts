@@ -3,7 +3,6 @@ import { defineStore } from 'pinia';
 import { config } from '../../config/global.config';
 import type { User } from '~/types/auth';
 import axios from 'axios';
-import { getBackendURLFromHost } from '~/utils/env';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
